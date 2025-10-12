@@ -763,8 +763,8 @@
                 return;
             }
             
-            selectedDate = new Date(year, month, day);
-            selectedDate.setHours(0, 0, 0, 0);
+            // Cria a data no horário local (meio-dia para evitar problemas de timezone)
+            selectedDate = new Date(year, month, day, 12, 0, 0);
             selectedTime = null;
             renderCalendar();
             await loadBookedSlots();
@@ -773,7 +773,12 @@
 
         async function loadBookedSlots() {
             try {
-                const dateStr = selectedDate.toISOString().split('T')[0];
+                // Formata a data corretamente sem conversão de timezone
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+                
                 const { data, error } = await supabase
                     .from('bookings')
                     .select('booking_time, services(duration)')
@@ -946,7 +951,11 @@
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
                 
-                const dateStr = selectedDate.toISOString().split('T')[0];
+                // Formata a data corretamente sem conversão de timezone
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
                 
                 const { data: bookingData, error } = await supabase
                     .from('bookings')
