@@ -7,964 +7,166 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .form-group:focus-within label {
-            color: var(--lime);
-            transform: translateX(5px);
-        }* {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --dark-bg: #0a0a0a;
-            --dark-card: #1a1a1a;
-            --lime: #c4ff0d;
-            --lime-dark: #9fcc0a;
-            --text: #ffffff;
-            --text-muted: #888888;
+            --dark-bg: #0a0a0a; --dark-card: #1a1a1a; --lime: #c4ff0d; --lime-dark: #9fcc0a;
+            --text: #ffffff; --text-muted: #888888; --red: #ff4444; --green: #4caf50;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--dark-bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark-bg); color: var(--text); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
         /* Header */
-        header {
-            background: var(--dark-card);
-            box-shadow: 0 2px 10px rgba(196, 255, 13, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-cover {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-cover::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200"><path d="M0,100 Q300,20 600,100 T1200,100 L1200,200 L0,200 Z" fill="%23c4ff0d" opacity="0.1"/></svg>') no-repeat bottom;
-            background-size: cover;
-        }
-
-        .header-cover img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.4;
-        }
-
-        .header-content {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            max-width: 1200px;
-            margin: -60px auto 0;
-            padding: 0 20px 20px;
-            position: relative;
-        }
-
-        .barber-info {
-            display: flex;
-            align-items: flex-end;
-            gap: 20px;
-        }
-
-        .barber-photo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 5px solid var(--dark-card);
-            background: var(--dark-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            color: var(--lime);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            flex-shrink: 0;
-        }
-
-        .barber-photo img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .barber-details {
-            padding-bottom: 10px;
-        }
-
-        .barber-details h1 {
-            font-size: 32px;
-            color: var(--lime);
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .barber-meta {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-top: 8px;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .status-badge.open {
-            color: #4caf50;
-            border: 2px solid #4caf50;
-        }
-
-        .status-badge.closed {
-            color: #ff4444;
-            border: 2px solid #ff4444;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .status-badge.open .status-dot {
-            background: #4caf50;
-        }
-
-        .status-badge.closed .status-dot {
-            background: #ff4444;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .location-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: var(--lime);
-            background: rgba(196, 255, 13, 0.1);
-            border: 2px solid var(--lime);
-        }
-
-        .logout-btn {
-            background: transparent;
-            border: 2px solid var(--lime);
-            color: var(--lime);
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.4s;
-            display: none;
-            height: fit-content;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logout-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--lime);
-            transition: left 0.4s;
-            z-index: 0;
-        }
-
-        .logout-btn:hover::before {
-            left: 0;
-        }
-
-        .logout-btn:hover {
-            color: var(--dark-bg);
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.4);
-        }
-
-        .logout-btn i, .logout-btn span {
-            position: relative;
-            z-index: 1;
-        }
-
+        header { background: var(--dark-card); box-shadow: 0 2px 10px rgba(196, 255, 13, 0.1); position: relative; overflow: hidden; }
+        .header-cover { width: 100%; height: 200px; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); position: relative; overflow: hidden; }
+        .header-cover::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200"><path d="M0,100 Q300,20 600,100 T1200,100 L1200,200 L0,200 Z" fill="%23c4ff0d" opacity="0.1"/></svg>') no-repeat bottom; background-size: cover; }
+        .header-cover img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+        .header-content { display: flex; align-items: flex-end; justify-content: space-between; max-width: 1200px; margin: -60px auto 0; padding: 0 20px 20px; position: relative; }
+        .barber-info { display: flex; align-items: flex-end; gap: 20px; }
+        .barber-photo { width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--dark-card); background: var(--dark-bg); display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--lime); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5); flex-shrink: 0; }
+        .barber-photo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .barber-details { padding-bottom: 10px; }
+        .barber-details h1 { font-size: 32px; color: var(--lime); margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+        .barber-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; background: rgba(0, 0, 0, 0.3); }
+        .status-badge.open { color: #4caf50; border: 2px solid #4caf50; }
+        .status-badge.closed { color: #ff4444; border: 2px solid #ff4444; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
+        .status-badge.open .status-dot { background: #4caf50; }
+        .status-badge.closed .status-dot { background: #ff4444; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .location-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; color: var(--lime); background: rgba(196, 255, 13, 0.1); border: 2px solid var(--lime); }
+        .logout-btn { background: transparent; border: 2px solid var(--lime); color: var(--lime); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.4s; display: none; height: fit-content; position: relative; overflow: hidden; }
+        .logout-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--lime); transition: left 0.4s; z-index: 0; }
+        .logout-btn:hover::before { left: 0; }
+        .logout-btn:hover { color: var(--dark-bg); transform: scale(1.05); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.4); }
+        .logout-btn i, .logout-btn span { position: relative; z-index: 1; }
+        
         /* Auth Screen */
-        .auth-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: calc(100vh - 100px);
-        }
-
-        .auth-card {
-            background: var(--dark-card);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 30px rgba(196, 255, 13, 0.2);
-            width: 100%;
-            max-width: 450px;
-        }
-
-        .auth-card h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--lime);
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: var(--dark-bg);
-            border: 2px solid #333;
-            border-radius: 5px;
-            color: var(--text);
-            font-size: 16px;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--lime);
-            box-shadow: 0 0 15px rgba(196, 255, 13, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            animation: fadeInUp 0.5s;
-            animation-fill-mode: both;
-        }
-
+        .auth-screen { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 100px); }
+        .auth-card { background: var(--dark-card); padding: 40px; border-radius: 15px; box-shadow: 0 5px 30px rgba(196, 255, 13, 0.2); width: 100%; max-width: 450px; }
+        .auth-card h2 { text-align: center; margin-bottom: 30px; color: var(--lime); }
+        .form-group { margin-bottom: 20px; animation: fadeInUp 0.5s; animation-fill-mode: both; }
         .form-group:nth-child(1) { animation-delay: 0.1s; }
         .form-group:nth-child(2) { animation-delay: 0.2s; }
         .form-group:nth-child(3) { animation-delay: 0.3s; }
         .form-group:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--lime);
-            color: var(--dark-bg);
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3);
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn:hover {
-            background: var(--lime-dark);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3);
-        }
-
-        .btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .auth-toggle {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-muted);
-        }
-
-        .auth-toggle button {
-            background: transparent;
-            border: none;
-            color: var(--lime);
-            cursor: pointer;
-            text-decoration: underline;
-            font-size: 14px;
-            transition: all 0.3s;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-
-        .auth-toggle button:hover {
-            background: rgba(196, 255, 13, 0.1);
-            transform: scale(1.05);
-            text-decoration: none;
-        }
-
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; transition: all 0.3s; }
+        .form-group:focus-within label { color: var(--lime); transform: translateX(5px); }
+        .form-group input { width: 100%; padding: 12px; background: var(--dark-bg); border: 2px solid #333; border-radius: 5px; color: var(--text); font-size: 16px; transition: all 0.3s; position: relative; }
+        .form-group input:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 15px rgba(196, 255, 13, 0.3); transform: translateY(-2px); }
+        .btn { width: 100%; padding: 15px; background: var(--lime); color: var(--dark-bg); border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); }
+        .btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
+        .btn:hover::before { width: 300px; height: 300px; }
+        .btn:hover { background: var(--lime-dark); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); }
+        .btn:active { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); }
+        .btn span { position: relative; z-index: 1; }
+        .auth-toggle { text-align: center; margin-top: 20px; color: var(--text-muted); }
+        .auth-toggle button { background: transparent; border: none; color: var(--lime); cursor: pointer; text-decoration: underline; font-size: 14px; transition: all 0.3s; padding: 5px 10px; border-radius: 3px; }
+        .auth-toggle button:hover { background: rgba(196, 255, 13, 0.1); transform: scale(1.05); text-decoration: none; }
+        
         /* Main App */
-        .main-app {
-            display: none;
-            padding: 40px 20px;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background: var(--dark-card);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(196, 255, 13, 0.03), transparent);
-            animation: cardGlow 15s infinite;
-        }
-
-        @keyframes cardGlow {
-            0%, 100% {
-                transform: translate(0, 0);
-            }
-            50% {
-                transform: translate(-20%, -20%);
-            }
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(196, 255, 13, 0.2);
-        }
-
-        .card h3 {
-            color: var(--lime);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .service-item {
-            background: var(--dark-bg);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .service-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(196, 255, 13, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .service-item:hover::before {
-            left: 100%;
-        }
-
-        .service-item:hover {
-            border-color: var(--lime);
-            transform: translateX(5px) scale(1.02);
-            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2);
-        }
-
-        .service-item.selected {
-            border-color: var(--lime);
-            background: rgba(196, 255, 13, 0.1);
-            transform: scale(1.03);
-            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.3);
-        }
-
-        .service-item.selected::after {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: var(--lime);
-            font-size: 20px;
-            animation: checkmark 0.5s;
-        }
-
-        @keyframes checkmark {
-            0% {
-                transform: scale(0) rotate(-45deg);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.2) rotate(10deg);
-            }
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        .service-info h4 {
-            margin-bottom: 5px;
-        }
-
-        .service-info p {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        .service-price {
-            color: var(--lime);
-            font-size: 20px;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(196, 255, 13, 0.5);
-            animation: priceGlow 2s infinite;
-        }
-
-        @keyframes priceGlow {
-            0%, 100% {
-                text-shadow: 0 0 10px rgba(196, 255, 13, 0.5);
-            }
-            50% {
-                text-shadow: 0 0 20px rgba(196, 255, 13, 0.8);
-            }
-        }
-
-        /* Efeito Ripple */
-        .ripple {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ripple::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .ripple:active::after {
-            width: 300px;
-            height: 300px;
-            transition: 0s;
-        }
-
+        .main-app { display: none; padding: 40px 20px; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        .card { background: var(--dark-card); padding: 30px; border-radius: 15px; box-shadow: 0 3px 20px rgba(0, 0, 0, 0.3); transition: all 0.3s; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(196, 255, 13, 0.03), transparent); animation: cardGlow 15s infinite; }
+        @keyframes cardGlow { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20%, -20%); } }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(196, 255, 13, 0.2); }
+        .card h3 { color: var(--lime); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        /* My Bookings */
+        .my-bookings { grid-column: 1 / -1; }
+        .bookings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
+        .booking-card { background: var(--dark-bg); padding: 20px; border-radius: 10px; border-left: 4px solid var(--lime); transition: all 0.3s; }
+        .booking-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2); }
+        .booking-card.cancelled { border-left-color: var(--red); opacity: 0.7; }
+        .booking-card.completed { border-left-color: var(--text-muted); opacity: 0.7; }
+        .booking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .booking-header h4 { color: var(--lime); font-size: 18px; }
+        .booking-badge { padding: 4px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .booking-badge.confirmed { background: var(--green); color: white; }
+        .booking-badge.cancelled { background: var(--red); color: white; }
+        .booking-badge.completed { background: var(--text-muted); color: white; }
+        .booking-info p { color: var(--text-muted); font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+        .booking-info p i { color: var(--lime); width: 16px; }
+        .booking-actions { margin-top: 15px; display: flex; gap: 10px; }
+        .booking-actions button { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s; }
+        .btn-cancel-booking { background: var(--red); color: white; }
+        .btn-cancel-booking:hover { background: #cc0000; transform: translateY(-2px); }
+        
+        .service-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 2px solid transparent; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .service-item::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(196, 255, 13, 0.1), transparent); transition: left 0.5s; }
+        .service-item:hover::before { left: 100%; }
+        .service-item:hover { border-color: var(--lime); transform: translateX(5px) scale(1.02); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2); }
+        .service-item.selected { border-color: var(--lime); background: rgba(196, 255, 13, 0.1); transform: scale(1.03); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.3); }
+        .service-item.selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 10px; right: 10px; color: var(--lime); font-size: 20px; animation: checkmark 0.5s; }
+        @keyframes checkmark { 0% { transform: scale(0) rotate(-45deg); opacity: 0; } 50% { transform: scale(1.2) rotate(10deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .service-info h4 { margin-bottom: 5px; }
+        .service-info p { color: var(--text-muted); font-size: 14px; }
+        .service-price { color: var(--lime); font-size: 20px; font-weight: bold; text-shadow: 0 0 10px rgba(196, 255, 13, 0.5); animation: priceGlow 2s infinite; }
+        @keyframes priceGlow { 0%, 100% { text-shadow: 0 0 10px rgba(196, 255, 13, 0.5); } 50% { text-shadow: 0 0 20px rgba(196, 255, 13, 0.8); } }
+        
         /* Calendar */
-        .calendar {
-            margin-top: 20px;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-header button {
-            background: var(--dark-bg);
-            border: 2px solid var(--lime);
-            color: var(--lime);
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .calendar-header button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: var(--lime);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s, height 0.4s;
-        }
-
-        .calendar-header button:hover::before {
-            width: 200px;
-            height: 200px;
-        }
-
-        .calendar-header button:hover {
-            color: var(--dark-bg);
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3);
-        }
-
-        .calendar-header button i {
-            position: relative;
-            z-index: 1;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            background: var(--dark-bg);
-            border: 2px solid #333;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            font-size: 14px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .calendar-day::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(196, 255, 13, 0.2), transparent);
-            transform: scale(0);
-            transition: transform 0.4s;
-        }
-
-        .calendar-day:hover:not(.disabled)::before {
-            transform: scale(1);
-        }
-
-        .calendar-day:hover:not(.disabled) {
-            border-color: var(--lime);
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3);
-            z-index: 10;
-        }
-
-        .calendar-day.selected {
-            background: var(--lime);
-            color: var(--dark-bg);
-            border-color: var(--lime);
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5);
-            animation: selectDay 0.5s;
-        }
-
-        @keyframes selectDay {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.15);
-            }
-            100% {
-                transform: scale(1.05);
-            }
-        }
-
-        .calendar-day.disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .calendar-day.today {
-            border-color: var(--lime);
-            box-shadow: 0 0 15px rgba(196, 255, 13, 0.4);
-        }
-
-        .time-slots {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .time-slot {
-            background: var(--dark-bg);
-            border: 2px solid #333;
-            padding: 12px;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .time-slot::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 0;
-            background: var(--lime);
-            transition: height 0.3s;
-            z-index: 0;
-        }
-
-        .time-slot:hover:not(.disabled)::before {
-            height: 100%;
-        }
-
-        .time-slot:hover:not(.disabled) {
-            border-color: var(--lime);
-            color: var(--dark-bg);
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.4);
-        }
-
-        .time-slot span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .time-slot.selected {
-            background: var(--lime);
-            color: var(--dark-bg);
-            border-color: var(--lime);
-            transform: scale(1.08);
-            box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5);
-            animation: selectTime 0.5s;
-        }
-
-        @keyframes selectTime {
-            0%, 100% {
-                transform: scale(1.08);
-            }
-            50% {
-                transform: scale(1.15);
-            }
-        }
-
-        .time-slot.disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            text-decoration: line-through;
-        }
-
-        .confirm-booking {
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(196, 255, 13, 0.1);
-            border: 2px solid var(--lime);
-            border-radius: 10px;
-            animation: slideInUp 0.5s;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .confirm-booking h4 {
-            color: var(--lime);
-            margin-bottom: 15px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        .booking-summary {
-            margin-bottom: 15px;
-            line-height: 1.8;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Modal/Popup */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background: var(--dark-card);
-            padding: 40px;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            border: 3px solid var(--lime);
-            box-shadow: 0 10px 50px rgba(196, 255, 13, 0.3);
-            animation: slideUp 0.3s;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-icon {
-            font-size: 64px;
-            color: var(--lime);
-            margin-bottom: 20px;
-            animation: scaleIn 0.5s;
-        }
-
-        @keyframes scaleIn {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        .modal-content h2 {
-            color: var(--lime);
-            margin-bottom: 20px;
-            font-size: 28px;
-        }
-
-        .modal-details {
-            background: var(--dark-bg);
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .modal-details p {
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 16px;
-        }
-
-        .modal-details strong {
-            color: var(--lime);
-            min-width: 100px;
-        }
-
-        .modal-close-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--lime);
-            color: var(--dark-bg);
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .modal-close-btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .modal-close-btn:hover::after {
-            width: 400px;
-            height: 400px;
-        }
-
-        .modal-close-btn:hover {
-            background: var(--lime-dark);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5);
-        }
-
-        .modal-close-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .modal-close-btn i {
-            position: relative;
-            z-index: 1;
-            margin-right: 8px;
-        }
-
+        .calendar { margin-top: 20px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-header button { background: var(--dark-bg); border: 2px solid var(--lime); color: var(--lime); padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+        .calendar-header button::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: var(--lime); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.4s, height 0.4s; }
+        .calendar-header button:hover::before { width: 200px; height: 200px; }
+        .calendar-header button:hover { color: var(--dark-bg); transform: scale(1.1); box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3); }
+        .calendar-header button i { position: relative; z-index: 1; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; }
+        .calendar-day { aspect-ratio: 1; background: var(--dark-bg); border: 2px solid #333; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-size: 14px; position: relative; overflow: hidden; }
+        .calendar-day::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(196, 255, 13, 0.2), transparent); transform: scale(0); transition: transform 0.4s; }
+        .calendar-day:hover:not(.disabled)::before { transform: scale(1); }
+        .calendar-day:hover:not(.disabled) { border-color: var(--lime); transform: scale(1.1); box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3); z-index: 10; }
+        .calendar-day.selected { background: var(--lime); color: var(--dark-bg); border-color: var(--lime); transform: scale(1.05); box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5); animation: selectDay 0.5s; }
+        @keyframes selectDay { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1.05); } }
+        .calendar-day.disabled { opacity: 0.3; cursor: not-allowed; }
+        .calendar-day.today { border-color: var(--lime); box-shadow: 0 0 15px rgba(196, 255, 13, 0.4); }
+        .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 20px; }
+        .time-slot { background: var(--dark-bg); border: 2px solid #333; padding: 12px; border-radius: 5px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .time-slot::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0; background: var(--lime); transition: height 0.3s; z-index: 0; }
+        .time-slot:hover:not(.disabled)::before { height: 100%; }
+        .time-slot:hover:not(.disabled) { border-color: var(--lime); color: var(--dark-bg); transform: translateY(-3px) scale(1.05); box-shadow: 0 5px 15px rgba(196, 255, 13, 0.4); }
+        .time-slot span { position: relative; z-index: 1; }
+        .time-slot.selected { background: var(--lime); color: var(--dark-bg); border-color: var(--lime); transform: scale(1.08); box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5); animation: selectTime 0.5s; }
+        @keyframes selectTime { 0%, 100% { transform: scale(1.08); } 50% { transform: scale(1.15); } }
+        .time-slot.disabled { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+        .confirm-booking { margin-top: 30px; padding: 20px; background: rgba(196, 255, 13, 0.1); border: 2px solid var(--lime); border-radius: 10px; animation: slideInUp 0.5s; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .confirm-booking h4 { color: var(--lime); margin-bottom: 15px; animation: pulse 2s infinite; }
+        .booking-summary { margin-bottom: 15px; line-height: 1.8; }
+        .hidden { display: none !important; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content { background: var(--dark-card); padding: 40px; border-radius: 15px; max-width: 500px; width: 90%; text-align: center; border: 3px solid var(--lime); box-shadow: 0 10px 50px rgba(196, 255, 13, 0.3); animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-icon { font-size: 64px; color: var(--lime); margin-bottom: 20px; animation: scaleIn 0.5s; }
+        @keyframes scaleIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .modal-content h2 { color: var(--lime); margin-bottom: 20px; font-size: 28px; }
+        .modal-details { background: var(--dark-bg); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left; }
+        .modal-details p { margin: 10px 0; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        .modal-details strong { color: var(--lime); min-width: 100px; }
+        .modal-close-btn { width: 100%; padding: 15px; background: var(--lime); color: var(--dark-bg); border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin-top: 10px; position: relative; overflow: hidden; }
+        .modal-close-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
+        .modal-close-btn:hover::after { width: 400px; height: 400px; }
+        .modal-close-btn:hover { background: var(--lime-dark); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); }
+        .modal-close-btn:active { transform: translateY(-1px); }
+        .modal-close-btn i { position: relative; z-index: 1; margin-right: 8px; }
+        
         @media (max-width: 768px) {
-            .header-cover {
-                height: 150px;
-            }
-
-            .barber-photo {
-                width: 100px;
-                height: 100px;
-                font-size: 40px;
-            }
-
-            .barber-details h1 {
-                font-size: 24px;
-            }
-
-            .header-content {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-                margin-top: -50px;
-            }
-
-            .barber-info {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .barber-meta {
-                justify-content: center;
-            }
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .calendar-grid {
-                gap: 5px;
-            }
-            
-            .calendar-day {
-                font-size: 12px;
-            }
+            .header-cover { height: 150px; }
+            .barber-photo { width: 100px; height: 100px; font-size: 40px; }
+            .barber-details h1 { font-size: 24px; }
+            .header-content { flex-direction: column; align-items: center; gap: 15px; margin-top: -50px; }
+            .barber-info { flex-direction: column; align-items: center; text-align: center; }
+            .barber-meta { justify-content: center; }
+            .dashboard { grid-template-columns: 1fr; }
+            .calendar-grid { gap: 5px; }
+            .calendar-day { font-size: 12px; }
+            .bookings-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -998,7 +200,6 @@
         </div>
     </header>
 
-    <!-- Auth Screen -->
     <div class="auth-screen" id="authScreen">
         <div class="auth-card">
             <h2 id="authTitle">Login</h2>
@@ -1019,7 +220,7 @@
                     <label for="password">Senha</label>
                     <input type="password" id="password" placeholder="Digite sua senha" required>
                 </div>
-                <button type="submit" class="btn ripple" id="authBtn">Entrar</button>
+                <button type="submit" class="btn ripple" id="authBtn"><span>Entrar</span></button>
                 <div class="auth-toggle">
                     <span id="toggleText">Não tem conta?</span>
                     <button type="button" id="toggleAuth">Cadastre-se</button>
@@ -1028,8 +229,15 @@
         </div>
     </div>
 
-    <!-- Main App -->
     <div class="main-app container" id="mainApp">
+        <!-- Meus Agendamentos -->
+        <div class="card my-bookings">
+            <h3><i class="fas fa-calendar-check"></i> Meus Agendamentos</h3>
+            <div class="bookings-grid" id="myBookingsGrid">
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Carregando...</p>
+            </div>
+        </div>
+
         <div class="dashboard">
             <div class="card">
                 <h3><i class="fas fa-cut"></i> Escolha o Serviço</h3>
@@ -1051,13 +259,12 @@
                 <div class="confirm-booking hidden" id="confirmBooking">
                     <h4><i class="fas fa-check-circle"></i> Confirmar Agendamento</h4>
                     <div class="booking-summary" id="bookingSummary"></div>
-                    <button class="btn ripple" id="confirmBtn">Confirmar Agendamento</button>
+                    <button class="btn ripple" id="confirmBtn"><span>Confirmar Agendamento</span></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
     <div class="modal-overlay hidden" id="confirmationModal">
         <div class="modal-content">
             <div class="modal-icon">
@@ -1075,12 +282,11 @@
     </div>
 
     <script>
-        // Supabase Configuration
         const SUPABASE_URL = 'https://syrlmjrbecidbpvofiqa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmxtanJiZWNpZGJwdm9maXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMzE0NDQsImV4cCI6MjA3NTgwNzQ0NH0.80whwN7m1YbwuZ8WLzek-ctWd9KNn97EwUQRzOMAnak';
+        const WEBHOOK_URL = 'https://n8n-n8n.rthuab.easypanel.host/webhook/barbearia';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // State
         let isLogin = true;
         let currentUser = null;
         let currentDate = new Date();
@@ -1089,12 +295,9 @@
         let selectedTime = null;
         let services = [];
         let bookedSlots = [];
-        let workingDays = [0, 1, 2, 3, 4, 5, 6];
-        let openTime = '09:00';
-        let closeTime = '18:00';
+        let scheduleConfig = {};
         let intervalTime = 30;
 
-        // DOM Elements
         const authScreen = document.getElementById('authScreen');
         const mainApp = document.getElementById('mainApp');
         const authForm = document.getElementById('authForm');
@@ -1106,58 +309,70 @@
         const authBtn = document.getElementById('authBtn');
         const toggleText = document.getElementById('toggleText');
 
-        // Update Status Badge
         function updateStatusBadge() {
             const statusBadge = document.getElementById('statusBadge');
             const statusText = document.getElementById('statusText');
             const now = new Date();
-            const currentTime = now.getHours() * 60 + now.getMinutes();
-            const [openHour, openMin] = openTime.split(':').map(Number);
-            const [closeHour, closeMin] = closeTime.split(':').map(Number);
-            const openMinutes = openHour * 60 + openMin;
-            const closeMinutes = closeHour * 60 + closeMin;
             const currentDay = now.getDay();
-
-            const isWorkingDay = workingDays.includes(currentDay);
-            const isOpen = isWorkingDay && currentTime >= openMinutes && currentTime < closeMinutes;
-
-            if (isOpen) {
-                statusBadge.classList.remove('closed');
-                statusBadge.classList.add('open');
-                statusText.textContent = `Aberto • ${openTime} - ${closeTime}`;
-            } else {
+            
+            if (!scheduleConfig[currentDay] || !scheduleConfig[currentDay].active) {
                 statusBadge.classList.remove('open');
                 statusBadge.classList.add('closed');
-                if (isWorkingDay) {
-                    if (currentTime < openMinutes) {
-                        statusText.textContent = `Fechado • Abre às ${openTime}`;
-                    } else {
-                        statusText.textContent = `Fechado • Abre amanhã`;
-                    }
+                statusText.textContent = 'Fechado • Não abre hoje';
+                return;
+            }
+
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            let isOpen = false;
+            let nextPeriod = null;
+
+            for (let period of scheduleConfig[currentDay].periods) {
+                const [startHour, startMin] = period.start.split(':').map(Number);
+                const [endHour, endMin] = period.end.split(':').map(Number);
+                const startMinutes = startHour * 60 + startMin;
+                const endMinutes = endHour * 60 + endMin;
+
+                if (currentTime >= startMinutes && currentTime < endMinutes) {
+                    isOpen = true;
+                    statusBadge.classList.remove('closed');
+                    statusBadge.classList.add('open');
+                    statusText.textContent = `Aberto • ${period.start} - ${period.end}`;
+                    return;
+                }
+
+                if (currentTime < startMinutes && !nextPeriod) {
+                    nextPeriod = period;
+                }
+            }
+
+            if (!isOpen) {
+                statusBadge.classList.remove('open');
+                statusBadge.classList.add('closed');
+                if (nextPeriod) {
+                    statusText.textContent = `Fechado • Abre às ${nextPeriod.start}`;
                 } else {
-                    statusText.textContent = 'Fechado • Não abre hoje';
+                    statusText.textContent = 'Fechado • Abre amanhã';
                 }
             }
         }
 
-        // Close Modal
         function closeModal() {
             document.getElementById('confirmationModal').classList.add('hidden');
+            loadMyBookings();
         }
 
-        // Auth Toggle
         toggleAuth.addEventListener('click', () => {
             isLogin = !isLogin;
             if (isLogin) {
                 authTitle.textContent = 'Login';
-                authBtn.textContent = 'Entrar';
+                authBtn.innerHTML = '<span>Entrar</span>';
                 toggleText.textContent = 'Não tem conta?';
                 toggleAuth.textContent = 'Cadastre-se';
                 nameGroup.classList.add('hidden');
                 phoneGroup.classList.add('hidden');
             } else {
                 authTitle.textContent = 'Cadastro';
-                authBtn.textContent = 'Cadastrar';
+                authBtn.innerHTML = '<span>Cadastrar</span>';
                 toggleText.textContent = 'Já tem conta?';
                 toggleAuth.textContent = 'Fazer login';
                 nameGroup.classList.remove('hidden');
@@ -1165,7 +380,6 @@
             }
         });
 
-        // Auth Form Submit
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -1209,7 +423,6 @@
 
                     if (error) throw error;
 
-                    // Inserir na tabela users
                     if (data.user) {
                         const { error: insertError } = await supabase
                             .from('users')
@@ -1224,7 +437,6 @@
                             console.error('Erro ao inserir usuário:', insertError);
                         }
 
-                        // Login automático após cadastro
                         currentUser = data.user;
                         alert('Cadastro realizado com sucesso!');
                         showApp();
@@ -1235,7 +447,6 @@
             }
         });
 
-        // Logout
         logoutBtn.addEventListener('click', async () => {
             await supabase.auth.signOut();
             currentUser = null;
@@ -1251,28 +462,23 @@
             logoutBtn.style.display = 'block';
             await loadSettings();
             await loadServices();
+            await loadMyBookings();
             renderCalendar();
             updateStatusBadge();
-            // Atualizar status a cada minuto
             setInterval(updateStatusBadge, 60000);
         }
 
-        // Load Settings
         async function loadSettings() {
             try {
                 const { data } = await supabase
                     .from('settings')
                     .select('*')
-                    .in('key', ['working_days', 'open_time', 'close_time', 'interval_time']);
+                    .in('key', ['schedule_config', 'interval_time']);
 
                 if (data) {
                     data.forEach(setting => {
-                        if (setting.key === 'working_days') {
-                            workingDays = JSON.parse(setting.value);
-                        } else if (setting.key === 'open_time') {
-                            openTime = setting.value;
-                        } else if (setting.key === 'close_time') {
-                            closeTime = setting.value;
+                        if (setting.key === 'schedule_config') {
+                            scheduleConfig = JSON.parse(setting.value);
                         } else if (setting.key === 'interval_time') {
                             intervalTime = parseInt(setting.value);
                         }
@@ -1284,7 +490,73 @@
             }
         }
 
-        // Load Services
+        async function loadMyBookings() {
+            try {
+                const { data, error } = await supabase
+                    .from('bookings')
+                    .select('*, services(name, price, duration)')
+                    .eq('user_id', currentUser.id)
+                    .order('booking_date', { ascending: false })
+                    .order('booking_time', { ascending: false });
+
+                if (error) throw error;
+
+                const container = document.getElementById('myBookingsGrid');
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Você ainda não tem agendamentos</p>';
+                    return;
+                }
+
+                container.innerHTML = data.map(booking => `
+                    <div class="booking-card ${booking.status}">
+                        <div class="booking-header">
+                            <h4><i class="fas fa-scissors"></i> ${booking.services?.name || 'Serviço'}</h4>
+                            <span class="booking-badge ${booking.status}">
+                                ${booking.status === 'confirmed' ? 'Confirmado' : 
+                                  booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
+                            </span>
+                        </div>
+                        <div class="booking-info">
+                            <p><i class="fas fa-calendar"></i> ${new Date(booking.booking_date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                            <p><i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
+                            <p><i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0} minutos</p>
+                            <p><i class="fas fa-money-bill-wave"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
+                        </div>
+                        ${booking.status === 'confirmed' ? `
+                            <div class="booking-actions">
+                                <button class="btn-cancel-booking" onclick="cancelBooking('${booking.id}')">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Erro ao carregar agendamentos:', error);
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('bookings')
+                    .update({ status: 'cancelled' })
+                    .eq('id', bookingId);
+
+                if (error) throw error;
+
+                alert('Agendamento cancelado com sucesso!');
+                loadMyBookings();
+            } catch (error) {
+                alert('Erro ao cancelar agendamento: ' + error.message);
+            }
+        }
+
         async function loadServices() {
             try {
                 const { data, error } = await supabase
@@ -1330,7 +602,6 @@
             document.getElementById('confirmBooking').classList.add('hidden');
         }
 
-        // Calendar
         function renderCalendar() {
             const monthYear = document.getElementById('currentMonth');
             const grid = document.getElementById('calendarGrid');
@@ -1355,7 +626,7 @@
                 const date = new Date(year, month, day);
                 const dayOfWeek = date.getDay();
                 const isPast = date < today;
-                const isWorkingDay = workingDays.includes(dayOfWeek);
+                const isWorkingDay = scheduleConfig[dayOfWeek]?.active || false;
                 const isToday = date.toDateString() === new Date().toDateString();
                 const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
                 const isDisabled = isPast || !isWorkingDay;
@@ -1398,16 +669,13 @@
 
                 if (error) throw error;
 
-                // Calcular todos os horários bloqueados considerando a duração
                 bookedSlots = [];
                 data.forEach(booking => {
                     const startTime = booking.booking_time.substring(0, 5);
                     const duration = booking.services?.duration || 30;
                     
-                    // Adicionar o horário inicial
                     bookedSlots.push(startTime);
                     
-                    // Adicionar horários intermediários bloqueados
                     const [hour, minute] = startTime.split(':').map(Number);
                     let currentMinutes = hour * 60 + minute + intervalTime;
                     const endMinutes = hour * 60 + minute + duration;
@@ -1444,7 +712,7 @@
                     ${slots.map(slot => `
                         <div class="time-slot ${slot.isBooked ? 'disabled' : ''} ${selectedTime === slot.time ? 'selected' : ''}"
                              onclick="${!slot.isBooked ? `selectTime('${slot.time}')` : ''}">
-                            ${slot.time}
+                            <span>${slot.time}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -1453,51 +721,54 @@
 
         function generateTimeSlots() {
             const slots = [];
-            const [openHour, openMin] = openTime.split(':').map(Number);
-            const [closeHour, closeMin] = closeTime.split(':').map(Number);
-            
-            let currentMinutes = openHour * 60 + openMin;
-            const endMinutes = closeHour * 60 + closeMin;
-            
-            while (currentMinutes < endMinutes) {
-                const hour = Math.floor(currentMinutes / 60);
-                const minute = currentMinutes % 60;
-                const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+            const dayOfWeek = selectedDate.getDay();
+            const dayConfig = scheduleConfig[dayOfWeek];
+
+            if (!dayConfig || !dayConfig.active) return slots;
+
+            for (let period of dayConfig.periods) {
+                const [openHour, openMin] = period.start.split(':').map(Number);
+                const [closeHour, closeMin] = period.end.split(':').map(Number);
                 
-                // Verificar se o horário está bloqueado
-                let isBlocked = bookedSlots.includes(time);
+                let currentMinutes = openHour * 60 + openMin;
+                const endMinutes = closeHour * 60 + closeMin;
                 
-                // Verificar se o serviço selecionado cabe neste horário
-                // (não conflita com agendamentos futuros)
-                if (!isBlocked && selectedService) {
-                    const serviceDuration = selectedService.duration;
-                    let checkMinutes = currentMinutes + intervalTime;
-                    const serviceEndMinutes = currentMinutes + serviceDuration;
+                while (currentMinutes < endMinutes) {
+                    const hour = Math.floor(currentMinutes / 60);
+                    const minute = currentMinutes % 60;
+                    const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                     
-                    while (checkMinutes < serviceEndMinutes) {
-                        const h = Math.floor(checkMinutes / 60);
-                        const m = checkMinutes % 60;
-                        const checkTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                    let isBlocked = bookedSlots.includes(time);
+                    
+                    if (!isBlocked && selectedService) {
+                        const serviceDuration = selectedService.duration;
+                        let checkMinutes = currentMinutes + intervalTime;
+                        const serviceEndMinutes = currentMinutes + serviceDuration;
                         
-                        if (bookedSlots.includes(checkTime)) {
-                            isBlocked = true;
-                            break;
+                        while (checkMinutes < serviceEndMinutes) {
+                            const h = Math.floor(checkMinutes / 60);
+                            const m = checkMinutes % 60;
+                            const checkTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                            
+                            if (bookedSlots.includes(checkTime)) {
+                                isBlocked = true;
+                                break;
+                            }
+                            checkMinutes += intervalTime;
                         }
-                        checkMinutes += intervalTime;
+                        
+                        if (serviceEndMinutes > endMinutes) {
+                            isBlocked = true;
+                        }
                     }
                     
-                    // Verificar se o serviço termina depois do horário de fechamento
-                    if (serviceEndMinutes > endMinutes) {
-                        isBlocked = true;
-                    }
+                    slots.push({
+                        time: time,
+                        isBooked: isBlocked
+                    });
+                    
+                    currentMinutes += intervalTime;
                 }
-                
-                slots.push({
-                    time: time,
-                    isBooked: isBlocked
-                });
-                
-                currentMinutes += intervalTime;
             }
             
             return slots;
@@ -1528,7 +799,7 @@
             try {
                 const dateStr = selectedDate.toISOString().split('T')[0];
                 
-                const { error } = await supabase
+                const { data: bookingData, error } = await supabase
                     .from('bookings')
                     .insert([{
                         user_id: currentUser.id,
@@ -1536,11 +807,42 @@
                         booking_date: dateStr,
                         booking_time: selectedTime,
                         status: 'confirmed'
-                    }]);
+                    }])
+                    .select('*, services(name, price, duration)')
+                    .single();
 
                 if (error) throw error;
 
-                // Mostrar modal de confirmação
+                // Enviar webhook para n8n
+                try {
+                    const { data: userData } = await supabase
+                        .from('users')
+                        .select('full_name, phone, email')
+                        .eq('id', currentUser.id)
+                        .single();
+
+                    await fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            booking_id: bookingData.id,
+                            customer_name: userData?.full_name || 'Cliente',
+                            customer_email: userData?.email || '',
+                            customer_phone: userData?.phone || '',
+                            service_name: selectedService.name,
+                            service_price: selectedService.price,
+                            service_duration: selectedService.duration,
+                            booking_date: selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+                            booking_time: selectedTime,
+                            status: 'confirmed'
+                        })
+                    });
+                } catch (webhookError) {
+                    console.error('Erro ao enviar webhook:', webhookError);
+                }
+
                 const modal = document.getElementById('confirmationModal');
                 const modalDetails = document.getElementById('modalDetails');
                 
@@ -1582,7 +884,6 @@
             }
         });
 
-        // Calendar navigation
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendar();
@@ -1593,13 +894,12 @@
             renderCalendar();
         });
 
-        // Check authentication
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
                 currentUser = session.user;
                 showApp();
             } else {
-                // Atualizar status mesmo sem login
+                loadSettings();
                 updateStatusBadge();
             }
         });
@@ -1616,7 +916,6 @@
             }
         });
 
-        // Carregar configurações iniciais para o status
         loadSettings();
     </script>
 </body>
