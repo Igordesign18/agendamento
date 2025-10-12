@@ -640,7 +640,9 @@
         }
 
         async function loadDashboard() {
-            // Carrega automaticamente os agendamentos na primeira vez
+            // Marca a seção de agendamentos como carregada e carrega os dados
+            const bookingsSection = document.getElementById('bookingsSection');
+            bookingsSection.dataset.loaded = 'true';
             loadBookings();
         }
 
