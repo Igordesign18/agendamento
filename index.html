@@ -420,6 +420,31 @@
                     if (error) throw error;
 
                     currentUser = data.user;
+                    
+                    // Verifica se o usuário existe na tabela users
+                    const { data: userData, error: userError } = await supabase
+                        .from('users')
+                        .select('id')
+                        .eq('id', currentUser.id)
+                        .single();
+                    
+                    if (userError || !userData) {
+                        // Se não existir, cria o registro
+                        console.log('Criando registro de usuário na tabela users...');
+                        const { error: insertError } = await supabase
+                            .from('users')
+                            .insert([{
+                                id: currentUser.id,
+                                email: currentUser.email,
+                                full_name: currentUser.user_metadata?.full_name || email.split('@')[0],
+                                phone: currentUser.user_metadata?.phone || ''
+                            }]);
+                        
+                        if (insertError) {
+                            console.error('Erro ao criar registro:', insertError);
+                        }
+                    }
+                    
                     showApp();
                 } catch (error) {
                     alert('Erro ao fazer login: ' + error.message);
@@ -460,17 +485,50 @@
                     if (error) throw error;
 
                     if (data.user) {
-                        const { error: insertError } = await supabase
-                            .from('users')
-                            .insert([{
-                                id: data.user.id,
-                                email: email,
-                                full_name: fullName,
-                                phone: phone
-                            }]);
+                        // Tentar inserir na tabela users com retry
+                        let retries = 3;
+                        let insertSuccess = false;
+                        
+                        while (retries > 0 && !insertSuccess) {
+                            try {
+                                // Primeiro verifica se já existe
+                                const { data: existingUser } = await supabase
+                                    .from('users')
+                                    .select('id')
+                                    .eq('id', data.user.id)
+                                    .single();
+                                
+                                if (!existingUser) {
+                                    // Insere se não existir
+                                    const { error: insertError } = await supabase
+                                        .from('users')
+                                        .insert([{
+                                            id: data.user.id,
+                                            email: email,
+                                            full_name: fullName,
+                                            phone: phone
+                                        }]);
 
-                        if (insertError) {
-                            console.error('Erro ao inserir usuário:', insertError);
+                                    if (insertError) {
+                                        console.error('Tentativa de inserir usuário falhou:', insertError);
+                                        retries--;
+                                        if (retries > 0) {
+                                            await new Promise(resolve => setTimeout(resolve, 1000)); // Aguarda 1 segundo
+                                            continue;
+                                        }
+                                        throw insertError;
+                                    }
+                                }
+                                
+                                insertSuccess = true;
+                            } catch (err) {
+                                if (retries === 1) {
+                                    console.error('Erro ao inserir usuário após todas as tentativas:', err);
+                                    throw new Error('Não foi possível completar o cadastro. Tente fazer login.');
+                                }
+                                retries--;
+                                await new Promise(resolve => setTimeout(resolve, 1000));
+                            }
                         }
 
                         currentUser = data.user;
@@ -479,6 +537,8 @@
                     }
                 } catch (error) {
                     alert('Erro ao cadastrar: ' + error.message);
+                    // Se falhou, faz logout para limpar
+                    await supabase.auth.signOut();
                 } finally {
                     authBtn.disabled = false;
                     authBtn.innerHTML = '<span>Cadastrar</span>';
@@ -856,6 +916,36 @@
             btn.innerHTML = '<span><i class="fas fa-spinner fa-spin"></i> Confirmando...</span>';
             
             try {
+                // Verifica se o usuário existe na tabela users
+                const { data: userData, error: userError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (userError || !userData) {
+                    // Se não existir, tenta criar
+                    console.log('Usuário não encontrado na tabela users, criando...');
+                    
+                    const { data: authUser } = await supabase.auth.getUser();
+                    
+                    const { error: insertError } = await supabase
+                        .from('users')
+                        .insert([{
+                            id: currentUser.id,
+                            email: authUser.user.email,
+                            full_name: authUser.user.user_metadata?.full_name || 'Usuário',
+                            phone: authUser.user.user_metadata?.phone || ''
+                        }]);
+                    
+                    if (insertError) {
+                        throw new Error('Erro ao criar perfil de usuário. Tente fazer logout e login novamente.');
+                    }
+                    
+                    // Aguarda um pouco para garantir que foi criado
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
                 const dateStr = selectedDate.toISOString().split('T')[0];
                 
                 const { data: bookingData, error } = await supabase
@@ -874,7 +964,7 @@
 
                 // Enviar webhook para n8n
                 try {
-                    const { data: userData } = await supabase
+                    const { data: userDataFull } = await supabase
                         .from('users')
                         .select('full_name, phone, email')
                         .eq('id', currentUser.id)
@@ -887,9 +977,9 @@
                         },
                         body: JSON.stringify({
                             booking_id: bookingData.id,
-                            customer_name: userData?.full_name || 'Cliente',
-                            customer_email: userData?.email || '',
-                            customer_phone: userData?.phone || '',
+                            customer_name: userDataFull?.full_name || 'Cliente',
+                            customer_email: userDataFull?.email || '',
+                            customer_phone: userDataFull?.phone || '',
                             service_name: selectedService.name,
                             service_price: selectedService.price,
                             service_duration: selectedService.duration,
@@ -945,6 +1035,7 @@
                 renderCalendar();
             } catch (error) {
                 alert('Erro ao confirmar agendamento: ' + error.message);
+                console.error('Erro completo:', error);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Confirmar Agendamento</span>';
