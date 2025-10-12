@@ -538,14 +538,14 @@
         }
 
         async function cancelBooking(bookingId) {
-            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) {
+            if (!confirm('Tem certeza que deseja cancelar este agendamento? Ele será removido permanentemente.')) {
                 return;
             }
 
             try {
                 const { error } = await supabase
                     .from('bookings')
-                    .update({ status: 'cancelled' })
+                    .delete()
                     .eq('id', bookingId);
 
                 if (error) throw error;
