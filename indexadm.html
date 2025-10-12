@@ -53,6 +53,90 @@
             50% { background-position: 100% 50%; }
         }
         
+        /* Login Screen */
+        .login-screen { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .login-card { 
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 50px rgba(196, 255, 13, 0.2), 0 0 100px rgba(196, 255, 13, 0.05);
+            width: 100%; 
+            max-width: 420px;
+            border: 1px solid rgba(196, 255, 13, 0.2);
+        }
+        .login-card h2 { 
+            text-align: center; 
+            margin-bottom: 12px; 
+            color: var(--lime);
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .login-card p { 
+            text-align: center; 
+            color: var(--text-muted); 
+            margin-bottom: 35px;
+            font-size: 14px;
+        }
+        .form-group { 
+            margin-bottom: 24px;
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 10px; 
+            color: var(--text-muted); 
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .form-group input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            background: var(--dark-bg); 
+            border: 2px solid #333; 
+            border-radius: 8px; 
+            color: var(--text); 
+            font-size: 15px; 
+            transition: all 0.3s;
+        }
+        .form-group input:focus { 
+            outline: none; 
+            border-color: var(--lime);
+            box-shadow: 0 0 0 3px rgba(196, 255, 13, 0.1);
+        }
+        .btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, var(--lime) 0%, var(--lime-dark) 100%);
+            color: var(--dark-bg); 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.4);
+        }
+        .btn:disabled { 
+            opacity: 0.6; 
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         /* Sidebar */
         .sidebar {
             position: fixed;
@@ -474,6 +558,34 @@
             opacity: 0.1;
         }
         
+        /* Charts */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: linear-gradient(135deg, var(--dark-card) 0%, rgba(26, 26, 26, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            padding: 28px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(196, 255, 13, 0.1);
+        }
+        .chart-card h3 {
+            color: var(--lime);
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
         /* Cards */
         .card {
             background: linear-gradient(135deg, var(--dark-card) 0%, rgba(26, 26, 26, 0.95) 100%);
@@ -503,6 +615,91 @@
             font-size: 60px;
             margin-bottom: 20px;
             opacity: 0.3;
+        }
+        
+        .btn-secondary { 
+            background: var(--dark-bg); 
+            color: var(--lime); 
+            border: 2px solid var(--lime);
+        }
+        
+        .booking-item { 
+            background: var(--dark-bg); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 4px solid var(--lime);
+            transition: all 0.3s;
+        }
+        .booking-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.1);
+        }
+        .booking-info h4 { 
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .booking-info p { 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            margin-top: 6px;
+        }
+        .booking-status { 
+            padding: 6px 16px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .status-confirmed { 
+            background: var(--green); 
+            color: white;
+        }
+        .status-cancelled { 
+            background: var(--red); 
+            color: white;
+        }
+        .status-completed { 
+            background: var(--text-muted); 
+            color: white;
+        }
+        
+        .service-item { 
+            background: var(--dark-bg); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 4px solid var(--lime);
+            transition: all 0.3s;
+        }
+        
+        .filter-section { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+            flex-wrap: wrap;
+        }
+        .filter-section select, .filter-section input { 
+            flex: 1; 
+            min-width: 200px;
+            padding: 12px 16px; 
+            background: var(--dark-bg); 
+            border: 2px solid #333; 
+            border-radius: 8px; 
+            color: var(--text); 
+            font-size: 15px; 
+            transition: all 0.3s;
+        }
+        
+        .hidden { 
+            display: none !important;
         }
         
         /* Mobile Overlay */
@@ -538,6 +735,12 @@
         }
         
         /* Responsive */
+        @media (max-width: 1400px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         @media (max-width: 1024px) {
             :root {
                 --sidebar-width: 260px;
@@ -588,6 +791,10 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -595,8 +802,37 @@
     <div class="bg-animation"></div>
     <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileSidebar()"></div>
     
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <h2><i class="fas fa-shield-halved"></i> Acesso Administrativo</h2>
+            <p>Entre com suas credenciais de administrador</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="adminEmail" required placeholder="admin@barbearia.com">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword"><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="adminPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Entrar no Sistema</span>
+                </button>
+            </form>
+            <div style="text-align: center; margin-top: 25px; padding-top: 25px; border-top: 1px solid #333;">
+                <a href="index.html" 
+                   style="color: var(--lime); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; transition: all 0.3s;">
+                    <i class="fas fa-user-circle" style="font-size: 20px;"></i>
+                    <span>Acessar Área do Cliente</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
     <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar hidden" id="sidebar">
         <div class="sidebar-toggle" onclick="toggleSidebar()">
             <i class="fas fa-chevron-left"></i>
         </div>
@@ -639,18 +875,6 @@
                 <i class="fas fa-clock"></i>
                 <span>Horários</span>
             </a>
-            
-            <div class="menu-section-title">Configurações</div>
-            
-            <a href="#relatorios" class="menu-item" data-section="relatorios">
-                <i class="fas fa-file-chart"></i>
-                <span>Relatórios</span>
-            </a>
-            
-            <a href="#configuracoes" class="menu-item" data-section="configuracoes">
-                <i class="fas fa-cog"></i>
-                <span>Configurações</span>
-            </a>
         </nav>
         
         <div class="sidebar-logout" onclick="logout()">
@@ -660,7 +884,7 @@
     </aside>
     
     <!-- Main Content -->
-    <div class="main-wrapper">
+    <div class="main-wrapper hidden" id="mainContent">
         <header class="top-header">
             <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">
                 <i class="fas fa-bars"></i>
@@ -674,7 +898,7 @@
             <div class="header-actions">
                 <div class="header-user">
                     <div class="header-user-avatar">
-                        <i class="fas fa-user"></i>
+                        <i class="fas fa-user-shield"></i>
                     </div>
                     <div class="header-user-info">
                         <span>Administrador</span>
@@ -691,30 +915,37 @@
                     <div class="stat-card">
                         <i class="fas fa-calendar-check icon"></i>
                         <h3>Agendamentos Hoje</h3>
-                        <div class="value">12</div>
+                        <div class="value" id="todayBookings">0</div>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-dollar-sign icon"></i>
                         <h3>Faturamento Hoje</h3>
-                        <div class="value">R$ 850</div>
+                        <div class="value" id="todayRevenue">R$ 0</div>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-users icon"></i>
                         <h3>Total Clientes</h3>
-                        <div class="value">247</div>
+                        <div class="value" id="totalClients">0</div>
                     </div>
                     <div class="stat-card">
-                        <i class="fas fa-star icon"></i>
-                        <h3>Avaliação Média</h3>
-                        <div class="value">4.8</div>
+                        <i class="fas fa-check-circle icon"></i>
+                        <h3>Concluídos Hoje</h3>
+                        <div class="value" id="todayCompleted">0</div>
                     </div>
                 </div>
                 
-                <div class="card">
-                    <h3><i class="fas fa-chart-bar"></i> Análise Rápida</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-chart-line"></i>
-                        <p>Gráficos e análises serão exibidos aqui</p>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-line"></i> Agendamentos da Semana</h3>
+                        <div class="chart-container">
+                            <canvas id="weekChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie"></i> Status dos Agendamentos</h3>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -723,9 +954,23 @@
             <section id="agendamentos" class="content-section">
                 <div class="card">
                     <h3><i class="fas fa-calendar-alt"></i> Gerenciar Agendamentos</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-calendar-check"></i>
-                        <p>Lista de agendamentos será exibida aqui</p>
+                    <div class="filter-section">
+                        <select id="filterStatus">
+                            <option value="all">Todos os Status</option>
+                            <option value="confirmed">Confirmados</option>
+                            <option value="completed">Concluídos</option>
+                            <option value="cancelled">Cancelados</option>
+                        </select>
+                        <input type="date" id="filterDate">
+                        <button class="btn btn-secondary" onclick="loadBookings()">
+                            <i class="fas fa-search"></i> Filtrar
+                        </button>
+                    </div>
+                    <div id="bookingsTable">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando agendamentos...</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -733,10 +978,31 @@
             <!-- Serviços Section -->
             <section id="servicos" class="content-section">
                 <div class="card">
-                    <h3><i class="fas fa-cut"></i> Gerenciar Serviços</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-scissors"></i>
-                        <p>Lista de serviços será exibida aqui</p>
+                    <h3><i class="fas fa-cut"></i> Adicionar Novo Serviço</h3>
+                    <div class="form-group">
+                        <label>Nome do Serviço</label>
+                        <input type="text" id="serviceName" placeholder="Ex: Corte + Barba">
+                    </div>
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" id="servicePrice" placeholder="25.00" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Duração (minutos)</label>
+                        <input type="number" id="serviceDuration" placeholder="40" min="15" step="15">
+                    </div>
+                    <button class="btn" onclick="addService()">
+                        <i class="fas fa-plus"></i> Adicionar Serviço
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-list"></i> Serviços Cadastrados</h3>
+                    <div id="servicesList">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando serviços...</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -745,9 +1011,17 @@
             <section id="clientes" class="content-section">
                 <div class="card">
                     <h3><i class="fas fa-users"></i> Gerenciar Clientes</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-user-friends"></i>
-                        <p>Lista de clientes será exibida aqui</p>
+                    <div class="filter-section">
+                        <input type="text" id="filterClientName" placeholder="Buscar por nome...">
+                        <button class="btn btn-secondary" onclick="loadClients()">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                    <div id="clientsList">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando clientes...</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -755,32 +1029,10 @@
             <!-- Horários Section -->
             <section id="horarios" class="content-section">
                 <div class="card">
-                    <h3><i class="fas fa-clock"></i> Configurar Horários</h3>
+                    <h3><i class="fas fa-clock"></i> Configurar Horários de Funcionamento</h3>
                     <div class="empty-state">
                         <i class="fas fa-business-time"></i>
-                        <p>Configuração de horários de funcionamento</p>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Relatórios Section -->
-            <section id="relatorios" class="content-section">
-                <div class="card">
-                    <h3><i class="fas fa-file-chart"></i> Relatórios</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-chart-pie"></i>
-                        <p>Relatórios detalhados do sistema</p>
-                    </div>
-                </div>
-            </section>
-            
-            <!-- Configurações Section -->
-            <section id="configuracoes" class="content-section">
-                <div class="card">
-                    <h3><i class="fas fa-cog"></i> Configurações do Sistema</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-sliders-h"></i>
-                        <p>Configurações gerais da barbearia</p>
+                        <p>Em breve: Configuração de horários personalizados</p>
                     </div>
                 </div>
             </section>
@@ -788,6 +1040,55 @@
     </div>
     
     <script>
+        const SUPABASE_URL = 'https://syrlmjrbecidbpvofiqa.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmxtanJiZWNpZGJwdm9maXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMzE0NDQsImV4cCI6MjA3NTgwNzQ0NH0.80whwN7m1YbwuZ8WLzek-ctWd9KNn97EwUQRzOMAnak';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let currentAdmin = null;
+        let charts = {};
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Entrando...</span>';
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: document.getElementById('adminEmail').value,
+                    password: document.getElementById('adminPassword').value
+                });
+                
+                if (error) throw error;
+                
+                currentAdmin = data.user;
+                showAdminPanel();
+            } catch (error) {
+                alert('Erro ao fazer login: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span>Entrar no Sistema</span>';
+            }
+        });
+
+        function showAdminPanel() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            loadDashboard();
+        }
+
+        function logout() {
+            if (confirm('Deseja realmente sair do sistema?')) {
+                supabase.auth.signOut();
+                currentAdmin = null;
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('sidebar').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('hidden');
+            }
+        }
+
         // Sidebar Toggle
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -800,7 +1101,7 @@
                 icon.className = 'fas fa-chevron-left';
             }
         }
-        
+
         // Mobile Sidebar
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -809,69 +1110,376 @@
             sidebar.classList.toggle('mobile-open');
             overlay.classList.toggle('active');
         }
-        
+
         // Navigation
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 
-                // Remove active from all items
                 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                 item.classList.add('active');
                 
-                // Hide all sections
                 document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
                 
-                // Show selected section
                 const sectionId = item.dataset.section;
                 document.getElementById(sectionId).classList.add('active');
                 
-                // Update header title
                 const titles = {
                     'dashboard': { title: 'Dashboard', subtitle: 'Visão geral do sistema' },
                     'agendamentos': { title: 'Agendamentos', subtitle: 'Gerencie todos os agendamentos' },
                     'servicos': { title: 'Serviços', subtitle: 'Gerencie os serviços oferecidos' },
                     'clientes': { title: 'Clientes', subtitle: 'Gerencie sua base de clientes' },
-                    'horarios': { title: 'Horários', subtitle: 'Configure os horários de funcionamento' },
-                    'relatorios': { title: 'Relatórios', subtitle: 'Análises e estatísticas detalhadas' },
-                    'configuracoes': { title: 'Configurações', subtitle: 'Ajustes gerais do sistema' }
+                    'horarios': { title: 'Horários', subtitle: 'Configure os horários de funcionamento' }
                 };
                 
                 document.getElementById('pageTitle').textContent = titles[sectionId].title;
                 document.getElementById('pageSubtitle').textContent = titles[sectionId].subtitle;
                 
-                // Close mobile menu
                 if (window.innerWidth <= 768) {
                     toggleMobileSidebar();
                 }
+                
+                // Load data based on section
+                if (sectionId === 'agendamentos') loadBookings();
+                if (sectionId === 'servicos') loadServices();
+                if (sectionId === 'clientes') loadClients();
             });
         });
-        
-        // Logout
-        function logout() {
-            if (confirm('Deseja realmente sair do sistema?')) {
-                alert('Desconectando...');
-                // Adicione aqui a lógica de logout
+
+        async function loadDashboard() {
+            await Promise.all([
+                loadStats(),
+                loadBookings(),
+                loadServices(),
+                loadClients(),
+                loadCharts()
+            ]);
+        }
+
+        async function loadStats() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Agendamentos de hoje
+                const { data: todayData } = await supabase
+                    .from('bookings')
+                    .select('*, services(price)')
+                    .eq('booking_date', today);
+                
+                const todayBookings = todayData?.length || 0;
+                const todayCompleted = todayData?.filter(b => b.status === 'completed').length || 0;
+                const todayRevenue = todayData?.reduce((sum, b) => sum + (b.services?.price || 0), 0) || 0;
+                
+                document.getElementById('todayBookings').textContent = todayBookings;
+                document.getElementById('todayCompleted').textContent = todayCompleted;
+                document.getElementById('todayRevenue').textContent = `R$ ${todayRevenue.toFixed(2)}`;
+                
+                // Total de clientes
+                const { count } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+                
+                document.getElementById('totalClients').textContent = count || 0;
+                
+                // Atualizar badge
+                const confirmedToday = todayData?.filter(b => b.status === 'confirmed').length || 0;
+                document.getElementById('newBookingsBadge').textContent = confirmedToday;
+                
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
             }
         }
-        
-        // Update badge example
-        function updateBadge() {
-            const badge = document.getElementById('newBookingsBadge');
-            // Simulação - substitua com dados reais
-            const newBookings = Math.floor(Math.random() * 10);
-            badge.textContent = newBookings;
+
+        async function loadCharts() {
+            try {
+                // Últimos 7 dias
+                const dates = [];
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    dates.push(date.toISOString().split('T')[0]);
+                }
+                
+                const { data: weekData } = await supabase
+                    .from('bookings')
+                    .select('booking_date')
+                    .gte('booking_date', dates[0])
+                    .lte('booking_date', dates[6]);
+                
+                const countsPerDay = dates.map(date => {
+                    return weekData?.filter(b => b.booking_date === date).length || 0;
+                });
+                
+                const labels = dates.map(date => {
+                    const d = new Date(date + 'T12:00:00');
+                    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                });
+                
+                // Gráfico de linha
+                const ctxWeek = document.getElementById('weekChart');
+                if (charts.week) charts.week.destroy();
+                
+                charts.week = new Chart(ctxWeek, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Agendamentos',
+                            data: countsPerDay,
+                            borderColor: '#c4ff0d',
+                            backgroundColor: 'rgba(196, 255, 13, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#888', stepSize: 1 },
+                                grid: { color: 'rgba(136, 136, 136, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#888' },
+                                grid: { color: 'rgba(136, 136, 136, 0.1)' }
+                            }
+                        }
+                    }
+                });
+                
+                // Gráfico de status
+                const { data: allBookings } = await supabase
+                    .from('bookings')
+                    .select('status');
+                
+                const confirmed = allBookings?.filter(b => b.status === 'confirmed').length || 0;
+                const completed = allBookings?.filter(b => b.status === 'completed').length || 0;
+                const cancelled = allBookings?.filter(b => b.status === 'cancelled').length || 0;
+                
+                const ctxStatus = document.getElementById('statusChart');
+                if (charts.status) charts.status.destroy();
+                
+                charts.status = new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Confirmados', 'Concluídos', 'Cancelados'],
+                        datasets: [{
+                            data: [confirmed, completed, cancelled],
+                            backgroundColor: ['#4caf50', '#c4ff0d', '#ff4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#fff', padding: 15 }
+                            }
+                        }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar gráficos:', error);
+            }
+        }
+
+        async function loadBookings() {
+            const container = document.getElementById('bookingsTable');
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>';
             
-            if (newBookings === 0) {
-                badge.style.display = 'none';
-            } else {
-                badge.style.display = 'block';
+            try {
+                const filterStatus = document.getElementById('filterStatus').value;
+                const filterDate = document.getElementById('filterDate').value;
+                
+                let query = supabase.from('bookings')
+                    .select('*, users(full_name, phone, email), services(name, price, duration)')
+                    .order('booking_date', { ascending: false })
+                    .order('booking_time', { ascending: false });
+                
+                if (filterStatus !== 'all') query = query.eq('status', filterStatus);
+                if (filterDate) query = query.eq('booking_date', filterDate);
+                
+                const { data, error } = await query;
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>Nenhum agendamento encontrado</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(booking => {
+                    const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR');
+                    return `<div class="booking-item">
+                        <div class="booking-info">
+                            <h4><i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}</h4>
+                            <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
+                            <p><i class="fas fa-phone"></i> ${booking.users?.phone || 'N/A'} • <i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span class="booking-status status-${booking.status}">
+                                ${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
+                            </span>
+                        </div>
+                    </div>`;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Erro ao carregar agendamentos:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar</p></div>';
             }
         }
-        
-        // Initialize
-        updateBadge();
-        setInterval(updateBadge, 30000); // Atualiza a cada 30 segundos
+
+        async function loadServices() {
+            const container = document.getElementById('servicesList');
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('services')
+                    .select('*')
+                    .order('id', { ascending: true });
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-cut"></i><p>Nenhum serviço cadastrado</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(service => `
+                    <div class="service-item">
+                        <div>
+                            <h4>${service.name}</h4>
+                            <p>R$ ${service.price.toFixed(2)} • ${service.duration} minutos</p>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erro ao carregar serviços:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar</p></div>';
+            }
+        }
+
+        async function addService() {
+            const name = document.getElementById('serviceName').value.trim();
+            const price = parseFloat(document.getElementById('servicePrice').value);
+            const duration = parseInt(document.getElementById('serviceDuration').value);
+            
+            if (!name || name.length < 3) {
+                alert('Nome do serviço inválido!');
+                return;
+            }
+            if (!price || price <= 0) {
+                alert('Preço inválido!');
+                return;
+            }
+            if (!duration || duration < 15) {
+                alert('Duração mínima: 15 minutos!');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('services')
+                    .insert([{ name, price, duration }]);
+                
+                if (error) throw error;
+                
+                alert('✅ Serviço adicionado com sucesso!');
+                document.getElementById('serviceName').value = '';
+                document.getElementById('servicePrice').value = '';
+                document.getElementById('serviceDuration').value = '';
+                loadServices();
+            } catch (error) {
+                alert('Erro ao adicionar serviço: ' + error.message);
+            }
+        }
+
+        async function loadClients() {
+            const container = document.getElementById('clientsList');
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>';
+            
+            try {
+                const filterName = document.getElementById('filterClientName').value.toLowerCase();
+                
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('id, full_name, email, phone, created_at')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                let filteredUsers = data;
+                if (filterName) {
+                    filteredUsers = data.filter(user => 
+                        user.full_name?.toLowerCase().includes(filterName)
+                    );
+                }
+                
+                if (!filteredUsers || filteredUsers.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum cliente encontrado</p></div>';
+                    return;
+                }
+                
+                const clientsWithStats = await Promise.all(filteredUsers.map(async (user) => {
+                    const { data: bookings } = await supabase
+                        .from('bookings')
+                        .select('id, status')
+                        .eq('user_id', user.id);
+                    
+                    const totalBookings = bookings?.length || 0;
+                    const completedBookings = bookings?.filter(b => b.status === 'completed').length || 0;
+                    
+                    return { ...user, totalBookings, completedBookings };
+                }));
+                
+                container.innerHTML = clientsWithStats.map(client => {
+                    const memberSince = new Date(client.created_at).toLocaleDateString('pt-BR');
+                    return `<div class="service-item">
+                        <div>
+                            <h4><i class="fas fa-user"></i> ${client.full_name || 'Nome não informado'}</h4>
+                            <p><i class="fas fa-envelope"></i> ${client.email} • <i class="fas fa-phone"></i> ${client.phone || 'N/A'}</p>
+                            <p style="margin-top: 8px; color: var(--text-muted); font-size: 13px;">
+                                <i class="fas fa-calendar-check"></i> ${client.totalBookings} agendamentos • 
+                                <i class="fas fa-check-circle"></i> ${client.completedBookings} concluídos • 
+                                <i class="fas fa-user-clock"></i> Cliente desde ${memberSince}
+                            </p>
+                        </div>
+                    </div>`;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar</p></div>';
+            }
+        }
+
+        // Check session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                currentAdmin = session.user;
+                showAdminPanel();
+            }
+        });
+
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                currentAdmin = session.user;
+                showAdminPanel();
+            } else if (event === 'SIGNED_OUT') {
+                logout();
+            }
+        });
     </script>
 </body>
 </html>
