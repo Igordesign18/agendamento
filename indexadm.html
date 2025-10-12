@@ -286,7 +286,7 @@
                             <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
                             <div class="booking-actions">
                                 ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
-                                <button class="btn-cancel" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
+                                <button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
                             </div>
                         </div>
                     </div>
@@ -306,6 +306,22 @@
                 loadStats();
             } catch (error) {
                 alert('Erro ao atualizar status: ' + error.message);
+            }
+        }
+
+        async function deleteBooking(bookingId) {
+            if (!confirm('Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!')) {
+                return;
+            }
+            try {
+                const { error } = await supabase.from('bookings').delete().eq('id', bookingId);
+                if (error) throw error;
+                alert('Agendamento excluído com sucesso!');
+                loadBookings();
+                loadStats();
+            } catch (error) {
+                alert('Erro ao excluir agendamento: ' + error.message);
+                console.error('Erro completo:', error);
             }
         }
 
