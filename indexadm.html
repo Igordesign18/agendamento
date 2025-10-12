@@ -296,13 +296,13 @@
 
         <!-- Gerenciar Agendamentos -->
         <div class="dashboard-toggle-container">
-            <button class="dashboard-toggle-btn" onclick="toggleSection('bookingsSection')">
+            <button class="dashboard-toggle-btn active" onclick="toggleSection('bookingsSection')">
                 <span><i class="fas fa-calendar-alt"></i> Gerenciar Agendamentos</span>
                 <i class="fas fa-chevron-down"></i>
             </button>
         </div>
 
-        <div class="dashboard-container" id="bookingsSection">
+        <div class="dashboard-container active" id="bookingsSection">
             <div class="content-grid">
                 <div class="card full-width">
                     <div class="filter-section">
@@ -640,8 +640,8 @@
         }
 
         async function loadDashboard() {
-            // Remove o carregamento automático de todas as seções
-            // Cada seção será carregada quando o usuário expandir
+            // Carrega automaticamente os agendamentos na primeira vez
+            loadBookings();
         }
 
         async function loadStats(customStart = null, customEnd = null) {
