@@ -220,9 +220,9 @@
                 </div>
                 <div class="form-group hidden" id="phoneGroup">
                     <label for="phone">Telefone (WhatsApp)</label>
-                    <input type="tel" id="phone" placeholder="(88) 99999-9999" maxlength="15">
+                    <input type="tel" id="phone" placeholder="+55 (88) 99999-9999" maxlength="19">
                     <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
-                        Formato: (DDD) 9XXXX-XXXX
+                        Formato: +55 (DDD) 9XXXX-XXXX - 11 dígitos obrigatórios
                     </small>
                 </div>
                 <div class="form-group">
@@ -239,7 +239,6 @@
     </div>
 
     <div class="main-app container" id="mainApp">
-        <!-- Meus Agendamentos -->
         <div class="card my-bookings">
             <h3><i class="fas fa-calendar-check"></i> Meus Agendamentos</h3>
             <div class="bookings-grid" id="myBookingsGrid">
@@ -319,9 +318,12 @@
         const toggleText = document.getElementById('toggleText');
         const phoneInput = document.getElementById('phone');
 
-        // Máscara de telefone
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.startsWith('55')) {
+                value = value.slice(2);
+            }
             
             if (value.length > 11) {
                 value = value.slice(0, 11);
@@ -329,18 +331,17 @@
             
             if (value.length > 0) {
                 if (value.length <= 2) {
-                    value = `(${value}`;
+                    value = `+55 (${value}`;
                 } else if (value.length <= 7) {
-                    value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                    value = `+55 (${value.slice(0, 2)}) ${value.slice(2)}`;
                 } else {
-                    value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+                    value = `+55 (${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
                 }
             }
             
             e.target.value = value;
         });
 
-        // Função auxiliar para formatar data sem conversão de timezone
         function formatDateToYYYYMMDD(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -348,32 +349,23 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Funções de validação
         function validateEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
 
         function validatePhone(phone) {
             const cleaned = phone.replace(/\D/g, '');
-            // Aceita 10 dígitos (DDD + 8 dígitos) ou 11 dígitos (DDD + 9 + 8 dígitos)
-            return cleaned.length === 10 || cleaned.length === 11;
+            return cleaned.length === 11;
         }
 
         function formatPhoneToWhatsApp(phone) {
-            // Remove tudo que não é número
             let cleaned = phone.replace(/\D/g, '');
             
-            // Se tiver 10 dígitos (DDD + 8), adiciona o 9
-            if (cleaned.length === 10) {
-                cleaned = cleaned.slice(0, 2) + '9' + cleaned.slice(2);
+            if (cleaned.length !== 11) {
+                throw new Error('Número de telefone inválido');
             }
             
-            // Adiciona o código do Brasil +55
-            if (!cleaned.startsWith('55')) {
-                cleaned = '55' + cleaned;
-            }
-            
-            return cleaned; // Retorna no formato: 5588999999999 (13 dígitos)
+            return '55' + cleaned;
         }
 
         function sanitizeInput(input) {
@@ -431,176 +423,6 @@
         function closeModal() {
             document.getElementById('confirmationModal').classList.add('hidden');
             loadMyBookings();
-        }
-
-        function canCancelBooking(bookingDate, bookingTime) {
-            const now = new Date();
-            const [year, month, day] = bookingDate.split('-').map(Number);
-            const [hours, minutes] = bookingTime.split(':').map(Number);
-            
-            const bookingDateTime = new Date(year, month - 1, day, hours, minutes);
-            const oneHourBefore = new Date(bookingDateTime.getTime() - (60 * 60 * 1000));
-            
-            return now < oneHourBefore;
-        }
-
-        function showCancelModal(bookingId, bookingData) {
-            bookingToCancel = { id: bookingId, data: bookingData };
-            
-            const modal = document.getElementById('cancelModal');
-            const details = document.getElementById('cancelModalDetails');
-            
-            const dateFormatted = new Date(bookingData.booking_date + 'T12:00:00').toLocaleDateString('pt-BR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-            
-            details.innerHTML = `
-                <p>
-                    <strong><i class="fas fa-scissors"></i> Serviço:</strong>
-                    <span>${bookingData.services?.name || 'Serviço'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar"></i> Data:</strong>
-                    <span>${dateFormatted}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-clock"></i> Horário:</strong>
-                    <span>${bookingData.booking_time.substring(0, 5)}</span>
-                </p>
-            `;
-            
-            modal.classList.remove('hidden');
-        }
-
-        function closeCancelModal() {
-            document.getElementById('cancelModal').classList.add('hidden');
-            bookingToCancel = null;
-        }
-
-        async function confirmCancellation() {
-            if (!bookingToCancel) {
-                console.error('Nenhum agendamento selecionado para cancelar');
-                return;
-            }
-            
-            const modal = document.getElementById('cancelModal');
-            const confirmBtn = modal.querySelector('.modal-btn-confirm');
-            
-            confirmBtn.disabled = true;
-            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
-            
-            try {
-                console.log('Cancelando agendamento:', bookingToCancel.id);
-                
-                // Deletar o agendamento do Supabase
-                const { error } = await supabase
-                    .from('bookings')
-                    .delete()
-                    .eq('id', bookingToCancel.id)
-                    .eq('user_id', currentUser.id);
-
-                if (error) {
-                    console.error('Erro do Supabase:', error);
-                    throw error;
-                }
-
-                console.log('Agendamento deletado com sucesso do Supabase');
-
-                // Enviar notificação de cancelamento via webhook
-                try {
-                    const { data: userData } = await supabase
-                        .from('users')
-                        .select('full_name, phone, email')
-                        .eq('id', currentUser.id)
-                        .single();
-
-                    const dateFormatted = new Date(bookingToCancel.data.booking_date + 'T12:00:00').toLocaleDateString('pt-BR', {
-                        weekday: 'long',
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                    });
-
-                    const webhookPayload = {
-                        type: 'cancellation',
-                        booking_id: bookingToCancel.id,
-                        customer_name: userData?.full_name || 'Cliente',
-                        customer_email: userData?.email || '',
-                        customer_phone: userData?.phone || '',
-                        service_name: bookingToCancel.data.services?.name || 'Serviço',
-                        booking_date: dateFormatted,
-                        booking_time: bookingToCancel.data.booking_time.substring(0, 5),
-                        cancelled_at: new Date().toISOString()
-                    };
-
-                    console.log('Enviando webhook:', webhookPayload);
-
-                    const webhookResponse = await fetch(WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(webhookPayload)
-                    });
-                    
-                    if (webhookResponse.ok) {
-                        console.log('Webhook enviado com sucesso');
-                    } else {
-                        console.warn('Webhook falhou, mas agendamento foi cancelado');
-                    }
-                } catch (webhookError) {
-                    console.error('Erro ao enviar webhook:', webhookError);
-                    // Não bloqueia o cancelamento se o webhook falhar
-                }
-
-                closeCancelModal();
-                alert('✅ Agendamento cancelado com sucesso!\n\nO horário foi liberado e o administrador foi notificado.');
-                
-                // Recarrega a lista de agendamentos
-                await loadMyBookings();
-                
-                // Limpa o objeto do booking cancelado
-                if (window[`booking_${bookingToCancel.id}`]) {
-                    delete window[`booking_${bookingToCancel.id}`];
-                }
-                
-            } catch (error) {
-                console.error('Erro completo ao cancelar:', error);
-                alert('❌ Erro ao cancelar agendamento: ' + error.message);
-            } finally {
-                confirmBtn.disabled = false;
-                confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Sim, cancelar';
-            }
-        }
-
-        function handleCancelClick(bookingId) {
-            if (!bookingId) {
-                alert('ID de agendamento inválido');
-                return;
-            }
-            
-            // Recupera os dados do booking armazenados
-            const booking = window[`booking_${bookingId}`];
-            
-            if (!booking) {
-                alert('Dados do agendamento não encontrados');
-                return;
-            }
-
-            if (!canCancelBooking(booking.booking_date, booking.booking_time)) {
-                alert('Não é possível cancelar este agendamento. O cancelamento deve ser feito com pelo menos 1 hora de antecedência.');
-                return;
-            }
-
-            showCancelModal(bookingId, booking);
-        }
-
-        async function cancelBooking(bookingId) {
-            // Esta função não é mais necessária, mas mantemos para compatibilidade
-            console.log('Use handleCancelClick ao invés de cancelBooking');
         }
 
         toggleAuth.addEventListener('click', () => {
@@ -686,11 +508,10 @@
                 }
 
                 if (!phone || !validatePhone(phone)) {
-                    alert('Telefone inválido! Use o formato: (88) 99999-9999');
+                    alert('Telefone inválido! Use o formato: +55 (88) 99999-9999 com 11 dígitos');
                     return;
                 }
 
-                // Formata o telefone para WhatsApp (13 dígitos com +55)
                 const whatsappPhone = formatPhoneToWhatsApp(phone);
 
                 try {
@@ -831,7 +652,7 @@
                     return;
                 }
 
-                container.innerHTML = data.map((booking, index) => {
+                container.innerHTML = data.map((booking) => {
                     const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR', { 
                         weekday: 'long', 
                         day: 'numeric', 
@@ -1165,14 +986,6 @@
                 
                 const dateStr = formatDateToYYYYMMDD(selectedDate);
                 
-                console.log('Salvando agendamento:', {
-                    data_selecionada: selectedDate,
-                    data_formatada: dateStr,
-                    dia: selectedDate.getDate(),
-                    mes: selectedDate.getMonth() + 1,
-                    ano: selectedDate.getFullYear()
-                });
-                
                 const { data: bookingData, error } = await supabase
                     .from('bookings')
                     .insert([{
@@ -1187,9 +1000,6 @@
 
                 if (error) throw error;
 
-                console.log('Agendamento salvo:', bookingData);
-
-                // Enviar webhook para n8n
                 try {
                     const { data: userDataFull } = await supabase
                         .from('users')
@@ -1197,7 +1007,7 @@
                         .eq('id', currentUser.id)
                         .single();
 
-                    const webhookResponse = await fetch(WEBHOOK_URL, {
+                    await fetch(WEBHOOK_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1216,10 +1026,6 @@
                             status: 'confirmed'
                         })
                     });
-                    
-                    if (!webhookResponse.ok) {
-                        console.warn('Webhook falhou, mas agendamento foi criado');
-                    }
                 } catch (webhookError) {
                     console.error('Erro ao enviar webhook:', webhookError);
                 }
