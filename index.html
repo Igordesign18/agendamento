@@ -65,6 +65,8 @@
         .auth-toggle { text-align: center; margin-top: 20px; color: var(--text-muted); }
         .auth-toggle button { background: transparent; border: none; color: var(--lime); cursor: pointer; text-decoration: underline; font-size: 14px; transition: all 0.3s; padding: 5px 10px; border-radius: 3px; }
         .auth-toggle button:hover { background: rgba(196, 255, 13, 0.1); transform: scale(1.05); text-decoration: none; }
+        .admin-link { display: inline-flex; align-items: center; gap: 8px; color: var(--lime); text-decoration: none; font-size: 14px; transition: all 0.3s; padding: 8px 15px; border-radius: 5px; }
+        .admin-link:hover { background: rgba(196, 255, 13, 0.1); transform: scale(1.05); }
         
         /* Main App */
         .main-app { display: none; padding: 40px 20px; }
@@ -203,6 +205,9 @@
             <button class="logout-btn" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i> Sair
             </button>
+            <button class="logout-btn" id="profileBtn" style="display: none; margin-right: 10px;">
+                <i class="fas fa-user-circle"></i> Meu Perfil
+            </button>
         </div>
     </header>
 
@@ -239,19 +244,90 @@
                     <span id="toggleText">Não tem conta?</span>
                     <button type="button" id="toggleAuth">Cadastre-se</button>
                 </div>
+                <div class="auth-toggle" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
+                    <a href="https://sites-agendamentoyuri.rthuab.easypanel.host/indexadm.html" 
+                       target="_self"
+                       class="admin-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Entrar como Administrador</span>
+                    </a>
+                </div>
             </form>
         </div>
     </div>
 
     <div class="main-app container" id="mainApp">
-        <div class="card my-bookings">
+        <div class="card my-bookings" id="bookingsSection">
             <h3><i class="fas fa-calendar-check"></i> Meus Agendamentos</h3>
             <div class="bookings-grid" id="myBookingsGrid">
                 <p style="color: var(--text-muted); text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Carregando...</p>
             </div>
         </div>
 
-        <div class="dashboard">
+        <div class="card my-bookings" id="profileSection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fas fa-user-circle"></i> Meu Perfil</h3>
+                <button onclick="toggleProfileSection()" style="background: transparent; border: 2px solid var(--lime); color: var(--lime); padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s;">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </button>
+            </div>
+            <div style="max-width: 600px; margin: 20px auto;">
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="profileName">Nome Completo</label>
+                        <input type="text" id="profileName" placeholder="Seu nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" placeholder="seu@email.com" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
+                            O email não pode ser alterado
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePhone">Telefone (WhatsApp)</label>
+                        <div style="position: relative;">
+                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; z-index: 1;">
+                                🇧🇷 +55
+                            </span>
+                            <input type="tel" id="profilePhone" placeholder="(88) 99999-9999" maxlength="15" style="padding-left: 70px;">
+                        </div>
+                        <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
+                            Digite apenas DDD + 9 dígitos (11 dígitos no total)
+                        </small>
+                    </div>
+                    <button type="submit" class="btn" id="saveProfileBtn">
+                        <span><i class="fas fa-save"></i> Salvar Alterações</span>
+                    </button>
+                </form>
+
+                <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #333;">
+                    <h4 style="color: var(--lime); margin-bottom: 20px;"><i class="fas fa-key"></i> Alterar Senha</h4>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Senha Atual</label>
+                            <input type="password" id="currentPassword" placeholder="Digite sua senha atual" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Nova Senha</label>
+                            <input type="password" id="newPassword" placeholder="Digite a nova senha" required minlength="6">
+                            <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
+                                Mínimo de 6 caracteres
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmar Nova Senha</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirme a nova senha" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn" id="changePasswordBtn" style="background: #ff9800;">
+                            <span><i class="fas fa-lock"></i> Alterar Senha</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard" id="dashboardSection">
             <div class="card">
                 <h3><i class="fas fa-cut"></i> Escolha o Serviço</h3>
                 <div id="servicesList"></div>
@@ -322,16 +398,55 @@
         const authBtn = document.getElementById('authBtn');
         const toggleText = document.getElementById('toggleText');
         const phoneInput = document.getElementById('phone');
+        const profileBtn = document.getElementById('profileBtn');
+
+        function toggleProfileSection() {
+            const profileSection = document.getElementById('profileSection');
+            const bookingsSection = document.getElementById('bookingsSection');
+            const dashboardSection = document.getElementById('dashboardSection');
+            
+            if (profileSection.style.display === 'none') {
+                profileSection.style.display = 'block';
+                bookingsSection.style.display = 'none';
+                dashboardSection.style.display = 'none';
+            } else {
+                profileSection.style.display = 'none';
+                bookingsSection.style.display = 'block';
+                dashboardSection.style.display = 'grid';
+            }
+        }
+
+        profileBtn.addEventListener('click', toggleProfileSection);
 
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
-            // Limita a 11 dígitos (DDD + 9 dígitos)
             if (value.length > 11) {
                 value = value.slice(0, 11);
             }
             
-            // Formata o número sem o +55 (já está visível como ícone)
+            if (value.length > 0) {
+                if (value.length <= 2) {
+                    value = `(${value}`;
+                } else if (value.length <= 7) {
+                    value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                } else {
+                    value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+                }
+            }
+            
+            e.target.value = value;
+        });
+
+        const profilePhoneInput = document.getElementById('profilePhone');
+        
+        profilePhoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+            
             if (value.length > 0) {
                 if (value.length <= 2) {
                     value = `(${value}`;
@@ -427,6 +542,125 @@
             document.getElementById('confirmationModal').classList.add('hidden');
             loadMyBookings();
         }
+
+        async function loadUserProfile() {
+            try {
+                const { data: userData, error } = await supabase
+                    .from('users')
+                    .select('full_name, email, phone')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (error) throw error;
+
+                if (userData) {
+                    document.getElementById('profileName').value = userData.full_name || '';
+                    document.getElementById('profileEmail').value = userData.email || '';
+                    
+                    if (userData.phone) {
+                        const phone = userData.phone.replace('55', '');
+                        if (phone.length === 11) {
+                            const formatted = `(${phone.slice(0, 2)}) ${phone.slice(2, 7)}-${phone.slice(7)}`;
+                            document.getElementById('profilePhone').value = formatted;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('saveProfileBtn');
+            const fullName = sanitizeInput(document.getElementById('profileName').value);
+            const phone = sanitizeInput(document.getElementById('profilePhone').value);
+
+            if (!fullName || fullName.length < 3) {
+                alert('Nome completo inválido!');
+                return;
+            }
+
+            if (!phone || !validatePhone(phone)) {
+                alert('Telefone inválido! Digite DDD + 9 dígitos\nExemplo: (88) 99999-9999');
+                return;
+            }
+
+            const whatsappPhone = formatPhoneToWhatsApp(phone);
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span><i class="fas fa-spinner fa-spin"></i> Salvando...</span>';
+
+                const { error } = await supabase
+                    .from('users')
+                    .update({
+                        full_name: fullName,
+                        phone: whatsappPhone
+                    })
+                    .eq('id', currentUser.id);
+
+                if (error) throw error;
+
+                alert('✅ Perfil atualizado com sucesso!');
+            } catch (error) {
+                alert('Erro ao atualizar perfil: ' + error.message);
+                console.error('Erro:', error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span><i class="fas fa-save"></i> Salvar Alterações</span>';
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('changePasswordBtn');
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword.length < 6) {
+                alert('A nova senha deve ter no mínimo 6 caracteres!');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span><i class="fas fa-spinner fa-spin"></i> Alterando...</span>';
+
+                const email = currentUser.email;
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: currentPassword
+                });
+
+                if (signInError) {
+                    throw new Error('Senha atual incorreta!');
+                }
+
+                const { error: updateError } = await supabase.auth.updateUser({
+                    password: newPassword
+                });
+
+                if (updateError) throw updateError;
+
+                alert('✅ Senha alterada com sucesso!');
+                document.getElementById('passwordForm').reset();
+            } catch (error) {
+                alert('Erro ao alterar senha: ' + error.message);
+                console.error('Erro:', error);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span><i class="fas fa-lock"></i> Alterar Senha</span>';
+            }
+        });
 
         toggleAuth.addEventListener('click', () => {
             isLogin = !isLogin;
@@ -599,6 +833,7 @@
             authScreen.style.display = 'flex';
             mainApp.style.display = 'none';
             logoutBtn.style.display = 'none';
+            profileBtn.style.display = 'none';
             authForm.reset();
         });
 
@@ -606,9 +841,11 @@
             authScreen.style.display = 'none';
             mainApp.style.display = 'block';
             logoutBtn.style.display = 'block';
+            profileBtn.style.display = 'block';
             await loadSettings();
             await loadServices();
             await loadMyBookings();
+            await loadUserProfile();
             renderCalendar();
             updateStatusBadge();
             setInterval(updateStatusBadge, 60000);
