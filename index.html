@@ -7,7 +7,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group:focus-within label {
+            color: var(--lime);
+            transform: translateX(5px);
+        }* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -38,36 +49,66 @@
         /* Header */
         header {
             background: var(--dark-card);
-            padding: 20px 0;
             box-shadow: 0 2px 10px rgba(196, 255, 13, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-cover {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200"><path d="M0,100 Q300,20 600,100 T1200,100 L1200,200 L0,200 Z" fill="%23c4ff0d" opacity="0.1"/></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+
+        .header-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
         }
 
         .header-content {
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: space-between;
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            margin: -60px auto 0;
+            padding: 0 20px 20px;
+            position: relative;
         }
 
-        .logo {
+        .barber-info {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            align-items: flex-end;
+            gap: 20px;
         }
 
         .barber-photo {
-            width: 60px;
-            height: 60px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            border: 3px solid var(--lime);
+            border: 5px solid var(--dark-card);
             background: var(--dark-bg);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 48px;
             color: var(--lime);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
         }
 
         .barber-photo img {
@@ -77,9 +118,75 @@
             object-fit: cover;
         }
 
-        .logo h1 {
-            font-size: 24px;
+        .barber-details {
+            padding-bottom: 10px;
+        }
+
+        .barber-details h1 {
+            font-size: 32px;
             color: var(--lime);
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .barber-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .status-badge.open {
+            color: #4caf50;
+            border: 2px solid #4caf50;
+        }
+
+        .status-badge.closed {
+            color: #ff4444;
+            border: 2px solid #ff4444;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.open .status-dot {
+            background: #4caf50;
+        }
+
+        .status-badge.closed .status-dot {
+            background: #ff4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .location-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--lime);
+            background: rgba(196, 255, 13, 0.1);
+            border: 2px solid var(--lime);
         }
 
         .logout-btn {
@@ -90,13 +197,38 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.3s;
+            transition: all 0.4s;
             display: none;
+            height: fit-content;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--lime);
+            transition: left 0.4s;
+            z-index: 0;
+        }
+
+        .logout-btn:hover::before {
+            left: 0;
         }
 
         .logout-btn:hover {
-            background: var(--lime);
             color: var(--dark-bg);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.4);
+        }
+
+        .logout-btn i, .logout-btn span {
+            position: relative;
+            z-index: 1;
         }
 
         /* Auth Screen */
@@ -122,17 +254,6 @@
             color: var(--lime);
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
         .form-group input {
             width: 100%;
             padding: 12px;
@@ -141,12 +262,37 @@
             border-radius: 5px;
             color: var(--text);
             font-size: 16px;
-            transition: border 0.3s;
+            transition: all 0.3s;
+            position: relative;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: var(--lime);
+            box-shadow: 0 0 15px rgba(196, 255, 13, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: fadeInUp 0.5s;
+            animation-fill-mode: both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .btn {
@@ -160,11 +306,43 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn:hover {
             background: var(--lime-dark);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
         }
 
         .auth-toggle {
@@ -180,6 +358,15 @@
             cursor: pointer;
             text-decoration: underline;
             font-size: 14px;
+            transition: all 0.3s;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+
+        .auth-toggle button:hover {
+            background: rgba(196, 255, 13, 0.1);
+            transform: scale(1.05);
+            text-decoration: none;
         }
 
         /* Main App */
@@ -200,6 +387,34 @@
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 3px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(196, 255, 13, 0.03), transparent);
+            animation: cardGlow 15s infinite;
+        }
+
+        @keyframes cardGlow {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(-20%, -20%);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(196, 255, 13, 0.2);
         }
 
         .card h3 {
@@ -220,16 +435,63 @@
             align-items: center;
             border: 2px solid transparent;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(196, 255, 13, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .service-item:hover::before {
+            left: 100%;
         }
 
         .service-item:hover {
             border-color: var(--lime);
+            transform: translateX(5px) scale(1.02);
+            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2);
         }
 
         .service-item.selected {
             border-color: var(--lime);
             background: rgba(196, 255, 13, 0.1);
+            transform: scale(1.03);
+            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.3);
+        }
+
+        .service-item.selected::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--lime);
+            font-size: 20px;
+            animation: checkmark 0.5s;
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0) rotate(-45deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2) rotate(10deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
         }
 
         .service-info h4 {
@@ -245,6 +507,42 @@
             color: var(--lime);
             font-size: 20px;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(196, 255, 13, 0.5);
+            animation: priceGlow 2s infinite;
+        }
+
+        @keyframes priceGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(196, 255, 13, 0.5);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(196, 255, 13, 0.8);
+            }
+        }
+
+        /* Efeito Ripple */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .ripple:active::after {
+            width: 300px;
+            height: 300px;
+            transition: 0s;
         }
 
         /* Calendar */
@@ -267,11 +565,37 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-header button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--lime);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+        }
+
+        .calendar-header button:hover::before {
+            width: 200px;
+            height: 200px;
         }
 
         .calendar-header button:hover {
-            background: var(--lime);
             color: var(--dark-bg);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3);
+        }
+
+        .calendar-header button i {
+            position: relative;
+            z-index: 1;
         }
 
         .calendar-grid {
@@ -291,18 +615,54 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(196, 255, 13, 0.2), transparent);
+            transform: scale(0);
+            transition: transform 0.4s;
+        }
+
+        .calendar-day:hover:not(.disabled)::before {
+            transform: scale(1);
         }
 
         .calendar-day:hover:not(.disabled) {
             border-color: var(--lime);
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3);
+            z-index: 10;
         }
 
         .calendar-day.selected {
             background: var(--lime);
             color: var(--dark-bg);
             border-color: var(--lime);
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5);
+            animation: selectDay 0.5s;
+        }
+
+        @keyframes selectDay {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1.05);
+            }
         }
 
         .calendar-day.disabled {
@@ -312,6 +672,7 @@
 
         .calendar-day.today {
             border-color: var(--lime);
+            box-shadow: 0 0 15px rgba(196, 255, 13, 0.4);
         }
 
         .time-slots {
@@ -328,17 +689,55 @@
             border-radius: 5px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-slot::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: var(--lime);
+            transition: height 0.3s;
+            z-index: 0;
+        }
+
+        .time-slot:hover:not(.disabled)::before {
+            height: 100%;
         }
 
         .time-slot:hover:not(.disabled) {
             border-color: var(--lime);
+            color: var(--dark-bg);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.4);
+        }
+
+        .time-slot span {
+            position: relative;
+            z-index: 1;
         }
 
         .time-slot.selected {
             background: var(--lime);
             color: var(--dark-bg);
             border-color: var(--lime);
+            transform: scale(1.08);
+            box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5);
+            animation: selectTime 0.5s;
+        }
+
+        @keyframes selectTime {
+            0%, 100% {
+                transform: scale(1.08);
+            }
+            50% {
+                transform: scale(1.15);
+            }
         }
 
         .time-slot.disabled {
@@ -353,11 +752,33 @@
             background: rgba(196, 255, 13, 0.1);
             border: 2px solid var(--lime);
             border-radius: 10px;
+            animation: slideInUp 0.5s;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .confirm-booking h4 {
             color: var(--lime);
             margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
         }
 
         .booking-summary {
@@ -369,7 +790,170 @@
             display: none !important;
         }
 
+        /* Modal/Popup */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--dark-card);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            border: 3px solid var(--lime);
+            box-shadow: 0 10px 50px rgba(196, 255, 13, 0.3);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            font-size: 64px;
+            color: var(--lime);
+            margin-bottom: 20px;
+            animation: scaleIn 0.5s;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .modal-content h2 {
+            color: var(--lime);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .modal-details {
+            background: var(--dark-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .modal-details p {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+
+        .modal-details strong {
+            color: var(--lime);
+            min-width: 100px;
+        }
+
+        .modal-close-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--lime);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-close-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .modal-close-btn:hover::after {
+            width: 400px;
+            height: 400px;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--lime-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5);
+        }
+
+        .modal-close-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .modal-close-btn i {
+            position: relative;
+            z-index: 1;
+            margin-right: 8px;
+        }
+
         @media (max-width: 768px) {
+            .header-cover {
+                height: 150px;
+            }
+
+            .barber-photo {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .barber-details h1 {
+                font-size: 24px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                margin-top: -50px;
+            }
+
+            .barber-info {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .barber-meta {
+                justify-content: center;
+            }
             .dashboard {
                 grid-template-columns: 1fr;
             }
@@ -386,14 +970,26 @@
 </head>
 <body>
     <header>
+        <div class="header-cover">
+            <img src="https://png.pngtree.com/thumb_back/fh260/background/20230612/pngtree-some-pictures-of-an-antique-barber-shop-image_2906288.jpg" alt="Capa da Barbearia">
+        </div>
         <div class="header-content">
-            <div class="logo">
+            <div class="barber-info">
                 <div class="barber-photo" id="barberPhoto">
-                    <i class="fas fa-user"></i>
+                    <img src="https://alo-storage.nyc3.digitaloceanspaces.com/alo-laravel/public/images/p/muriloaloalobahia.jpg" alt="Yuri Kelven">
                 </div>
-                <div>
+                <div class="barber-details">
                     <h1>Yuri Kelven</h1>
-                    <p style="color: var(--text-muted); font-size: 14px;">Barbearia Premium</p>
+                    <div class="barber-meta">
+                        <span class="status-badge" id="statusBadge">
+                            <span class="status-dot"></span>
+                            <span id="statusText">Verificando...</span>
+                        </span>
+                        <span class="location-badge">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Russas, CE</span>
+                        </span>
+                    </div>
                 </div>
             </div>
             <button class="logout-btn" id="logoutBtn">
@@ -423,7 +1019,7 @@
                     <label for="password">Senha</label>
                     <input type="password" id="password" placeholder="Digite sua senha" required>
                 </div>
-                <button type="submit" class="btn" id="authBtn">Entrar</button>
+                <button type="submit" class="btn ripple" id="authBtn">Entrar</button>
                 <div class="auth-toggle">
                     <span id="toggleText">Não tem conta?</span>
                     <button type="button" id="toggleAuth">Cadastre-se</button>
@@ -455,9 +1051,26 @@
                 <div class="confirm-booking hidden" id="confirmBooking">
                     <h4><i class="fas fa-check-circle"></i> Confirmar Agendamento</h4>
                     <div class="booking-summary" id="bookingSummary"></div>
-                    <button class="btn" id="confirmBtn">Confirmar Agendamento</button>
+                    <button class="btn ripple" id="confirmBtn">Confirmar Agendamento</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay hidden" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Agendamento Confirmado!</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">
+                Seu horário foi reservado com sucesso
+            </p>
+            <div class="modal-details" id="modalDetails"></div>
+            <button class="modal-close-btn" onclick="closeModal()">
+                <i class="fas fa-check"></i> Entendi
+            </button>
         </div>
     </div>
 
@@ -492,6 +1105,45 @@
         const authTitle = document.getElementById('authTitle');
         const authBtn = document.getElementById('authBtn');
         const toggleText = document.getElementById('toggleText');
+
+        // Update Status Badge
+        function updateStatusBadge() {
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const [openHour, openMin] = openTime.split(':').map(Number);
+            const [closeHour, closeMin] = closeTime.split(':').map(Number);
+            const openMinutes = openHour * 60 + openMin;
+            const closeMinutes = closeHour * 60 + closeMin;
+            const currentDay = now.getDay();
+
+            const isWorkingDay = workingDays.includes(currentDay);
+            const isOpen = isWorkingDay && currentTime >= openMinutes && currentTime < closeMinutes;
+
+            if (isOpen) {
+                statusBadge.classList.remove('closed');
+                statusBadge.classList.add('open');
+                statusText.textContent = `Aberto • ${openTime} - ${closeTime}`;
+            } else {
+                statusBadge.classList.remove('open');
+                statusBadge.classList.add('closed');
+                if (isWorkingDay) {
+                    if (currentTime < openMinutes) {
+                        statusText.textContent = `Fechado • Abre às ${openTime}`;
+                    } else {
+                        statusText.textContent = `Fechado • Abre amanhã`;
+                    }
+                } else {
+                    statusText.textContent = 'Fechado • Não abre hoje';
+                }
+            }
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('confirmationModal').classList.add('hidden');
+        }
 
         // Auth Toggle
         toggleAuth.addEventListener('click', () => {
@@ -600,6 +1252,9 @@
             await loadSettings();
             await loadServices();
             renderCalendar();
+            updateStatusBadge();
+            // Atualizar status a cada minuto
+            setInterval(updateStatusBadge, 60000);
         }
 
         // Load Settings
@@ -623,6 +1278,7 @@
                         }
                     });
                 }
+                updateStatusBadge();
             } catch (error) {
                 console.error('Erro ao carregar configurações:', error);
             }
@@ -884,7 +1540,34 @@
 
                 if (error) throw error;
 
-                alert(`Agendamento confirmado!\n\nServiço: ${selectedService.name}\nData: ${selectedDate.toLocaleDateString('pt-BR')}\nHorário: ${selectedTime}`);
+                // Mostrar modal de confirmação
+                const modal = document.getElementById('confirmationModal');
+                const modalDetails = document.getElementById('modalDetails');
+                
+                modalDetails.innerHTML = `
+                    <p>
+                        <strong><i class="fas fa-scissors"></i> Serviço:</strong>
+                        <span>${selectedService.name}</span>
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-calendar"></i> Data:</strong>
+                        <span>${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-clock"></i> Horário:</strong>
+                        <span>${selectedTime}</span>
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-hourglass-half"></i> Duração:</strong>
+                        <span>${selectedService.duration} minutos</span>
+                    </p>
+                    <p>
+                        <strong><i class="fas fa-money-bill-wave"></i> Valor:</strong>
+                        <span>R$ ${selectedService.price.toFixed(2)}</span>
+                    </p>
+                `;
+                
+                modal.classList.remove('hidden');
                 
                 selectedService = null;
                 selectedDate = null;
@@ -915,6 +1598,9 @@
             if (session) {
                 currentUser = session.user;
                 showApp();
+            } else {
+                // Atualizar status mesmo sem login
+                updateStatusBadge();
             }
         });
 
@@ -929,6 +1615,9 @@
                 logoutBtn.style.display = 'none';
             }
         });
+
+        // Carregar configurações iniciais para o status
+        loadSettings();
     </script>
 </body>
 </html>
