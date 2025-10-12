@@ -545,23 +545,37 @@
                 try {
                     const { data, error } = await supabase.auth.signUp({
                         email: email,
-                        password: password
+                        password: password,
+                        options: {
+                            data: {
+                                full_name: fullName,
+                                phone: phone
+                            }
+                        }
                     });
 
                     if (error) throw error;
 
-                    await supabase
-                        .from('users')
-                        .insert([{
-                            id: data.user.id,
-                            email: email,
-                            full_name: fullName,
-                            phone: phone
-                        }]);
+                    // Inserir na tabela users
+                    if (data.user) {
+                        const { error: insertError } = await supabase
+                            .from('users')
+                            .insert([{
+                                id: data.user.id,
+                                email: email,
+                                full_name: fullName,
+                                phone: phone
+                            }]);
 
-                    alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                        if (insertError) {
+                            console.error('Erro ao inserir usuário:', insertError);
+                        }
+                    }
+
+                    alert('Cadastro realizado com sucesso! Você já pode fazer login.');
                     isLogin = true;
                     toggleAuth.click();
+                    authForm.reset();
                 } catch (error) {
                     alert('Erro ao cadastrar: ' + error.message);
                 }
