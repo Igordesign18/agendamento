@@ -85,8 +85,33 @@
         .hidden { display: none !important; }
         .interval-config { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-top: 20px; }
         .cancelled-badge { background: var(--orange); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 10px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--dark-card); padding: 30px; border-radius: 15px; box-shadow: 0 5px 30px rgba(196, 255, 13, 0.3); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { color: var(--lime); font-size: 20px; margin: 0; }
+        .close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.3s; }
+        .close-modal:hover { color: var(--lime); }
+        .client-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
+        .client-item:hover { border-left-color: var(--lime-dark); }
+        .client-info h4 { margin-bottom: 5px; color: var(--text); }
+        .client-info p { color: var(--text-muted); font-size: 14px; margin-top: 3px; }
+        .client-stats { display: flex; gap: 15px; margin-top: 8px; }
+        .client-stat { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
+        .client-actions { display: flex; gap: 10px; }
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
         @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .time-period { flex-wrap: wrap; } }
+        @media (max-width: 768px) { 
+            .stats-grid { grid-template-columns: 1fr; } 
+            .time-period { flex-wrap: wrap; } 
+            .client-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -182,6 +207,17 @@
             </div>
 
             <div class="card full-width">
+                <h2><i class="fas fa-users"></i> Gerenciar Clientes</h2>
+                <div class="filter-section">
+                    <input type="text" id="filterClientName" placeholder="Buscar por nome...">
+                    <button class="btn btn-secondary" onclick="loadClients()"><i class="fas fa-search"></i> Buscar</button>
+                </div>
+                <div class="services-list" id="clientsList">
+                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando clientes...</p></div>
+                </div>
+            </div>
+
+            <div class="card full-width">
                 <h2><i class="fas fa-clock"></i> Horários de Funcionamento</h2>
                 <div class="interval-config">
                     <div class="form-group" style="margin-bottom: 0;">
@@ -192,6 +228,35 @@
                 <div class="day-schedule-container" id="dayScheduleContainer"></div>
                 <button class="btn" onclick="saveSchedule()" style="margin-top: 20px;"><i class="fas fa-save"></i> Salvar Configurações</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar cliente -->
+    <div id="editClientModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-edit"></i> Editar Cliente</h2>
+                <button class="close-modal" onclick="closeEditClientModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editClientForm">
+                <input type="hidden" id="editClientId">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="editClientName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editClientEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="tel" id="editClientPhone" required placeholder="(00) 00000-0000">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Alterações</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditClientModal()">Cancelar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -211,7 +276,6 @@
         };
         const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
-        // Configurar listener em tempo real para atualizações de agendamentos
         let realtimeChannel = null;
 
         function setupRealtimeListener() {
@@ -304,7 +368,7 @@
         }
 
         async function loadDashboard() {
-            await Promise.all([loadStats(), loadBookings(), loadServices(), loadScheduleSettings()]);
+            await Promise.all([loadStats(), loadBookings(), loadServices(), loadClients(), loadScheduleSettings()]);
         }
 
         async function loadStats() {
@@ -522,6 +586,185 @@
             }
         }
 
+        async function loadClients() {
+            const container = document.getElementById('clientsList');
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando clientes...</p></div>';
+            
+            try {
+                const filterName = document.getElementById('filterClientName').value.toLowerCase();
+                
+                let query = supabase
+                    .from('users')
+                    .select('id, full_name, email, phone, created_at')
+                    .order('created_at', { ascending: false });
+                
+                const { data: users, error } = await query;
+                if (error) throw error;
+                
+                let filteredUsers = users;
+                if (filterName) {
+                    filteredUsers = users.filter(user => 
+                        user.full_name?.toLowerCase().includes(filterName)
+                    );
+                }
+                
+                if (!filteredUsers || filteredUsers.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum cliente encontrado</p></div>';
+                    return;
+                }
+                
+                const clientsWithStats = await Promise.all(filteredUsers.map(async (user) => {
+                    const { data: bookings } = await supabase
+                        .from('bookings')
+                        .select('id, status')
+                        .eq('user_id', user.id);
+                    
+                    const totalBookings = bookings?.length || 0;
+                    const completedBookings = bookings?.filter(b => b.status === 'completed').length || 0;
+                    
+                    return { ...user, totalBookings, completedBookings };
+                }));
+                
+                container.innerHTML = clientsWithStats.map(client => {
+                    const memberSince = new Date(client.created_at).toLocaleDateString('pt-BR');
+                    
+                    return `
+                        <div class="client-item">
+                            <div class="client-info">
+                                <h4><i class="fas fa-user"></i> ${client.full_name || 'Nome não informado'}</h4>
+                                <p><i class="fas fa-envelope"></i> ${client.email}</p>
+                                <p><i class="fas fa-phone"></i> ${client.phone || 'Telefone não informado'}</p>
+                                <div class="client-stats">
+                                    <span class="client-stat">
+                                        <i class="fas fa-calendar-check"></i> 
+                                        ${client.totalBookings} agendamento${client.totalBookings !== 1 ? 's' : ''}
+                                    </span>
+                                    <span class="client-stat">
+                                        <i class="fas fa-check-circle"></i> 
+                                        ${client.completedBookings} concluído${client.completedBookings !== 1 ? 's' : ''}
+                                    </span>
+                                    <span class="client-stat">
+                                        <i class="fas fa-user-clock"></i> 
+                                        Cliente desde ${memberSince}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="client-actions">
+                                <button class="btn-edit" onclick="openEditClientModal('${client.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn-delete" onclick="deleteClient('${client.id}')">
+                                    <i class="fas fa-trash"></i> Excluir
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Erro ao carregar clientes:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar clientes</p></div>';
+            }
+        }
+
+        async function openEditClientModal(clientId) {
+            try {
+                const { data: client, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', clientId)
+                    .single();
+                
+                if (error) throw error;
+                
+                document.getElementById('editClientId').value = client.id;
+                document.getElementById('editClientName').value = client.full_name || '';
+                document.getElementById('editClientEmail').value = client.email || '';
+                document.getElementById('editClientPhone').value = client.phone || '';
+                
+                document.getElementById('editClientModal').classList.remove('hidden');
+            } catch (error) {
+                alert('Erro ao carregar dados do cliente: ' + error.message);
+            }
+        }
+
+        function closeEditClientModal() {
+            document.getElementById('editClientModal').classList.add('hidden');
+            document.getElementById('editClientForm').reset();
+        }
+
+        document.getElementById('editClientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const clientId = document.getElementById('editClientId').value;
+            const fullName = document.getElementById('editClientName').value.trim();
+            const email = document.getElementById('editClientEmail').value.trim();
+            const phone = document.getElementById('editClientPhone').value.trim();
+            
+            if (!fullName || fullName.length < 3) {
+                alert('Nome deve ter pelo menos 3 caracteres!');
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                alert('Email inválido!');
+                return;
+            }
+            
+            if (!phone || phone.length < 10) {
+                alert('Telefone inválido!');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update({
+                        full_name: fullName,
+                        email: email,
+                        phone: phone
+                    })
+                    .eq('id', clientId);
+                
+                if (error) throw error;
+                
+                alert('Cliente atualizado com sucesso!');
+                closeEditClientModal();
+                loadClients();
+                loadStats();
+            } catch (error) {
+                alert('Erro ao atualizar cliente: ' + error.message);
+            }
+        });
+
+        async function deleteClient(clientId) {
+            if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação irá excluir todos os agendamentos associados e não pode ser desfeita!')) {
+                return;
+            }
+            
+            try {
+                const { error: bookingsError } = await supabase
+                    .from('bookings')
+                    .delete()
+                    .eq('user_id', clientId);
+                
+                if (bookingsError) throw bookingsError;
+                
+                const { error: userError } = await supabase
+                    .from('users')
+                    .delete()
+                    .eq('id', clientId);
+                
+                if (userError) throw userError;
+                
+                alert('Cliente excluído com sucesso!');
+                loadClients();
+                loadStats();
+            } catch (error) {
+                alert('Erro ao excluir cliente: ' + error.message);
+                console.error('Erro completo:', error);
+            }
+        }
+
         async function loadScheduleSettings() {
             try {
                 const { data } = await supabase.from('settings').select('*').in('key', ['schedule_config', 'interval_time']);
@@ -660,20 +903,6 @@
                 console.error('Erro completo:', error);
             }
         }
-
-        // Adicionar animações CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(400px); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(400px); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
 
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
