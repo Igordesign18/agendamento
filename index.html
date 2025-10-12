@@ -464,7 +464,10 @@
         }
 
         async function confirmCancellation() {
-            if (!bookingToCancel) return;
+            if (!bookingToCancel) {
+                console.error('Nenhum agendamento selecionado para cancelar');
+                return;
+            }
             
             const modal = document.getElementById('cancelModal');
             const confirmBtn = modal.querySelector('.modal-btn-confirm');
@@ -473,13 +476,21 @@
             confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
             
             try {
+                console.log('Cancelando agendamento:', bookingToCancel.id);
+                
+                // Deletar o agendamento do Supabase
                 const { error } = await supabase
                     .from('bookings')
                     .delete()
                     .eq('id', bookingToCancel.id)
                     .eq('user_id', currentUser.id);
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Erro do Supabase:', error);
+                    throw error;
+                }
+
+                console.log('Agendamento deletado com sucesso do Supabase');
 
                 // Enviar notificação de cancelamento via webhook
                 try {
@@ -496,70 +507,83 @@
                         year: 'numeric'
                     });
 
-                    await fetch(WEBHOOK_URL, {
+                    const webhookPayload = {
+                        type: 'cancellation',
+                        booking_id: bookingToCancel.id,
+                        customer_name: userData?.full_name || 'Cliente',
+                        customer_email: userData?.email || '',
+                        customer_phone: userData?.phone || '',
+                        service_name: bookingToCancel.data.services?.name || 'Serviço',
+                        booking_date: dateFormatted,
+                        booking_time: bookingToCancel.data.booking_time.substring(0, 5),
+                        cancelled_at: new Date().toISOString()
+                    };
+
+                    console.log('Enviando webhook:', webhookPayload);
+
+                    const webhookResponse = await fetch(WEBHOOK_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            type: 'cancellation',
-                            booking_id: bookingToCancel.id,
-                            customer_name: userData?.full_name || 'Cliente',
-                            customer_email: userData?.email || '',
-                            customer_phone: userData?.phone || '',
-                            service_name: bookingToCancel.data.services?.name || 'Serviço',
-                            booking_date: dateFormatted,
-                            booking_time: bookingToCancel.data.booking_time.substring(0, 5),
-                            cancelled_at: new Date().toISOString()
-                        })
+                        body: JSON.stringify(webhookPayload)
                     });
+                    
+                    if (webhookResponse.ok) {
+                        console.log('Webhook enviado com sucesso');
+                    } else {
+                        console.warn('Webhook falhou, mas agendamento foi cancelado');
+                    }
                 } catch (webhookError) {
-                    console.error('Erro ao enviar notificação:', webhookError);
+                    console.error('Erro ao enviar webhook:', webhookError);
+                    // Não bloqueia o cancelamento se o webhook falhar
                 }
 
                 closeCancelModal();
-                alert('Agendamento cancelado com sucesso!');
+                alert('✅ Agendamento cancelado com sucesso!\n\nO horário foi liberado e o administrador foi notificado.');
+                
+                // Recarrega a lista de agendamentos
                 await loadMyBookings();
+                
+                // Limpa o objeto do booking cancelado
+                if (window[`booking_${bookingToCancel.id}`]) {
+                    delete window[`booking_${bookingToCancel.id}`];
+                }
+                
             } catch (error) {
-                alert('Erro ao cancelar agendamento: ' + error.message);
-                console.error('Erro ao cancelar:', error);
+                console.error('Erro completo ao cancelar:', error);
+                alert('❌ Erro ao cancelar agendamento: ' + error.message);
             } finally {
                 confirmBtn.disabled = false;
                 confirmBtn.innerHTML = '<i class="fas fa-trash"></i> Sim, cancelar';
             }
         }
 
-        async function cancelBooking(bookingId) {
+        function handleCancelClick(bookingId) {
             if (!bookingId) {
                 alert('ID de agendamento inválido');
                 return;
             }
             
-            try {
-                const { data: booking, error } = await supabase
-                    .from('bookings')
-                    .select('*, services(name, price, duration)')
-                    .eq('id', bookingId)
-                    .eq('user_id', currentUser.id)
-                    .single();
-
-                if (error) throw error;
-                
-                if (!booking) {
-                    alert('Agendamento não encontrado');
-                    return;
-                }
-
-                if (!canCancelBooking(booking.booking_date, booking.booking_time)) {
-                    alert('Não é possível cancelar este agendamento. O cancelamento deve ser feito com pelo menos 1 hora de antecedência.');
-                    return;
-                }
-
-                showCancelModal(bookingId, booking);
-            } catch (error) {
-                alert('Erro ao verificar agendamento: ' + error.message);
-                console.error('Erro:', error);
+            // Recupera os dados do booking armazenados
+            const booking = window[`booking_${bookingId}`];
+            
+            if (!booking) {
+                alert('Dados do agendamento não encontrados');
+                return;
             }
+
+            if (!canCancelBooking(booking.booking_date, booking.booking_time)) {
+                alert('Não é possível cancelar este agendamento. O cancelamento deve ser feito com pelo menos 1 hora de antecedência.');
+                return;
+            }
+
+            showCancelModal(bookingId, booking);
+        }
+
+        async function cancelBooking(bookingId) {
+            // Esta função não é mais necessária, mas mantemos para compatibilidade
+            console.log('Use handleCancelClick ao invés de cancelBooking');
         }
 
         toggleAuth.addEventListener('click', () => {
@@ -787,7 +811,7 @@
                     return;
                 }
 
-                container.innerHTML = data.map(booking => {
+                container.innerHTML = data.map((booking, index) => {
                     const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR', { 
                         weekday: 'long', 
                         day: 'numeric', 
@@ -796,6 +820,9 @@
                     });
                     
                     const canCancel = canCancelBooking(booking.booking_date, booking.booking_time);
+                    
+                    // Armazena os dados do booking para usar depois
+                    window[`booking_${booking.id}`] = booking;
                     
                     return `
                         <div class="booking-card ${booking.status}">
@@ -815,9 +842,9 @@
                             ${booking.status === 'confirmed' ? `
                                 <div class="booking-actions">
                                     <button class="btn-cancel-booking" 
-                                            onclick="cancelBooking('${booking.id}')"
+                                            onclick="handleCancelClick('${booking.id}')"
                                             ${!canCancel ? 'disabled title="Cancelamento deve ser feito com 1h de antecedência"' : ''}>
-                                        <i class="fas fa-times"></i> ${canCancel ? 'Cancelar' : 'Não é possível cancelar'}
+                                        <i class="fas fa-times"></i> ${canCancel ? 'Cancelar Agendamento' : 'Não é possível cancelar'}
                                     </button>
                                 </div>
                             ` : ''}
