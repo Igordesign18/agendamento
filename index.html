@@ -219,8 +219,11 @@
                     <input type="email" id="email" placeholder="seu@email.com" required>
                 </div>
                 <div class="form-group hidden" id="phoneGroup">
-                    <label for="phone">Telefone</label>
-                    <input type="tel" id="phone" placeholder="(00) 00000-0000">
+                    <label for="phone">Telefone (WhatsApp)</label>
+                    <input type="tel" id="phone" placeholder="(88) 99999-9999" maxlength="15">
+                    <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
+                        Formato: (DDD) 9XXXX-XXXX
+                    </small>
                 </div>
                 <div class="form-group">
                     <label for="password">Senha</label>
@@ -314,6 +317,28 @@
         const authTitle = document.getElementById('authTitle');
         const authBtn = document.getElementById('authBtn');
         const toggleText = document.getElementById('toggleText');
+        const phoneInput = document.getElementById('phone');
+
+        // Máscara de telefone
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+            
+            if (value.length > 0) {
+                if (value.length <= 2) {
+                    value = `(${value}`;
+                } else if (value.length <= 7) {
+                    value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                } else {
+                    value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+                }
+            }
+            
+            e.target.value = value;
+        });
 
         // Função auxiliar para formatar data sem conversão de timezone
         function formatDateToYYYYMMDD(date) {
@@ -330,7 +355,25 @@
 
         function validatePhone(phone) {
             const cleaned = phone.replace(/\D/g, '');
-            return cleaned.length >= 10 && cleaned.length <= 11;
+            // Aceita 10 dígitos (DDD + 8 dígitos) ou 11 dígitos (DDD + 9 + 8 dígitos)
+            return cleaned.length === 10 || cleaned.length === 11;
+        }
+
+        function formatPhoneToWhatsApp(phone) {
+            // Remove tudo que não é número
+            let cleaned = phone.replace(/\D/g, '');
+            
+            // Se tiver 10 dígitos (DDD + 8), adiciona o 9
+            if (cleaned.length === 10) {
+                cleaned = cleaned.slice(0, 2) + '9' + cleaned.slice(2);
+            }
+            
+            // Adiciona o código do Brasil +55
+            if (!cleaned.startsWith('55')) {
+                cleaned = '55' + cleaned;
+            }
+            
+            return cleaned; // Retorna no formato: 5588999999999 (13 dígitos)
         }
 
         function sanitizeInput(input) {
@@ -643,9 +686,12 @@
                 }
 
                 if (!phone || !validatePhone(phone)) {
-                    alert('Telefone inválido! Use o formato: (00) 00000-0000');
+                    alert('Telefone inválido! Use o formato: (88) 99999-9999');
                     return;
                 }
+
+                // Formata o telefone para WhatsApp (13 dígitos com +55)
+                const whatsappPhone = formatPhoneToWhatsApp(phone);
 
                 try {
                     authBtn.disabled = true;
@@ -658,7 +704,7 @@
                             emailRedirectTo: undefined,
                             data: {
                                 full_name: fullName,
-                                phone: phone
+                                phone: whatsappPhone
                             }
                         }
                     });
@@ -684,7 +730,7 @@
                                             id: data.user.id,
                                             email: email,
                                             full_name: fullName,
-                                            phone: phone
+                                            phone: whatsappPhone
                                         }]);
 
                                     if (insertError) {
