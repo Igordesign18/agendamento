@@ -12,1210 +12,212 @@
             --dark-bg: #0a0a0a; --dark-card: #1a1a1a; --lime: #c4ff0d; --lime-dark: #9fcc0a;
             --text: #ffffff; --text-muted: #888888; --red: #ff4444; --green: #4caf50;
         }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--dark-bg); color: var(--text); min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
         
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: var(--dark-bg); 
-            color: var(--text); 
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Futuristic animated background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(196, 255, 13, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(196, 255, 13, 0.02) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(196, 255, 13, 0.02) 0%, transparent 50%);
-            z-index: -1;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(196, 255, 13, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(196, 255, 13, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-            z-index: -1;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
-        
-        /* Enhanced Header */
-        header { 
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(26, 26, 26, 0.98) 100%);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 30px rgba(196, 255, 13, 0.1); 
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(196, 255, 13, 0.1);
-        }
-        
-        .header-content { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px;
-            gap: 20px;
-        }
-        
-        .barber-info { 
-            display: flex; 
-            align-items: center; 
-            gap: 20px;
-            flex: 1;
-        }
-        
-        .barber-photo { 
-            width: 70px; 
-            height: 70px; 
-            border-radius: 50%; 
-            border: 3px solid var(--lime); 
-            background: var(--dark-bg); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 32px; 
-            color: var(--lime); 
-            box-shadow: 0 0 20px rgba(196, 255, 13, 0.3);
-            flex-shrink: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .barber-photo::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(196, 255, 13, 0.1), transparent);
-            animation: photoShine 3s infinite;
-        }
-
-        @keyframes photoShine {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .barber-photo img { 
-            width: 100%; 
-            height: 100%; 
-            border-radius: 50%; 
-            object-fit: cover; 
-        }
-        
-        .barber-details { 
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .barber-details h1 { 
-            font-size: 28px; 
-            color: var(--lime); 
-            margin-bottom: 8px;
-            text-shadow: 0 0 10px rgba(196, 255, 13, 0.3);
-        }
-        
-        .barber-meta { 
-            display: flex; 
-            gap: 15px; 
-            flex-wrap: wrap;
-        }
-        
-        .status-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            padding: 6px 12px; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            font-weight: 600; 
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-        }
-        
-        .status-badge.open { 
-            color: #4caf50; 
-            border: 2px solid #4caf50; 
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
-        }
-        
-        .status-badge.closed { 
-            color: #ff4444; 
-            border: 2px solid #ff4444; 
-        }
-        
-        .status-dot { 
-            width: 8px; 
-            height: 8px; 
-            border-radius: 50%; 
-            animation: pulse 2s infinite; 
-        }
-        
+        /* Header */
+        header { background: var(--dark-card); box-shadow: 0 2px 10px rgba(196, 255, 13, 0.1); position: relative; overflow: hidden; }
+        .header-cover { width: 100%; height: 200px; background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); position: relative; overflow: hidden; }
+        .header-cover::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200"><path d="M0,100 Q300,20 600,100 T1200,100 L1200,200 L0,200 Z" fill="%23c4ff0d" opacity="0.1"/></svg>') no-repeat bottom; background-size: cover; }
+        .header-cover img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+        .header-content { display: flex; align-items: flex-end; justify-content: space-between; max-width: 1200px; margin: -60px auto 0; padding: 0 20px 20px; position: relative; }
+        .barber-info { display: flex; align-items: flex-end; gap: 20px; }
+        .barber-photo { width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--dark-card); background: var(--dark-bg); display: flex; align-items: center; justify-content: center; font-size: 48px; color: var(--lime); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5); flex-shrink: 0; }
+        .barber-photo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .barber-details { padding-bottom: 10px; }
+        .barber-details h1 { font-size: 32px; color: var(--lime); margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+        .barber-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; background: rgba(0, 0, 0, 0.3); }
+        .status-badge.open { color: #4caf50; border: 2px solid #4caf50; }
+        .status-badge.closed { color: #ff4444; border: 2px solid #ff4444; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; animation: pulse 2s infinite; }
         .status-badge.open .status-dot { background: #4caf50; }
         .status-badge.closed .status-dot { background: #ff4444; }
-        
-        @keyframes pulse { 
-            0%, 100% { opacity: 1; transform: scale(1); } 
-            50% { opacity: 0.5; transform: scale(0.9); } 
-        }
-        
-        .location-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            padding: 6px 12px; 
-            border-radius: 20px; 
-            font-size: 12px; 
-            color: var(--lime); 
-            background: rgba(196, 255, 13, 0.1); 
-            border: 2px solid var(--lime); 
-        }
-        
-        .header-buttons { 
-            display: flex; 
-            gap: 10px; 
-            align-items: center;
-        }
-        
-        .header-btn { 
-            background: transparent; 
-            border: 2px solid var(--lime); 
-            color: var(--lime); 
-            padding: 10px 20px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            transition: all 0.3s; 
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--lime);
-            transition: left 0.3s;
-            z-index: -1;
-        }
-
-        .header-btn:hover::before {
-            left: 0;
-        }
-
-        .header-btn:hover {
-            color: var(--dark-bg);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.4);
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .location-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; color: var(--lime); background: rgba(196, 255, 13, 0.1); border: 2px solid var(--lime); }
+        .logout-btn { background: transparent; border: 2px solid var(--lime); color: var(--lime); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.4s; display: none; height: fit-content; position: relative; overflow: hidden; white-space: nowrap; }
+        .logout-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--lime); transition: left 0.4s; z-index: 0; }
+        .logout-btn:hover::before { left: 0; }
+        .logout-btn:hover { color: var(--dark-bg); transform: scale(1.05); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.4); }
+        .logout-btn i, .logout-btn span { position: relative; z-index: 1; }
+        .header-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
         
         /* Auth Screen */
-        .auth-screen { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: calc(100vh - 100px); 
-        }
-        
-        .auth-card { 
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 50px rgba(196, 255, 13, 0.2); 
-            width: 100%; 
-            max-width: 450px;
-            border: 1px solid rgba(196, 255, 13, 0.2);
-        }
-        
-        .auth-card h2 { 
-            text-align: center; 
-            margin-bottom: 30px; 
-            color: var(--lime);
-            font-size: 28px;
-        }
-        
-        .form-group { 
-            margin-bottom: 20px; 
-            animation: fadeInUp 0.5s; 
-            animation-fill-mode: both; 
-        }
-        
+        .auth-screen { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 100px); }
+        .auth-card { background: var(--dark-card); padding: 40px; border-radius: 15px; box-shadow: 0 5px 30px rgba(196, 255, 13, 0.2); width: 100%; max-width: 450px; }
+        .auth-card h2 { text-align: center; margin-bottom: 30px; color: var(--lime); }
+        .form-group { margin-bottom: 20px; animation: fadeInUp 0.5s; animation-fill-mode: both; }
         .form-group:nth-child(1) { animation-delay: 0.1s; }
         .form-group:nth-child(2) { animation-delay: 0.2s; }
         .form-group:nth-child(3) { animation-delay: 0.3s; }
         .form-group:nth-child(4) { animation-delay: 0.4s; }
-        
-        @keyframes fadeInUp { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        
-        .form-group label { 
-            display: block; 
-            margin-bottom: 8px; 
-            color: var(--text-muted); 
-            font-size: 14px; 
-            transition: all 0.3s; 
-        }
-        
-        .form-group:focus-within label { 
-            color: var(--lime); 
-            transform: translateX(5px); 
-        }
-        
-        .form-group input { 
-            width: 100%; 
-            padding: 12px; 
-            background: rgba(10, 10, 10, 0.8);
-            border: 2px solid #333; 
-            border-radius: 8px; 
-            color: var(--text); 
-            font-size: 16px; 
-            transition: all 0.3s;
-        }
-        
-        .form-group input:focus { 
-            outline: none; 
-            border-color: var(--lime); 
-            box-shadow: 0 0 15px rgba(196, 255, 13, 0.3); 
-            transform: translateY(-2px); 
-        }
-        
-        .btn { 
-            width: 100%; 
-            padding: 15px; 
-            background: var(--lime); 
-            color: var(--dark-bg); 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            position: relative; 
-            overflow: hidden; 
-            box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); 
-        }
-        
-        .btn::before { 
-            content: ''; 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            width: 0; 
-            height: 0; 
-            border-radius: 50%; 
-            background: rgba(255, 255, 255, 0.3); 
-            transform: translate(-50%, -50%); 
-            transition: width 0.6s, height 0.6s; 
-        }
-        
-        .btn:hover::before { 
-            width: 300px; 
-            height: 300px; 
-        }
-        
-        .btn:hover { 
-            background: var(--lime-dark); 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); 
-        }
-        
-        .btn:active { 
-            transform: translateY(-1px); 
-            box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); 
-        }
-        
-        .btn:disabled { 
-            opacity: 0.6; 
-            cursor: not-allowed; 
-        }
-        
-        .btn span { 
-            position: relative; 
-            z-index: 1; 
-        }
-        
-        .auth-toggle { 
-            text-align: center; 
-            margin-top: 20px; 
-            color: var(--text-muted); 
-        }
-        
-        .auth-toggle button { 
-            background: transparent; 
-            border: none; 
-            color: var(--lime); 
-            cursor: pointer; 
-            text-decoration: underline; 
-            font-size: 14px; 
-            transition: all 0.3s; 
-            padding: 5px 10px; 
-            border-radius: 3px; 
-        }
-        
-        .auth-toggle button:hover { 
-            background: rgba(196, 255, 13, 0.1); 
-            transform: scale(1.05); 
-            text-decoration: none; 
-        }
-        
-        .admin-link { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-            color: var(--lime); 
-            text-decoration: none; 
-            font-size: 14px; 
-            transition: all 0.3s; 
-            padding: 8px 15px; 
-            border-radius: 5px; 
-        }
-        
-        .admin-link:hover { 
-            background: rgba(196, 255, 13, 0.1); 
-            transform: scale(1.05); 
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; transition: all 0.3s; }
+        .form-group:focus-within label { color: var(--lime); transform: translateX(5px); }
+        .form-group input { width: 100%; padding: 12px; background: var(--dark-bg); border: 2px solid #333; border-radius: 5px; color: var(--text); font-size: 16px; transition: all 0.3s; position: relative; }
+        .form-group input:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 15px rgba(196, 255, 13, 0.3); transform: translateY(-2px); }
+        .btn { width: 100%; padding: 15px; background: var(--lime); color: var(--dark-bg); border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); }
+        .btn::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
+        .btn:hover::before { width: 300px; height: 300px; }
+        .btn:hover { background: var(--lime-dark); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); }
+        .btn:active { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn span { position: relative; z-index: 1; }
+        .auth-toggle { text-align: center; margin-top: 20px; color: var(--text-muted); }
+        .auth-toggle button { background: transparent; border: none; color: var(--lime); cursor: pointer; text-decoration: underline; font-size: 14px; transition: all 0.3s; padding: 5px 10px; border-radius: 3px; }
+        .auth-toggle button:hover { background: rgba(196, 255, 13, 0.1); transform: scale(1.05); text-decoration: none; }
+        .admin-link { display: inline-flex; align-items: center; gap: 8px; color: var(--lime); text-decoration: none; font-size: 14px; transition: all 0.3s; padding: 8px 15px; border-radius: 5px; }
+        .admin-link:hover { background: rgba(196, 255, 13, 0.1); transform: scale(1.05); }
         
         /* Main App */
-        .main-app { 
-            display: none; 
-            padding: 40px 20px; 
-        }
-        
-        .dashboard { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 30px; 
-            margin-bottom: 40px; 
-        }
-        
-        .card { 
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3); 
-            transition: all 0.3s; 
-            position: relative; 
-            overflow: hidden;
-            border: 1px solid rgba(196, 255, 13, 0.1);
-        }
-        
-        .card::before { 
-            content: ''; 
-            position: absolute; 
-            top: -50%; 
-            right: -50%; 
-            width: 200%; 
-            height: 200%; 
-            background: radial-gradient(circle, rgba(196, 255, 13, 0.03), transparent); 
-            animation: cardGlow 15s infinite; 
-        }
-        
-        @keyframes cardGlow { 
-            0%, 100% { transform: translate(0, 0); } 
-            50% { transform: translate(-20%, -20%); } 
-        }
-        
-        .card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 10px 40px rgba(196, 255, 13, 0.2); 
-        }
-        
-        .card h3 { 
-            color: var(--lime); 
-            margin-bottom: 20px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-        }
+        .main-app { display: none; padding: 40px 20px; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px; }
+        .card { background: var(--dark-card); padding: 30px; border-radius: 15px; box-shadow: 0 3px 20px rgba(0, 0, 0, 0.3); transition: all 0.3s; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(196, 255, 13, 0.03), transparent); animation: cardGlow 15s infinite; }
+        @keyframes cardGlow { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20%, -20%); } }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(196, 255, 13, 0.2); }
+        .card h3 { color: var(--lime); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
         /* My Bookings */
-        .my-bookings { 
-            grid-column: 1 / -1; 
-        }
+        .my-bookings { grid-column: 1 / -1; }
+        .bookings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
+        .booking-card { background: var(--dark-bg); padding: 20px; border-radius: 10px; border-left: 4px solid var(--lime); transition: all 0.3s; }
+        .booking-card:hover { transform: translateX(5px); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2); }
+        .booking-card.cancelled { border-left-color: var(--red); opacity: 0.7; }
+        .booking-card.completed { border-left-color: var(--text-muted); opacity: 0.7; }
+        .booking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .booking-header h4 { color: var(--lime); font-size: 18px; }
+        .booking-badge { padding: 4px 12px; border-radius: 15px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .booking-badge.confirmed { background: var(--green); color: white; }
+        .booking-badge.cancelled { background: var(--red); color: white; }
+        .booking-badge.completed { background: var(--text-muted); color: white; }
+        .booking-info p { color: var(--text-muted); font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; }
+        .booking-info p i { color: var(--lime); width: 16px; }
+        .booking-datetime { margin: 20px 0; padding: 20px; background: rgba(196, 255, 13, 0.05); border-radius: 10px; border: 2px solid rgba(196, 255, 13, 0.2); }
+        .booking-date-highlight { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .booking-date-highlight i { font-size: 28px; color: var(--lime); }
+        .booking-date-highlight span { font-size: 18px; font-weight: 600; color: var(--lime); text-transform: capitalize; line-height: 1.4; }
+        .booking-time-highlight { display: flex; align-items: center; gap: 12px; }
+        .booking-time-highlight i { font-size: 32px; color: var(--lime); }
+        .booking-time-highlight span { font-size: 32px; font-weight: bold; color: var(--lime); letter-spacing: 2px; }
+        .booking-actions button { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s; }
         
-        .bookings-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 15px; 
-            margin-top: 20px; 
-        }
-        
-        .booking-card { 
-            background: var(--dark-bg); 
-            padding: 20px; 
-            border-radius: 15px; 
-            border-left: 4px solid var(--lime); 
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .booking-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--lime);
-            box-shadow: 0 0 10px var(--lime);
-        }
-        
-        .booking-card:hover { 
-            transform: translateX(5px); 
-            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2); 
-        }
-        
-        .booking-card.cancelled { 
-            border-left-color: var(--red); 
-            opacity: 0.7; 
-        }
-        
-        .booking-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-        }
-        
-        .booking-header h4 { 
-            color: var(--lime); 
-            font-size: 18px; 
-        }
-        
-        .booking-badge { 
-            padding: 4px 12px; 
-            border-radius: 15px; 
-            font-size: 11px; 
-            font-weight: bold; 
-            text-transform: uppercase; 
-        }
-        
-        .booking-badge.confirmed { 
-            background: var(--green); 
-            color: white; 
-        }
-        
-        .booking-badge.cancelled { 
-            background: var(--red); 
-            color: white; 
-        }
-        
-        .booking-info p { 
-            color: var(--text-muted); 
-            font-size: 14px; 
-            margin: 8px 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-        }
-        
-        .booking-info p i { 
-            color: var(--lime); 
-            width: 16px; 
-        }
-        
-        .booking-datetime { 
-            margin: 20px 0; 
-            padding: 20px; 
-            background: rgba(196, 255, 13, 0.05); 
-            border-radius: 10px; 
-            border: 2px solid rgba(196, 255, 13, 0.2); 
-        }
-        
-        .booking-date-highlight { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            margin-bottom: 15px; 
-        }
-        
-        .booking-date-highlight i { 
-            font-size: 28px; 
-            color: var(--lime); 
-        }
-        
-        .booking-date-highlight span { 
-            font-size: 18px; 
-            font-weight: 600; 
-            color: var(--lime); 
-            text-transform: capitalize; 
-            line-height: 1.4; 
-        }
-        
-        .booking-time-highlight { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-        }
-        
-        .booking-time-highlight i { 
-            font-size: 32px; 
-            color: var(--lime); 
-        }
-        
-        .booking-time-highlight span { 
-            font-size: 32px; 
-            font-weight: bold; 
-            color: var(--lime); 
-            letter-spacing: 2px; 
-        }
-        
-        .service-item { 
-            background: var(--dark-bg); 
-            padding: 15px; 
-            border-radius: 12px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border: 2px solid transparent; 
-            cursor: pointer; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        .service-item::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: -100%; 
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(90deg, transparent, rgba(196, 255, 13, 0.1), transparent); 
-            transition: left 0.5s; 
-        }
-        
-        .service-item:hover::before { 
-            left: 100%; 
-        }
-        
-        .service-item:hover { 
-            border-color: var(--lime); 
-            transform: translateX(5px) scale(1.02); 
-            box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2); 
-        }
-        
-        .service-item.selected { 
-            border-color: var(--lime); 
-            background: rgba(196, 255, 13, 0.1); 
-            transform: scale(1.03); 
-            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.3); 
-        }
-        
-        .service-item.selected::after { 
-            content: '\f00c'; 
-            font-family: 'Font Awesome 6 Free'; 
-            font-weight: 900; 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            color: var(--lime); 
-            font-size: 20px; 
-            animation: checkmark 0.5s; 
-        }
-        
-        @keyframes checkmark { 
-            0% { transform: scale(0) rotate(-45deg); opacity: 0; } 
-            50% { transform: scale(1.2) rotate(10deg); } 
-            100% { transform: scale(1) rotate(0deg); opacity: 1; } 
-        }
-        
-        .service-info h4 { 
-            margin-bottom: 5px; 
-        }
-        
-        .service-info p { 
-            color: var(--text-muted); 
-            font-size: 14px; 
-        }
-        
-        .service-price { 
-            color: var(--lime); 
-            font-size: 20px; 
-            font-weight: bold; 
-            text-shadow: 0 0 10px rgba(196, 255, 13, 0.5); 
-            animation: priceGlow 2s infinite; 
-        }
-        
-        @keyframes priceGlow { 
-            0%, 100% { text-shadow: 0 0 10px rgba(196, 255, 13, 0.5); } 
-            50% { text-shadow: 0 0 20px rgba(196, 255, 13, 0.8); } 
-        }
+        .service-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 2px solid transparent; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .service-item::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(196, 255, 13, 0.1), transparent); transition: left 0.5s; }
+        .service-item:hover::before { left: 100%; }
+        .service-item:hover { border-color: var(--lime); transform: translateX(5px) scale(1.02); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.2); }
+        .service-item.selected { border-color: var(--lime); background: rgba(196, 255, 13, 0.1); transform: scale(1.03); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.3); }
+        .service-item.selected::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 10px; right: 10px; color: var(--lime); font-size: 20px; animation: checkmark 0.5s; }
+        @keyframes checkmark { 0% { transform: scale(0) rotate(-45deg); opacity: 0; } 50% { transform: scale(1.2) rotate(10deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .service-info h4 { margin-bottom: 5px; }
+        .service-info p { color: var(--text-muted); font-size: 14px; }
+        .service-price { color: var(--lime); font-size: 20px; font-weight: bold; text-shadow: 0 0 10px rgba(196, 255, 13, 0.5); animation: priceGlow 2s infinite; }
+        @keyframes priceGlow { 0%, 100% { text-shadow: 0 0 10px rgba(196, 255, 13, 0.5); } 50% { text-shadow: 0 0 20px rgba(196, 255, 13, 0.8); } }
         
         /* Calendar */
-        .calendar { 
-            margin-top: 20px; 
-        }
-        
-        .calendar-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 20px; 
-        }
-        
-        .calendar-header button { 
-            background: var(--dark-bg); 
-            border: 2px solid var(--lime); 
-            color: var(--lime); 
-            padding: 8px 15px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        .calendar-header button::before { 
-            content: ''; 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            width: 0; 
-            height: 0; 
-            background: var(--lime); 
-            border-radius: 50%; 
-            transform: translate(-50%, -50%); 
-            transition: width 0.4s, height 0.4s; 
-        }
-        
-        .calendar-header button:hover::before { 
-            width: 200px; 
-            height: 200px; 
-        }
-        
-        .calendar-header button:hover { 
-            color: var(--dark-bg); 
-            transform: scale(1.1); 
-            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3); 
-        }
-        
-        .calendar-header button i { 
-            position: relative; 
-            z-index: 1; 
-        }
-        
-        .calendar-grid { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); 
-            gap: 10px; 
-            margin-bottom: 20px; 
-        }
-        
-        .calendar-day { 
-            aspect-ratio: 1; 
-            background: var(--dark-bg); 
-            border: 2px solid #333; 
-            border-radius: 12px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            font-size: 14px; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        .calendar-day::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: radial-gradient(circle, rgba(196, 255, 13, 0.2), transparent); 
-            transform: scale(0); 
-            transition: transform 0.4s; 
-        }
-        
-        .calendar-day:hover:not(.disabled)::before { 
-            transform: scale(1); 
-        }
-        
-        .calendar-day:hover:not(.disabled) { 
-            border-color: var(--lime); 
-            transform: scale(1.1); 
-            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3); 
-            z-index: 10; 
-        }
-        
-        .calendar-day.selected { 
-            background: var(--lime); 
-            color: var(--dark-bg); 
-            border-color: var(--lime); 
-            transform: scale(1.05); 
-            box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5); 
-            animation: selectDay 0.5s; 
-        }
-        
-        @keyframes selectDay { 
-            0% { transform: scale(1); } 
-            50% { transform: scale(1.15); } 
-            100% { transform: scale(1.05); } 
-        }
-        
-        .calendar-day.disabled { 
-            opacity: 0.3; 
-            cursor: not-allowed; 
-        }
-        
-        .calendar-day.today { 
-            border-color: var(--lime); 
-            box-shadow: 0 0 15px rgba(196, 255, 13, 0.4); 
-        }
-        
-        .time-slots { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
-            gap: 10px; 
-            margin-top: 20px; 
-        }
-        
-        .time-slot { 
-            background: var(--dark-bg); 
-            border: 2px solid #333; 
-            padding: 12px; 
-            border-radius: 8px; 
-            text-align: center; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        .time-slot::before { 
-            content: ''; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 0; 
-            background: var(--lime); 
-            transition: height 0.3s; 
-            z-index: 0; 
-        }
-        
-        .time-slot:hover:not(.disabled)::before { 
-            height: 100%; 
-        }
-        
-        .time-slot:hover:not(.disabled) { 
-            border-color: var(--lime); 
-            color: var(--dark-bg); 
-            transform: translateY(-3px) scale(1.05); 
-            box-shadow: 0 5px 15px rgba(196, 255, 13, 0.4); 
-        }
-        
-        .time-slot span { 
-            position: relative; 
-            z-index: 1; 
-        }
-        
-        .time-slot.selected { 
-            background: var(--lime); 
-            color: var(--dark-bg); 
-            border-color: var(--lime); 
-            transform: scale(1.08); 
-            box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5); 
-            animation: selectTime 0.5s; 
-        }
-        
-        @keyframes selectTime { 
-            0%, 100% { transform: scale(1.08); } 
-            50% { transform: scale(1.15); } 
-        }
-        
-        .time-slot.disabled { 
-            opacity: 0.3; 
-            cursor: not-allowed; 
-            text-decoration: line-through; 
-        }
-        
-        .confirm-booking { 
-            margin-top: 30px; 
-            padding: 20px; 
-            background: rgba(196, 255, 13, 0.1); 
-            border: 2px solid var(--lime); 
-            border-radius: 15px; 
-            animation: slideInUp 0.5s; 
-        }
-        
-        @keyframes slideInUp { 
-            from { opacity: 0; transform: translateY(30px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        
-        .confirm-booking h4 { 
-            color: var(--lime); 
-            margin-bottom: 15px; 
-            animation: pulse 2s infinite; 
-        }
-        
-        .booking-summary { 
-            margin-bottom: 15px; 
-            line-height: 1.8; 
-        }
-        
-        .hidden { 
-            display: none !important; 
-        }
+        .calendar { margin-top: 20px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .calendar-header button { background: var(--dark-bg); border: 2px solid var(--lime); color: var(--lime); padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+        .calendar-header button::before { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: var(--lime); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.4s, height 0.4s; }
+        .calendar-header button:hover::before { width: 200px; height: 200px; }
+        .calendar-header button:hover { color: var(--dark-bg); transform: scale(1.1); box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3); }
+        .calendar-header button i { position: relative; z-index: 1; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 20px; }
+        .calendar-day { aspect-ratio: 1; background: var(--dark-bg); border: 2px solid #333; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-size: 14px; position: relative; overflow: hidden; }
+        .calendar-day::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, rgba(196, 255, 13, 0.2), transparent); transform: scale(0); transition: transform 0.4s; }
+        .calendar-day:hover:not(.disabled)::before { transform: scale(1); }
+        .calendar-day:hover:not(.disabled) { border-color: var(--lime); transform: scale(1.1); box-shadow: 0 5px 15px rgba(196, 255, 13, 0.3); z-index: 10; }
+        .calendar-day.selected { background: var(--lime); color: var(--dark-bg); border-color: var(--lime); transform: scale(1.05); box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5); animation: selectDay 0.5s; }
+        @keyframes selectDay { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1.05); } }
+        .calendar-day.disabled { opacity: 0.3; cursor: not-allowed; }
+        .calendar-day.today { border-color: var(--lime); box-shadow: 0 0 15px rgba(196, 255, 13, 0.4); }
+        .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 20px; }
+        .time-slot { background: var(--dark-bg); border: 2px solid #333; padding: 12px; border-radius: 5px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
+        .time-slot::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 0; background: var(--lime); transition: height 0.3s; z-index: 0; }
+        .time-slot:hover:not(.disabled)::before { height: 100%; }
+        .time-slot:hover:not(.disabled) { border-color: var(--lime); color: var(--dark-bg); transform: translateY(-3px) scale(1.05); box-shadow: 0 5px 15px rgba(196, 255, 13, 0.4); }
+        .time-slot span { position: relative; z-index: 1; }
+        .time-slot.selected { background: var(--lime); color: var(--dark-bg); border-color: var(--lime); transform: scale(1.08); box-shadow: 0 8px 20px rgba(196, 255, 13, 0.5); animation: selectTime 0.5s; }
+        @keyframes selectTime { 0%, 100% { transform: scale(1.08); } 50% { transform: scale(1.15); } }
+        .time-slot.disabled { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+        .confirm-booking { margin-top: 30px; padding: 20px; background: rgba(196, 255, 13, 0.1); border: 2px solid var(--lime); border-radius: 10px; animation: slideInUp 0.5s; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .confirm-booking h4 { color: var(--lime); margin-bottom: 15px; animation: pulse 2s infinite; }
+        .booking-summary { margin-bottom: 15px; line-height: 1.8; }
+        .hidden { display: none !important; }
         
         /* Modal */
-        .modal-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: rgba(0, 0, 0, 0.9); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 1000; 
-            animation: fadeIn 0.3s; 
-            backdrop-filter: blur(5px);
-        }
-        
-        @keyframes fadeIn { 
-            from { opacity: 0; } 
-            to { opacity: 1; } 
-        }
-        
-        .modal-content { 
-            background: rgba(26, 26, 26, 0.98);
-            backdrop-filter: blur(10px);
-            padding: 40px; 
-            border-radius: 20px; 
-            max-width: 500px; 
-            width: 90%; 
-            text-align: center; 
-            border: 3px solid var(--lime); 
-            box-shadow: 0 10px 50px rgba(196, 255, 13, 0.3); 
-            animation: slideUp 0.3s; 
-        }
-        
-        @keyframes slideUp { 
-            from { transform: translateY(50px); opacity: 0; } 
-            to { transform: translateY(0); opacity: 1; } 
-        }
-        
-        .modal-icon { 
-            font-size: 64px; 
-            color: var(--lime); 
-            margin-bottom: 20px; 
-            animation: scaleIn 0.5s; 
-        }
-        
-        .modal-icon.warning { 
-            color: var(--red); 
-        }
-        
-        @keyframes scaleIn { 
-            0% { transform: scale(0); } 
-            50% { transform: scale(1.2); } 
-            100% { transform: scale(1); } 
-        }
-        
-        .modal-content h2 { 
-            color: var(--lime); 
-            margin-bottom: 20px; 
-            font-size: 28px; 
-        }
-        
-        .modal-details { 
-            background: var(--dark-bg); 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin: 20px 0; 
-            text-align: left; 
-        }
-        
-        .modal-details p { 
-            margin: 10px 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            font-size: 16px; 
-        }
-        
-        .modal-details strong { 
-            color: var(--lime); 
-            min-width: 100px; 
-        }
-        
-        .modal-close-btn { 
-            width: 100%; 
-            padding: 15px; 
-            background: var(--lime); 
-            color: var(--dark-bg); 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            margin-top: 10px; 
-            position: relative; 
-            overflow: hidden; 
-        }
-        
-        .modal-close-btn::after { 
-            content: ''; 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            width: 0; 
-            height: 0; 
-            background: rgba(255, 255, 255, 0.4); 
-            border-radius: 50%; 
-            transform: translate(-50%, -50%); 
-            transition: width 0.6s, height 0.6s; 
-        }
-        
-        .modal-close-btn:hover::after { 
-            width: 400px; 
-            height: 400px; 
-        }
-        
-        .modal-close-btn:hover { 
-            background: var(--lime-dark); 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); 
-        }
-        
-        .modal-close-btn:active { 
-            transform: translateY(-1px); 
-        }
-        
-        .modal-close-btn i { 
-            position: relative; 
-            z-index: 1; 
-            margin-right: 8px; 
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content { background: var(--dark-card); padding: 40px; border-radius: 15px; max-width: 500px; width: 90%; text-align: center; border: 3px solid var(--lime); box-shadow: 0 10px 50px rgba(196, 255, 13, 0.3); animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-icon { font-size: 64px; color: var(--lime); margin-bottom: 20px; animation: scaleIn 0.5s; }
+        .modal-icon.warning { color: var(--red); }
+        @keyframes scaleIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .modal-content h2 { color: var(--lime); margin-bottom: 20px; font-size: 28px; }
+        .modal-details { background: var(--dark-bg); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left; }
+        .modal-details p { margin: 10px 0; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+        .modal-details strong { color: var(--lime); min-width: 100px; }
+        .modal-close-btn { width: 100%; padding: 15px; background: var(--lime); color: var(--dark-bg); border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; margin-top: 10px; position: relative; overflow: hidden; }
+        .modal-close-btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.6s, height 0.6s; }
+        .modal-close-btn:hover::after { width: 400px; height: 400px; }
+        .modal-close-btn:hover { background: var(--lime-dark); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); }
+        .modal-close-btn:active { transform: translateY(-1px); }
+        .modal-close-btn i { position: relative; z-index: 1; margin-right: 8px; }
         
         @media (max-width: 768px) {
-            .header-content { 
-                flex-direction: column; 
-                align-items: center; 
-                text-align: center;
-                padding: 15px;
-            }
-            
-            .barber-info { 
-                flex-direction: column; 
-                align-items: center; 
-                text-align: center; 
-            }
-            
-            .barber-photo {
-                width: 60px;
-                height: 60px;
-                font-size: 28px;
-            }
-            
-            .barber-details h1 { 
-                font-size: 22px; 
-            }
-            
-            .barber-meta { 
-                justify-content: center; 
-            }
-            
-            .header-buttons { 
-                width: 100%; 
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            
-            .header-btn {
-                padding: 8px 15px;
-                font-size: 13px;
-            }
-            
-            .header-btn .btn-text { 
-                display: none; 
-            }
-            
-            .header-btn i { 
-                margin: 0; 
-                font-size: 16px; 
-            }
-            
-            .dashboard { 
-                grid-template-columns: 1fr; 
-            }
-            
-            .calendar-grid { 
-                gap: 5px; 
-            }
-            
-            .calendar-day { 
-                font-size: 12px; 
-                padding: 5px; 
-            }
-            
-            .bookings-grid { 
-                grid-template-columns: 1fr; 
-            }
-            
-            .container { 
-                padding: 10px; 
-            }
-            
-            .main-app { 
-                padding: 20px 10px; 
-            }
-            
-            .card { 
-                padding: 20px; 
-            }
-            
-            .auth-card { 
-                padding: 30px 20px; 
-            }
-            
-            .time-slots { 
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); 
-            }
-            
-            .time-slot { 
-                padding: 10px; 
-                font-size: 14px; 
-            }
-            
-            .service-item { 
-                flex-direction: column; 
-                text-align: center; 
-                gap: 10px; 
-            }
-            
-            .service-price { 
-                font-size: 18px; 
-            }
-            
-            .booking-card { 
-                padding: 15px; 
-            }
-            
-            .booking-time-highlight span { 
-                font-size: 24px; 
-            }
-            
-            .booking-date-highlight span { 
-                font-size: 16px; 
-            }
-            
-            .modal-content { 
-                padding: 30px 20px; 
-                width: 95%; 
-            }
-            
-            .form-group input { 
-                font-size: 16px; 
-            }
-            
-            .calendar-header h4 { 
-                font-size: 16px; 
-            }
-            
-            .card h3 { 
-                font-size: 18px; 
-            }
-            
-            .confirm-booking { 
-                padding: 15px; 
-            }
-            
-            .booking-summary { 
-                font-size: 14px; 
-            }
+            .header-cover { height: 150px; }
+            .barber-photo { width: 100px; height: 100px; font-size: 40px; }
+            .barber-details h1 { font-size: 24px; }
+            .header-content { flex-direction: column; align-items: center; gap: 15px; margin-top: -50px; }
+            .barber-info { flex-direction: column; align-items: center; text-align: center; }
+            .barber-meta { justify-content: center; }
+            .header-buttons { width: 100%; justify-content: center; }
+            .logout-btn { padding: 8px 15px; font-size: 13px; }
+            .logout-btn .btn-text { display: none; }
+            .logout-btn i { margin: 0; font-size: 18px; }
+            .dashboard { grid-template-columns: 1fr; }
+            .calendar-grid { gap: 5px; }
+            .calendar-day { font-size: 12px; padding: 5px; }
+            .bookings-grid { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+            .main-app { padding: 20px 10px; }
+            .card { padding: 20px; }
+            .auth-card { padding: 30px 20px; }
+            .time-slots { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+            .time-slot { padding: 10px; font-size: 14px; }
+            .service-item { flex-direction: column; text-align: center; gap: 10px; }
+            .service-price { font-size: 18px; }
+            .booking-card { padding: 15px; }
+            .booking-time-highlight span { font-size: 24px; }
+            .booking-date-highlight span { font-size: 16px; }
+            .modal-content { padding: 30px 20px; width: 95%; }
+            .form-group input { font-size: 16px; }
+            .calendar-header h4 { font-size: 16px; }
+            .card h3 { font-size: 18px; }
+            .confirm-booking { padding: 15px; }
+            .booking-summary { font-size: 14px; }
         }
 
         @media (max-width: 480px) {
-            .barber-details h1 { 
-                font-size: 18px; 
-            }
-            
-            .status-badge, .location-badge { 
-                font-size: 11px; 
-                padding: 4px 8px; 
-            }
-            
-            .header-btn { 
-                padding: 6px 12px; 
-            }
-            
-            .header-btn i { 
-                font-size: 14px; 
-            }
-            
-            .card { 
-                padding: 15px; 
-            }
-            
-            .card h3 { 
-                font-size: 16px; 
-            }
-            
-            .time-slots { 
-                grid-template-columns: repeat(3, 1fr); 
-            }
-            
-            .calendar-day { 
-                font-size: 11px; 
-                padding: 3px; 
-            }
-            
-            .service-item { 
-                padding: 12px; 
-            }
-            
-            .booking-time-highlight span { 
-                font-size: 20px; 
-            }
+            .barber-details h1 { font-size: 20px; }
+            .status-badge, .location-badge { font-size: 11px; padding: 4px 8px; }
+            .logout-btn { padding: 6px 12px; }
+            .logout-btn i { font-size: 16px; }
+            .card { padding: 15px; }
+            .card h3 { font-size: 16px; }
+            .time-slots { grid-template-columns: repeat(3, 1fr); }
+            .calendar-day { font-size: 11px; padding: 3px; }
+            .service-item { padding: 12px; }
+            .booking-time-highlight span { font-size: 20px; }
         }
     </style>
 </head>
 <body>
     <header>
+        <div class="header-cover">
+            <img src="https://png.pngtree.com/thumb_back/fh260/background/20230612/pngtree-some-pictures-of-an-antique-barber-shop-image_2906288.jpg" alt="Capa da Barbearia">
+        </div>
         <div class="header-content">
             <div class="barber-info">
                 <div class="barber-photo" id="barberPhoto">
@@ -1236,10 +238,10 @@
                 </div>
             </div>
             <div class="header-buttons">
-                <button class="header-btn" id="profileBtn" style="display: none;">
-                    <i class="fas fa-user-circle"></i> <span class="btn-text">Perfil</span>
+                <button class="logout-btn" id="profileBtn" style="display: none;">
+                    <i class="fas fa-user-circle"></i> <span class="btn-text">Meu Perfil</span>
                 </button>
-                <button class="header-btn" id="logoutBtn" style="display: none;">
+                <button class="logout-btn" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Sair</span>
                 </button>
             </div>
@@ -1302,7 +304,7 @@
         <div class="card my-bookings" id="profileSection" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3><i class="fas fa-user-circle"></i> Meu Perfil</h3>
-                <button onclick="toggleProfileSection()" class="header-btn">
+                <button onclick="toggleProfileSection()" style="background: transparent; border: 2px solid var(--lime); color: var(--lime); padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s;">
                     <i class="fas fa-arrow-left"></i> Voltar
                 </button>
             </div>
@@ -1405,7 +407,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         const SUPABASE_URL = 'https://syrlmjrbecidbpvofiqa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmxtanJiZWNpZGJwdm9maXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMzE0NDQsImV4cCI6MjA3NTgwNzQ0NH0.80whwN7m1YbwuZ8WLzek-ctWd9KNn97EwUQRzOMAnak';
@@ -1876,8 +877,8 @@
         async function showApp() {
             authScreen.style.display = 'none';
             mainApp.style.display = 'block';
-            logoutBtn.style.display = 'flex';
-            profileBtn.style.display = 'flex';
+            logoutBtn.style.display = 'block';
+            profileBtn.style.display = 'block';
             await loadSettings();
             await loadServices();
             await loadMyBookings();
@@ -1918,7 +919,6 @@
                     .from('bookings')
                     .select('*, services(name, price, duration)')
                     .eq('user_id', currentUser.id)
-                    .eq('status', 'confirmed')
                     .order('booking_date', { ascending: false })
                     .order('booking_time', { ascending: false });
 
@@ -1944,7 +944,8 @@
                             <div class="booking-header">
                                 <h4><i class="fas fa-scissors"></i> ${booking.services?.name || 'Serviço'}</h4>
                                 <span class="booking-badge ${booking.status}">
-                                    ${booking.status === 'confirmed' ? 'Confirmado' : 'Cancelado'}
+                                    ${booking.status === 'confirmed' ? 'Confirmado' : 
+                                      booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
                                 </span>
                             </div>
                             
