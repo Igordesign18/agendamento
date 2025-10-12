@@ -220,9 +220,14 @@
                 </div>
                 <div class="form-group hidden" id="phoneGroup">
                     <label for="phone">Telefone (WhatsApp)</label>
-                    <input type="tel" id="phone" placeholder="+55 (88) 99999-9999" maxlength="19">
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; z-index: 1;">
+                            🇧🇷 +55
+                        </span>
+                        <input type="tel" id="phone" placeholder="(88) 99999-9999" maxlength="15" style="padding-left: 70px;">
+                    </div>
                     <small style="color: var(--text-muted); font-size: 12px; margin-top: 5px; display: block;">
-                        Formato: +55 (DDD) 9XXXX-XXXX - 11 dígitos obrigatórios
+                        Digite apenas DDD + 9 dígitos (11 dígitos no total)
                     </small>
                 </div>
                 <div class="form-group">
@@ -321,21 +326,19 @@
         phoneInput.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
-            if (value.startsWith('55')) {
-                value = value.slice(2);
-            }
-            
+            // Limita a 11 dígitos (DDD + 9 dígitos)
             if (value.length > 11) {
                 value = value.slice(0, 11);
             }
             
+            // Formata o número sem o +55 (já está visível como ícone)
             if (value.length > 0) {
                 if (value.length <= 2) {
-                    value = `+55 (${value}`;
+                    value = `(${value}`;
                 } else if (value.length <= 7) {
-                    value = `+55 (${value.slice(0, 2)}) ${value.slice(2)}`;
+                    value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
                 } else {
-                    value = `+55 (${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
+                    value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
                 }
             }
             
@@ -508,7 +511,7 @@
                 }
 
                 if (!phone || !validatePhone(phone)) {
-                    alert('Telefone inválido! Use o formato: +55 (88) 99999-9999 com 11 dígitos');
+                    alert('Telefone inválido! Digite DDD + 9 dígitos\nExemplo: (88) 99999-9999');
                     return;
                 }
 
