@@ -35,11 +35,12 @@
         .status-badge.closed .status-dot { background: #ff4444; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .location-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; color: var(--lime); background: rgba(196, 255, 13, 0.1); border: 2px solid var(--lime); }
-        .logout-btn { background: transparent; border: 2px solid var(--lime); color: var(--lime); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.4s; display: none; height: fit-content; position: relative; overflow: hidden; }
+        .logout-btn { background: transparent; border: 2px solid var(--lime); color: var(--lime); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.4s; display: none; height: fit-content; position: relative; overflow: hidden; white-space: nowrap; }
         .logout-btn::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: var(--lime); transition: left 0.4s; z-index: 0; }
         .logout-btn:hover::before { left: 0; }
         .logout-btn:hover { color: var(--dark-bg); transform: scale(1.05); box-shadow: 0 5px 20px rgba(196, 255, 13, 0.4); }
         .logout-btn i, .logout-btn span { position: relative; z-index: 1; }
+        .header-buttons { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: center; }
         
         /* Auth Screen */
         .auth-screen { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 100px); }
@@ -171,10 +172,44 @@
             .header-content { flex-direction: column; align-items: center; gap: 15px; margin-top: -50px; }
             .barber-info { flex-direction: column; align-items: center; text-align: center; }
             .barber-meta { justify-content: center; }
+            .header-buttons { width: 100%; justify-content: center; }
+            .logout-btn { padding: 8px 15px; font-size: 13px; }
+            .logout-btn .btn-text { display: none; }
+            .logout-btn i { margin: 0; font-size: 18px; }
             .dashboard { grid-template-columns: 1fr; }
             .calendar-grid { gap: 5px; }
-            .calendar-day { font-size: 12px; }
+            .calendar-day { font-size: 12px; padding: 5px; }
             .bookings-grid { grid-template-columns: 1fr; }
+            .container { padding: 10px; }
+            .main-app { padding: 20px 10px; }
+            .card { padding: 20px; }
+            .auth-card { padding: 30px 20px; }
+            .time-slots { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+            .time-slot { padding: 10px; font-size: 14px; }
+            .service-item { flex-direction: column; text-align: center; gap: 10px; }
+            .service-price { font-size: 18px; }
+            .booking-card { padding: 15px; }
+            .booking-time-highlight span { font-size: 24px; }
+            .booking-date-highlight span { font-size: 16px; }
+            .modal-content { padding: 30px 20px; width: 95%; }
+            .form-group input { font-size: 16px; }
+            .calendar-header h4 { font-size: 16px; }
+            .card h3 { font-size: 18px; }
+            .confirm-booking { padding: 15px; }
+            .booking-summary { font-size: 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .barber-details h1 { font-size: 20px; }
+            .status-badge, .location-badge { font-size: 11px; padding: 4px 8px; }
+            .logout-btn { padding: 6px 12px; }
+            .logout-btn i { font-size: 16px; }
+            .card { padding: 15px; }
+            .card h3 { font-size: 16px; }
+            .time-slots { grid-template-columns: repeat(3, 1fr); }
+            .calendar-day { font-size: 11px; padding: 3px; }
+            .service-item { padding: 12px; }
+            .booking-time-highlight span { font-size: 20px; }
         }
     </style>
 </head>
@@ -202,12 +237,14 @@
                     </div>
                 </div>
             </div>
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
-            <button class="logout-btn" id="profileBtn" style="display: none; margin-right: 10px;">
-                <i class="fas fa-user-circle"></i> Meu Perfil
-            </button>
+            <div class="header-buttons">
+                <button class="logout-btn" id="profileBtn" style="display: none;">
+                    <i class="fas fa-user-circle"></i> <span class="btn-text">Meu Perfil</span>
+                </button>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Sair</span>
+                </button>
+            </div>
         </div>
     </header>
 
