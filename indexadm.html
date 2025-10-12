@@ -25,6 +25,7 @@
         .login-card { background: var(--dark-card); padding: 40px; border-radius: 15px; box-shadow: 0 5px 30px rgba(196, 255, 13, 0.2); width: 100%; max-width: 400px; }
         .login-card h2 { text-align: center; margin-bottom: 10px; color: var(--lime); }
         .login-card p { text-align: center; color: var(--text-muted); margin-bottom: 30px; }
+        .login-card a:hover { transform: translateY(-2px); opacity: 0.8; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; background: var(--dark-bg); border: 2px solid #333; border-radius: 5px; color: var(--text); font-size: 16px; transition: border 0.3s; }
@@ -45,7 +46,6 @@
         .full-width { grid-column: 1 / -1; }
         .bookings-table { width: 100%; margin-top: 20px; }
         .booking-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
-        .booking-item.cancelled-by-client { border-left-color: var(--orange); }
         .booking-info h4 { margin-bottom: 5px; }
         .booking-info p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
         .booking-status { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
@@ -58,12 +58,14 @@
         .btn-complete { background: var(--green); color: white; }
         .btn-delete { background: var(--red); color: white; }
         .services-list { margin-top: 20px; }
-        .service-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .service-info h4 { margin-bottom: 5px; }
-        .service-info p { color: var(--text-muted); font-size: 14px; }
-        .service-actions { display: flex; gap: 10px; }
-        .service-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
+        .service-item, .client-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
+        .service-info h4, .client-info h4 { margin-bottom: 5px; }
+        .service-info p, .client-info p { color: var(--text-muted); font-size: 14px; margin-top: 3px; }
+        .service-actions, .client-actions { display: flex; gap: 10px; }
+        .service-actions button, .client-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
         .btn-edit { background: var(--lime); color: var(--dark-bg); }
+        .client-stats { display: flex; gap: 15px; margin-top: 8px; flex-wrap: wrap; }
+        .client-stat { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
         .day-schedule-container { margin-top: 20px; }
         .day-card { background: var(--dark-bg); padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #333; }
         .day-card.active { border-color: var(--lime); }
@@ -84,33 +86,20 @@
         .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.3; }
         .hidden { display: none !important; }
         .interval-config { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .cancelled-badge { background: var(--orange); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 10px; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: var(--dark-card); padding: 30px; border-radius: 15px; box-shadow: 0 5px 30px rgba(196, 255, 13, 0.3); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { color: var(--lime); font-size: 20px; margin: 0; }
-        .close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.3s; }
+        .close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.3s; padding: 0; }
         .close-modal:hover { color: var(--lime); }
-        .client-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
-        .client-item:hover { border-left-color: var(--lime-dark); }
-        .client-info h4 { margin-bottom: 5px; color: var(--text); }
-        .client-info p { color: var(--text-muted); font-size: 14px; margin-top: 3px; }
-        .client-stats { display: flex; gap: 15px; margin-top: 8px; }
-        .client-stat { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
-        .client-actions { display: flex; gap: 10px; }
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-        }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
         @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { 
             .stats-grid { grid-template-columns: 1fr; } 
-            .time-period { flex-wrap: wrap; } 
-            .client-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .time-period { flex-wrap: wrap; }
+            .booking-item, .client-item { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .booking-actions, .client-actions { width: 100%; }
         }
     </style>
 </head>
@@ -143,6 +132,12 @@
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
             </form>
+            <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 2px solid #333;">
+                <a href="https://sites-agendamentoyuri.rthuab.easypanel.host/index.html" style="color: var(--lime); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; transition: all 0.3s;">
+                    <i class="fas fa-user-circle" style="font-size: 18px;"></i>
+                    <span>Entrar como Cliente</span>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -231,7 +226,6 @@
         </div>
     </div>
 
-    <!-- Modal para editar cliente -->
     <div id="editClientModal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">
@@ -264,7 +258,9 @@
         const SUPABASE_URL = 'https://syrlmjrbecidbpvofiqa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmxtanJiZWNpZGJwdm9maXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMzE0NDQsImV4cCI6MjA3NTgwNzQ0NH0.80whwN7m1YbwuZ8WLzek-ctWd9KNn97EwUQRzOMAnak';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
         let currentAdmin = null;
+        let realtimeChannel = null;
         let scheduleConfig = {
             0: { active: true, periods: [{ start: '08:00', end: '12:00' }, { start: '14:00', end: '18:00' }] },
             1: { active: true, periods: [{ start: '08:00', end: '12:00' }, { start: '14:00', end: '18:00' }] },
@@ -276,50 +272,26 @@
         };
         const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
-        let realtimeChannel = null;
-
         function setupRealtimeListener() {
             if (realtimeChannel) {
                 supabase.removeChannel(realtimeChannel);
             }
-
-            realtimeChannel = supabase
-                .channel('bookings-changes')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'bookings' },
-                    (payload) => {
-                        console.log('Mudança detectada:', payload);
-                        if (payload.eventType === 'DELETE') {
-                            showNotification('Um agendamento foi cancelado pelo cliente!', 'warning');
-                        }
-                        loadBookings();
-                        loadStats();
+            realtimeChannel = supabase.channel('bookings-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
+                    console.log('Mudança detectada:', payload);
+                    if (payload.eventType === 'DELETE') {
+                        showNotification('Um agendamento foi cancelado pelo cliente!', 'warning');
                     }
-                )
-                .subscribe();
+                    loadBookings();
+                    loadStats();
+                }).subscribe();
         }
 
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: ${type === 'warning' ? 'var(--orange)' : 'var(--lime)'};
-                color: ${type === 'warning' ? 'white' : 'var(--dark-bg)'};
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-                z-index: 1000;
-                animation: slideIn 0.3s;
-                font-weight: bold;
-                max-width: 300px;
-            `;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : 'bell'}"></i> ${message}
-            `;
+            notification.style.cssText = `position: fixed; top: 80px; right: 20px; background: ${type === 'warning' ? 'var(--orange)' : 'var(--lime)'}; color: ${type === 'warning' ? 'white' : 'var(--dark-bg)'}; padding: 15px 20px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 1000; animation: slideIn 0.3s; font-weight: bold; max-width: 300px;`;
+            notification.innerHTML = `<i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : 'bell'}"></i> ${message}`;
             document.body.appendChild(notification);
-
             setTimeout(() => {
                 notification.style.animation = 'slideOut 0.3s';
                 setTimeout(() => notification.remove(), 300);
@@ -331,7 +303,6 @@
             const btn = e.target.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
-            
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: document.getElementById('adminEmail').value,
@@ -357,9 +328,7 @@
         }
 
         function logout() {
-            if (realtimeChannel) {
-                supabase.removeChannel(realtimeChannel);
-            }
+            if (realtimeChannel) supabase.removeChannel(realtimeChannel);
             supabase.auth.signOut();
             currentAdmin = null;
             document.getElementById('loginScreen').classList.remove('hidden');
@@ -397,48 +366,21 @@
         async function loadBookings() {
             const container = document.getElementById('bookingsTable');
             container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>';
-            
             try {
                 const filterStatus = document.getElementById('filterStatus').value;
                 const filterDate = document.getElementById('filterDate').value;
-                
-                let query = supabase.from('bookings')
-                    .select('*, users(full_name, phone, email), services(name, price, duration)')
-                    .order('booking_date', { ascending: true })
-                    .order('booking_time', { ascending: true });
-                
+                let query = supabase.from('bookings').select('*, users(full_name, phone, email), services(name, price, duration)').order('booking_date', { ascending: true }).order('booking_time', { ascending: true });
                 if (filterStatus !== 'all') query = query.eq('status', filterStatus);
                 if (filterDate) query = query.eq('booking_date', filterDate);
-                
                 const { data, error } = await query;
                 if (error) throw error;
-                
                 if (!data || data.length === 0) {
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>Nenhum agendamento encontrado</p></div>';
                     return;
                 }
-                
                 container.innerHTML = data.map(booking => {
                     const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR');
-                    
-                    return `
-                        <div class="booking-item">
-                            <div class="booking-info">
-                                <h4>
-                                    <i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}
-                                </h4>
-                                <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'Sem telefone'}</p>
-                                <p style="margin-top: 5px;"><i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0}min</p>
-                            </div>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
-                                <div class="booking-actions">
-                                    ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
-                                    <button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    return `<div class="booking-item"><div class="booking-info"><h4><i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}</h4><p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'Sem telefone'}</p><p style="margin-top: 5px;"><i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0}min</p></div><div style="display: flex; gap: 15px; align-items: center;"><span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span><div class="booking-actions">${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}<button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button></div></div></div>`;
                 }).join('');
             } catch (error) {
                 console.error('Erro ao carregar agendamentos:', error);
@@ -447,13 +389,8 @@
         }
 
         async function updateBookingStatus(bookingId, status) {
-            if (!bookingId) {
-                alert('ID inválido');
-                return;
-            }
-            
+            if (!bookingId) { alert('ID inválido'); return; }
             if (!confirm(`Tem certeza que deseja ${status === 'completed' ? 'concluir' : 'cancelar'} este agendamento?`)) return;
-            
             try {
                 const { error } = await supabase.from('bookings').update({ status: status }).eq('id', bookingId);
                 if (error) throw error;
@@ -466,15 +403,8 @@
         }
 
         async function deleteBooking(bookingId) {
-            if (!bookingId) {
-                alert('ID inválido');
-                return;
-            }
-            
-            if (!confirm('Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!')) {
-                return;
-            }
-            
+            if (!bookingId) { alert('ID inválido'); return; }
+            if (!confirm('Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!')) return;
             try {
                 const { error } = await supabase.from('bookings').delete().eq('id', bookingId);
                 if (error) throw error;
@@ -483,7 +413,6 @@
                 loadStats();
             } catch (error) {
                 alert('Erro ao excluir agendamento: ' + error.message);
-                console.error('Erro completo:', error);
             }
         }
 
@@ -491,25 +420,14 @@
             try {
                 const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
                 if (error) throw error;
-                
                 const container = document.getElementById('servicesList');
                 if (!data || data.length === 0) {
                     container.innerHTML = '<div class="empty-state" style="padding: 20px;"><i class="fas fa-cut"></i><p>Nenhum serviço cadastrado</p></div>';
                     return;
                 }
-                
-                container.innerHTML = `<h3 style="margin: 20px 0 15px; color: var(--lime); font-size: 16px;">Serviços Cadastrados</h3>` + data.map(service => `
-                    <div class="service-item">
-                        <div class="service-info">
-                            <h4>${service.name}</h4>
-                            <p>R$ ${service.price.toFixed(2)} • ${service.duration} minutos</p>
-                        </div>
-                        <div class="service-actions">
-                            <button class="btn-edit" onclick="editService(${service.id})"><i class="fas fa-edit"></i> Editar</button>
-                            <button class="btn-delete" onclick="deleteService(${service.id})"><i class="fas fa-trash"></i> Excluir</button>
-                        </div>
-                    </div>
-                `).join('');
+                container.innerHTML = `<h3 style="margin: 20px 0 15px; color: var(--lime); font-size: 16px;">Serviços Cadastrados</h3>` + data.map(service => 
+                    `<div class="service-item"><div class="service-info"><h4>${service.name}</h4><p>R$ ${service.price.toFixed(2)} • ${service.duration} minutos</p></div><div class="service-actions"><button class="btn-edit" onclick="editService(${service.id})"><i class="fas fa-edit"></i> Editar</button><button class="btn-delete" onclick="deleteService(${service.id})"><i class="fas fa-trash"></i> Excluir</button></div></div>`
+                ).join('');
             } catch (error) {
                 console.error('Erro ao carregar serviços:', error);
             }
@@ -519,22 +437,9 @@
             const name = document.getElementById('serviceName').value.trim();
             const price = parseFloat(document.getElementById('servicePrice').value);
             const duration = parseInt(document.getElementById('serviceDuration').value);
-            
-            if (!name || name.length < 3) {
-                alert('Nome do serviço inválido!');
-                return;
-            }
-            
-            if (!price || price <= 0) {
-                alert('Preço inválido!');
-                return;
-            }
-            
-            if (!duration || duration < 15) {
-                alert('Duração mínima: 15 minutos!');
-                return;
-            }
-            
+            if (!name || name.length < 3) { alert('Nome do serviço inválido!'); return; }
+            if (!price || price <= 0) { alert('Preço inválido!'); return; }
+            if (!duration || duration < 15) { alert('Duração mínima: 15 minutos!'); return; }
             try {
                 const { error } = await supabase.from('services').insert([{ name, price, duration }]);
                 if (error) throw error;
@@ -553,19 +458,11 @@
                 const { data } = await supabase.from('services').select('*').eq('id', id).single();
                 const newName = prompt('Nome do serviço:', data.name);
                 if (!newName || newName.trim().length < 3) return;
-                
                 const newPrice = prompt('Preço (R$):', data.price);
                 if (!newPrice || parseFloat(newPrice) <= 0) return;
-                
                 const newDuration = prompt('Duração (minutos):', data.duration);
                 if (!newDuration || parseInt(newDuration) < 15) return;
-                
-                const { error } = await supabase.from('services').update({ 
-                    name: newName.trim(), 
-                    price: parseFloat(newPrice), 
-                    duration: parseInt(newDuration) 
-                }).eq('id', id);
-                
+                const { error } = await supabase.from('services').update({ name: newName.trim(), price: parseFloat(newPrice), duration: parseInt(newDuration) }).eq('id', id);
                 if (error) throw error;
                 alert('Serviço atualizado com sucesso!');
                 loadServices();
@@ -589,76 +486,27 @@
         async function loadClients() {
             const container = document.getElementById('clientsList');
             container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando clientes...</p></div>';
-            
             try {
                 const filterName = document.getElementById('filterClientName').value.toLowerCase();
-                
-                let query = supabase
-                    .from('users')
-                    .select('id, full_name, email, phone, created_at')
-                    .order('created_at', { ascending: false });
-                
-                const { data: users, error } = await query;
+                const { data: users, error } = await supabase.from('users').select('id, full_name, email, phone, created_at').order('created_at', { ascending: false });
                 if (error) throw error;
-                
                 let filteredUsers = users;
                 if (filterName) {
-                    filteredUsers = users.filter(user => 
-                        user.full_name?.toLowerCase().includes(filterName)
-                    );
+                    filteredUsers = users.filter(user => user.full_name?.toLowerCase().includes(filterName));
                 }
-                
                 if (!filteredUsers || filteredUsers.length === 0) {
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum cliente encontrado</p></div>';
                     return;
                 }
-                
                 const clientsWithStats = await Promise.all(filteredUsers.map(async (user) => {
-                    const { data: bookings } = await supabase
-                        .from('bookings')
-                        .select('id, status')
-                        .eq('user_id', user.id);
-                    
+                    const { data: bookings } = await supabase.from('bookings').select('id, status').eq('user_id', user.id);
                     const totalBookings = bookings?.length || 0;
                     const completedBookings = bookings?.filter(b => b.status === 'completed').length || 0;
-                    
                     return { ...user, totalBookings, completedBookings };
                 }));
-                
                 container.innerHTML = clientsWithStats.map(client => {
                     const memberSince = new Date(client.created_at).toLocaleDateString('pt-BR');
-                    
-                    return `
-                        <div class="client-item">
-                            <div class="client-info">
-                                <h4><i class="fas fa-user"></i> ${client.full_name || 'Nome não informado'}</h4>
-                                <p><i class="fas fa-envelope"></i> ${client.email}</p>
-                                <p><i class="fas fa-phone"></i> ${client.phone || 'Telefone não informado'}</p>
-                                <div class="client-stats">
-                                    <span class="client-stat">
-                                        <i class="fas fa-calendar-check"></i> 
-                                        ${client.totalBookings} agendamento${client.totalBookings !== 1 ? 's' : ''}
-                                    </span>
-                                    <span class="client-stat">
-                                        <i class="fas fa-check-circle"></i> 
-                                        ${client.completedBookings} concluído${client.completedBookings !== 1 ? 's' : ''}
-                                    </span>
-                                    <span class="client-stat">
-                                        <i class="fas fa-user-clock"></i> 
-                                        Cliente desde ${memberSince}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="client-actions">
-                                <button class="btn-edit" onclick="openEditClientModal('${client.id}')">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button class="btn-delete" onclick="deleteClient('${client.id}')">
-                                    <i class="fas fa-trash"></i> Excluir
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    return `<div class="client-item"><div class="client-info"><h4><i class="fas fa-user"></i> ${client.full_name || 'Nome não informado'}</h4><p><i class="fas fa-envelope"></i> ${client.email}</p><p><i class="fas fa-phone"></i> ${client.phone || 'Telefone não informado'}</p><div class="client-stats"><span class="client-stat"><i class="fas fa-calendar-check"></i> ${client.totalBookings} agendamento${client.totalBookings !== 1 ? 's' : ''}</span><span class="client-stat"><i class="fas fa-check-circle"></i> ${client.completedBookings} concluído${client.completedBookings !== 1 ? 's' : ''}</span><span class="client-stat"><i class="fas fa-user-clock"></i> Cliente desde ${memberSince}</span></div></div><div class="client-actions"><button class="btn-edit" onclick="openEditClientModal('${client.id}')"><i class="fas fa-edit"></i> Editar</button><button class="btn-delete" onclick="deleteClient('${client.id}')"><i class="fas fa-trash"></i> Excluir</button></div></div>`;
                 }).join('');
             } catch (error) {
                 console.error('Erro ao carregar clientes:', error);
@@ -668,19 +516,12 @@
 
         async function openEditClientModal(clientId) {
             try {
-                const { data: client, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('id', clientId)
-                    .single();
-                
+                const { data: client, error } = await supabase.from('users').select('*').eq('id', clientId).single();
                 if (error) throw error;
-                
                 document.getElementById('editClientId').value = client.id;
                 document.getElementById('editClientName').value = client.full_name || '';
                 document.getElementById('editClientEmail').value = client.email || '';
                 document.getElementById('editClientPhone').value = client.phone || '';
-                
                 document.getElementById('editClientModal').classList.remove('hidden');
             } catch (error) {
                 alert('Erro ao carregar dados do cliente: ' + error.message);
@@ -694,39 +535,16 @@
 
         document.getElementById('editClientForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const clientId = document.getElementById('editClientId').value;
             const fullName = document.getElementById('editClientName').value.trim();
             const email = document.getElementById('editClientEmail').value.trim();
             const phone = document.getElementById('editClientPhone').value.trim();
-            
-            if (!fullName || fullName.length < 3) {
-                alert('Nome deve ter pelo menos 3 caracteres!');
-                return;
-            }
-            
-            if (!email || !email.includes('@')) {
-                alert('Email inválido!');
-                return;
-            }
-            
-            if (!phone || phone.length < 10) {
-                alert('Telefone inválido!');
-                return;
-            }
-            
+            if (!fullName || fullName.length < 3) { alert('Nome deve ter pelo menos 3 caracteres!'); return; }
+            if (!email || !email.includes('@')) { alert('Email inválido!'); return; }
+            if (!phone || phone.length < 10) { alert('Telefone inválido!'); return; }
             try {
-                const { error } = await supabase
-                    .from('users')
-                    .update({
-                        full_name: fullName,
-                        email: email,
-                        phone: phone
-                    })
-                    .eq('id', clientId);
-                
+                const { error } = await supabase.from('users').update({ full_name: fullName, email: email, phone: phone }).eq('id', clientId);
                 if (error) throw error;
-                
                 alert('Cliente atualizado com sucesso!');
                 closeEditClientModal();
                 loadClients();
@@ -737,31 +555,17 @@
         });
 
         async function deleteClient(clientId) {
-            if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação irá excluir todos os agendamentos associados e não pode ser desfeita!')) {
-                return;
-            }
-            
+            if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação irá excluir todos os agendamentos associados e não pode ser desfeita!')) return;
             try {
-                const { error: bookingsError } = await supabase
-                    .from('bookings')
-                    .delete()
-                    .eq('user_id', clientId);
-                
+                const { error: bookingsError } = await supabase.from('bookings').delete().eq('user_id', clientId);
                 if (bookingsError) throw bookingsError;
-                
-                const { error: userError } = await supabase
-                    .from('users')
-                    .delete()
-                    .eq('id', clientId);
-                
+                const { error: userError } = await supabase.from('users').delete().eq('id', clientId);
                 if (userError) throw userError;
-                
                 alert('Cliente excluído com sucesso!');
                 loadClients();
                 loadStats();
             } catch (error) {
                 alert('Erro ao excluir cliente: ' + error.message);
-                console.error('Erro completo:', error);
             }
         }
 
@@ -786,27 +590,7 @@
             container.innerHTML = Object.keys(scheduleConfig).map(day => {
                 const dayNum = parseInt(day);
                 const config = scheduleConfig[dayNum];
-                return `
-                    <div class="day-card ${config.active ? 'active' : ''}" id="day-${dayNum}">
-                        <div class="day-header">
-                            <h4>${dayNames[dayNum]}</h4>
-                            <button class="day-toggle ${config.active ? 'active' : ''}" onclick="toggleDay(${dayNum})">
-                                ${config.active ? '<i class="fas fa-check"></i> Aberto' : '<i class="fas fa-times"></i> Fechado'}
-                            </button>
-                        </div>
-                        <div class="time-periods" id="periods-${dayNum}">
-                            ${config.periods.map((period, index) => `
-                                <div class="time-period">
-                                    <input type="time" value="${period.start}" onchange="updatePeriod(${dayNum}, ${index}, 'start', this.value)" ${!config.active ? 'disabled' : ''}>
-                                    <span style="color: var(--text-muted);">às</span>
-                                    <input type="time" value="${period.end}" onchange="updatePeriod(${dayNum}, ${index}, 'end', this.value)" ${!config.active ? 'disabled' : ''}>
-                                    <button onclick="removePeriod(${dayNum}, ${index})" ${!config.active ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <button class="add-period-btn" onclick="addPeriod(${dayNum})" ${!config.active ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar Período</button>
-                    </div>
-                `;
+                return `<div class="day-card ${config.active ? 'active' : ''}" id="day-${dayNum}"><div class="day-header"><h4>${dayNames[dayNum]}</h4><button class="day-toggle ${config.active ? 'active' : ''}" onclick="toggleDay(${dayNum})">${config.active ? '<i class="fas fa-check"></i> Aberto' : '<i class="fas fa-times"></i> Fechado'}</button></div><div class="time-periods" id="periods-${dayNum}">${config.periods.map((period, index) => `<div class="time-period"><input type="time" value="${period.start}" onchange="updatePeriod(${dayNum}, ${index}, 'start', this.value)" ${!config.active ? 'disabled' : ''}><span style="color: var(--text-muted);">às</span><input type="time" value="${period.end}" onchange="updatePeriod(${dayNum}, ${index}, 'end', this.value)" ${!config.active ? 'disabled' : ''}><button onclick="removePeriod(${dayNum}, ${index})" ${!config.active ? 'disabled' : ''}><i class="fas fa-trash"></i></button></div>`).join('')}</div><button class="add-period-btn" onclick="addPeriod(${dayNum})" ${!config.active ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar Período</button></div>`;
             }).join('');
         }
 
@@ -824,10 +608,7 @@
         }
 
         function removePeriod(dayNum, index) {
-            if (scheduleConfig[dayNum].periods.length === 1) {
-                alert('Deve haver pelo menos um período de funcionamento!');
-                return;
-            }
+            if (scheduleConfig[dayNum].periods.length === 1) { alert('Deve haver pelo menos um período de funcionamento!'); return; }
             scheduleConfig[dayNum].periods.splice(index, 1);
             renderSchedule();
         }
@@ -845,62 +626,38 @@
                             const [endH, endM] = period.end.split(':').map(Number);
                             const startMinutes = startH * 60 + startM;
                             const endMinutes = endH * 60 + endM;
-                            
-                            if (startMinutes >= endMinutes) {
-                                alert(`Erro no ${dayNames[day]}: O horário de início deve ser menor que o de término!`);
-                                return;
-                            }
-                            
-                            if (endMinutes - startMinutes < 30) {
-                                alert(`Erro no ${dayNames[day]}: Período muito curto (mínimo 30 minutos)!`);
-                                return;
-                            }
+                            if (startMinutes >= endMinutes) { alert(`Erro no ${dayNames[day]}: O horário de início deve ser menor que o de término!`); return; }
+                            if (endMinutes - startMinutes < 30) { alert(`Erro no ${dayNames[day]}: Período muito curto (mínimo 30 minutos)!`); return; }
                         }
-                        
                         for (let i = 0; i < scheduleConfig[day].periods.length; i++) {
                             for (let j = i + 1; j < scheduleConfig[day].periods.length; j++) {
                                 const period1 = scheduleConfig[day].periods[i];
                                 const period2 = scheduleConfig[day].periods[j];
-                                
                                 const [start1H, start1M] = period1.start.split(':').map(Number);
                                 const [end1H, end1M] = period1.end.split(':').map(Number);
                                 const [start2H, start2M] = period2.start.split(':').map(Number);
                                 const [end2H, end2M] = period2.end.split(':').map(Number);
-                                
                                 const start1 = start1H * 60 + start1M;
                                 const end1 = end1H * 60 + end1M;
                                 const start2 = start2H * 60 + start2M;
                                 const end2 = end2H * 60 + end2M;
-                                
-                                if ((start1 < end2 && end1 > start2)) {
-                                    alert(`Erro no ${dayNames[day]}: Períodos com horários sobrepostos!`);
-                                    return;
-                                }
+                                if ((start1 < end2 && end1 > start2)) { alert(`Erro no ${dayNames[day]}: Períodos com horários sobrepostos!`); return; }
                             }
                         }
                     }
                 }
-                
                 const intervalTime = parseInt(document.getElementById('intervalTime').value);
-                
-                if (intervalTime < 15 || intervalTime > 120) {
-                    alert('Intervalo deve estar entre 15 e 120 minutos!');
-                    return;
-                }
-                
+                if (intervalTime < 15 || intervalTime > 120) { alert('Intervalo deve estar entre 15 e 120 minutos!'); return; }
                 const settings = [
                     { key: 'schedule_config', value: JSON.stringify(scheduleConfig) },
                     { key: 'interval_time', value: intervalTime.toString() }
                 ];
-                
                 for (const setting of settings) {
                     await supabase.from('settings').upsert(setting, { onConflict: 'key' });
                 }
-                
                 alert('Configurações salvas com sucesso!');
             } catch (error) {
                 alert('Erro ao salvar configurações: ' + error.message);
-                console.error('Erro completo:', error);
             }
         }
 
