@@ -60,6 +60,7 @@
         .btn:hover::before { width: 300px; height: 300px; }
         .btn:hover { background: var(--lime-dark); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); }
         .btn:active { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(196, 255, 13, 0.3); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn span { position: relative; z-index: 1; }
         .auth-toggle { text-align: center; margin-top: 20px; color: var(--text-muted); }
         .auth-toggle button { background: transparent; border: none; color: var(--lime); cursor: pointer; text-decoration: underline; font-size: 14px; transition: all 0.3s; padding: 5px 10px; border-radius: 3px; }
@@ -234,7 +235,7 @@
         <div class="card my-bookings">
             <h3><i class="fas fa-calendar-check"></i> Meus Agendamentos</h3>
             <div class="bookings-grid" id="myBookingsGrid">
-                <p style="color: var(--text-muted); text-align: center; padding: 20px;">Carregando...</p>
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Carregando...</p>
             </div>
         </div>
 
@@ -309,6 +310,21 @@
         const authBtn = document.getElementById('authBtn');
         const toggleText = document.getElementById('toggleText');
 
+        // Funções de validação
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            return cleaned.length >= 10 && cleaned.length <= 11;
+        }
+
+        function sanitizeInput(input) {
+            if (typeof input !== 'string') return input;
+            return input.trim().substring(0, 255);
+        }
+
         function updateStatusBadge() {
             const statusBadge = document.getElementById('statusBadge');
             const statusText = document.getElementById('statusText');
@@ -382,11 +398,20 @@
 
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            
+            const email = sanitizeInput(document.getElementById('email').value);
             const password = document.getElementById('password').value;
+            
+            if (!validateEmail(email)) {
+                alert('Email inválido!');
+                return;
+            }
             
             if (isLogin) {
                 try {
+                    authBtn.disabled = true;
+                    authBtn.innerHTML = '<span><i class="fas fa-spinner fa-spin"></i> Entrando...</span>';
+                    
                     const { data, error } = await supabase.auth.signInWithPassword({
                         email: email,
                         password: password
@@ -398,17 +423,28 @@
                     showApp();
                 } catch (error) {
                     alert('Erro ao fazer login: ' + error.message);
+                } finally {
+                    authBtn.disabled = false;
+                    authBtn.innerHTML = '<span>Entrar</span>';
                 }
             } else {
-                const fullName = document.getElementById('fullName').value;
-                const phone = document.getElementById('phone').value;
+                const fullName = sanitizeInput(document.getElementById('fullName').value);
+                const phone = sanitizeInput(document.getElementById('phone').value);
 
-                if (!fullName || !phone) {
-                    alert('Preencha todos os campos!');
+                if (!fullName || fullName.length < 3) {
+                    alert('Nome completo inválido!');
+                    return;
+                }
+
+                if (!phone || !validatePhone(phone)) {
+                    alert('Telefone inválido! Use o formato: (00) 00000-0000');
                     return;
                 }
 
                 try {
+                    authBtn.disabled = true;
+                    authBtn.innerHTML = '<span><i class="fas fa-spinner fa-spin"></i> Cadastrando...</span>';
+                    
                     const { data, error } = await supabase.auth.signUp({
                         email: email,
                         password: password,
@@ -443,6 +479,9 @@
                     }
                 } catch (error) {
                     alert('Erro ao cadastrar: ' + error.message);
+                } finally {
+                    authBtn.disabled = false;
+                    authBtn.innerHTML = '<span>Cadastrar</span>';
                 }
             }
         });
@@ -491,6 +530,9 @@
         }
 
         async function loadMyBookings() {
+            const container = document.getElementById('myBookingsGrid');
+            container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Carregando...</p>';
+            
             try {
                 const { data, error } = await supabase
                     .from('bookings')
@@ -500,8 +542,6 @@
                     .order('booking_time', { ascending: false });
 
                 if (error) throw error;
-
-                const container = document.getElementById('myBookingsGrid');
 
                 if (!data || data.length === 0) {
                     container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Você ainda não tem agendamentos</p>';
@@ -534,10 +574,16 @@
                 `).join('');
             } catch (error) {
                 console.error('Erro ao carregar agendamentos:', error);
+                container.innerHTML = '<p style="color: var(--red); text-align: center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Erro ao carregar agendamentos</p>';
             }
         }
 
         async function cancelBooking(bookingId) {
+            if (!bookingId) {
+                alert('ID de agendamento inválido');
+                return;
+            }
+            
             if (!confirm('Tem certeza que deseja cancelar este agendamento? Ele será removido permanentemente.')) {
                 return;
             }
@@ -629,6 +675,7 @@
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(year, month, day);
+                date.setHours(0, 0, 0, 0);
                 const dayOfWeek = date.getDay();
                 const isPast = date < today;
                 const isWorkingDay = scheduleConfig[dayOfWeek]?.active || false;
@@ -657,6 +704,7 @@
             }
             
             selectedDate = new Date(year, month, day);
+            selectedDate.setHours(0, 0, 0, 0);
             selectedTime = null;
             renderCalendar();
             await loadBookedSlots();
@@ -800,7 +848,13 @@
             container.classList.remove('hidden');
         }
 
-        document.getElementById('confirmBtn').addEventListener('click', async () => {
+        document.getElementById('confirmBtn').addEventListener('click', async (e) => {
+            const btn = e.target.closest('button');
+            if (btn.disabled) return;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span><i class="fas fa-spinner fa-spin"></i> Confirmando...</span>';
+            
             try {
                 const dateStr = selectedDate.toISOString().split('T')[0];
                 
@@ -826,7 +880,7 @@
                         .eq('id', currentUser.id)
                         .single();
 
-                    await fetch(WEBHOOK_URL, {
+                    const webhookResponse = await fetch(WEBHOOK_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -844,8 +898,13 @@
                             status: 'confirmed'
                         })
                     });
+                    
+                    if (!webhookResponse.ok) {
+                        console.warn('Webhook falhou, mas agendamento foi criado');
+                    }
                 } catch (webhookError) {
                     console.error('Erro ao enviar webhook:', webhookError);
+                    // Não bloqueia o agendamento
                 }
 
                 const modal = document.getElementById('confirmationModal');
@@ -886,6 +945,9 @@
                 renderCalendar();
             } catch (error) {
                 alert('Erro ao confirmar agendamento: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Confirmar Agendamento</span>';
             }
         });
 
@@ -918,6 +980,7 @@
                 authScreen.style.display = 'flex';
                 mainApp.style.display = 'none';
                 logoutBtn.style.display = 'none';
+                alert('Sessão encerrada.');
             }
         });
 
