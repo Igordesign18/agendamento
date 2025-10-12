@@ -45,6 +45,7 @@
         .full-width { grid-column: 1 / -1; }
         .bookings-table { width: 100%; margin-top: 20px; }
         .booking-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
+        .booking-item.cancelled-by-client { border-left-color: var(--orange); }
         .booking-info h4 { margin-bottom: 5px; }
         .booking-info p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
         .booking-status { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
@@ -55,6 +56,7 @@
         .booking-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
         .btn-cancel { background: var(--red); color: white; }
         .btn-complete { background: var(--green); color: white; }
+        .btn-delete { background: var(--red); color: white; }
         .services-list { margin-top: 20px; }
         .service-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .service-info h4 { margin-bottom: 5px; }
@@ -62,7 +64,6 @@
         .service-actions { display: flex; gap: 10px; }
         .service-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
         .btn-edit { background: var(--lime); color: var(--dark-bg); }
-        .btn-delete { background: var(--red); color: white; }
         .day-schedule-container { margin-top: 20px; }
         .day-card { background: var(--dark-bg); padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #333; }
         .day-card.active { border-color: var(--lime); }
@@ -83,6 +84,7 @@
         .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.3; }
         .hidden { display: none !important; }
         .interval-config { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .cancelled-badge { background: var(--orange); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 10px; }
         @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
         @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .time-period { flex-wrap: wrap; } }
     </style>
@@ -209,6 +211,57 @@
         };
         const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
+        // Configurar listener em tempo real para atualizações de agendamentos
+        let realtimeChannel = null;
+
+        function setupRealtimeListener() {
+            if (realtimeChannel) {
+                supabase.removeChannel(realtimeChannel);
+            }
+
+            realtimeChannel = supabase
+                .channel('bookings-changes')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'bookings' },
+                    (payload) => {
+                        console.log('Mudança detectada:', payload);
+                        if (payload.eventType === 'DELETE') {
+                            showNotification('Um agendamento foi cancelado pelo cliente!', 'warning');
+                        }
+                        loadBookings();
+                        loadStats();
+                    }
+                )
+                .subscribe();
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${type === 'warning' ? 'var(--orange)' : 'var(--lime)'};
+                color: ${type === 'warning' ? 'white' : 'var(--dark-bg)'};
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                z-index: 1000;
+                animation: slideIn 0.3s;
+                font-weight: bold;
+                max-width: 300px;
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : 'bell'}"></i> ${message}
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -235,10 +288,14 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainContent').style.display = 'block';
             document.querySelector('.logout-btn').classList.remove('hidden');
+            setupRealtimeListener();
             loadDashboard();
         }
 
         function logout() {
+            if (realtimeChannel) {
+                supabase.removeChannel(realtimeChannel);
+            }
             supabase.auth.signOut();
             currentAdmin = null;
             document.getElementById('loginScreen').classList.remove('hidden');
@@ -297,22 +354,28 @@
                     return;
                 }
                 
-                container.innerHTML = data.map(booking => `
-                    <div class="booking-item">
-                        <div class="booking-info">
-                            <h4><i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}</h4>
-                            <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${new Date(booking.booking_date).toLocaleDateString('pt-BR')} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'Sem telefone'}</p>
-                            <p style="margin-top: 5px;"><i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0}min</p>
-                        </div>
-                        <div style="display: flex; gap: 15px; align-items: center;">
-                            <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
-                            <div class="booking-actions">
-                                ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
-                                <button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
+                container.innerHTML = data.map(booking => {
+                    const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR');
+                    
+                    return `
+                        <div class="booking-item">
+                            <div class="booking-info">
+                                <h4>
+                                    <i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}
+                                </h4>
+                                <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'Sem telefone'}</p>
+                                <p style="margin-top: 5px;"><i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0}min</p>
+                            </div>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
+                                <div class="booking-actions">
+                                    ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
+                                    <button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Erro ao carregar agendamentos:', error);
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar agendamentos</p></div>';
@@ -532,7 +595,6 @@
 
         async function saveSchedule() {
             try {
-                // Validação dos horários
                 for (let day in scheduleConfig) {
                     if (scheduleConfig[day].active) {
                         for (let period of scheduleConfig[day].periods) {
@@ -552,7 +614,6 @@
                             }
                         }
                         
-                        // Validar sobreposição de períodos
                         for (let i = 0; i < scheduleConfig[day].periods.length; i++) {
                             for (let j = i + 1; j < scheduleConfig[day].periods.length; j++) {
                                 const period1 = scheduleConfig[day].periods[i];
@@ -599,6 +660,20 @@
                 console.error('Erro completo:', error);
             }
         }
+
+        // Adicionar animações CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
 
         supabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
