@@ -97,11 +97,7 @@
         .booking-time-highlight { display: flex; align-items: center; gap: 12px; }
         .booking-time-highlight i { font-size: 32px; color: var(--lime); }
         .booking-time-highlight span { font-size: 32px; font-weight: bold; color: var(--lime); letter-spacing: 2px; }
-        .booking-actions { margin-top: 15px; display: flex; gap: 10px; }
         .booking-actions button { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s; }
-        .btn-cancel-booking { background: var(--red); color: white; }
-        .btn-cancel-booking:hover:not(:disabled) { background: #cc0000; transform: translateY(-2px); }
-        .btn-cancel-booking:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .service-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border: 2px solid transparent; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; overflow: hidden; }
         .service-item::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(196, 255, 13, 0.1), transparent); transition: left 0.5s; }
@@ -156,7 +152,6 @@
         .modal-icon.warning { color: var(--red); }
         @keyframes scaleIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         .modal-content h2 { color: var(--lime); margin-bottom: 20px; font-size: 28px; }
-        .modal-content h2.warning { color: var(--red); }
         .modal-details { background: var(--dark-bg); padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left; }
         .modal-details p { margin: 10px 0; display: flex; align-items: center; gap: 10px; font-size: 16px; }
         .modal-details strong { color: var(--lime); min-width: 100px; }
@@ -166,12 +161,6 @@
         .modal-close-btn:hover { background: var(--lime-dark); transform: translateY(-3px); box-shadow: 0 8px 25px rgba(196, 255, 13, 0.5); }
         .modal-close-btn:active { transform: translateY(-1px); }
         .modal-close-btn i { position: relative; z-index: 1; margin-right: 8px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-        .modal-actions button { flex: 1; padding: 15px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
-        .modal-btn-cancel { background: var(--text-muted); color: white; }
-        .modal-btn-confirm { background: var(--red); color: white; }
-        .modal-btn-cancel:hover { background: #666; transform: translateY(-2px); }
-        .modal-btn-confirm:hover { background: #cc0000; transform: translateY(-2px); }
         
         @media (max-width: 768px) {
             .header-cover { height: 150px; }
@@ -298,27 +287,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay hidden" id="cancelModal">
-        <div class="modal-content">
-            <div class="modal-icon warning">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h2 class="warning">Cancelar Agendamento?</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">
-                Esta ação não pode ser desfeita
-            </p>
-            <div class="modal-details" id="cancelModalDetails"></div>
-            <div class="modal-actions">
-                <button class="modal-btn-cancel" onclick="closeCancelModal()">
-                    <i class="fas fa-times"></i> Não, manter
-                </button>
-                <button class="modal-btn-confirm" onclick="confirmCancellation()">
-                    <i class="fas fa-trash"></i> Sim, cancelar
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const SUPABASE_URL = 'https://syrlmjrbecidbpvofiqa.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5cmxtanJiZWNpZGJwdm9maXFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyMzE0NDQsImV4cCI6MjA3NTgwNzQ0NH0.80whwN7m1YbwuZ8WLzek-ctWd9KNn97EwUQRzOMAnak';
@@ -335,7 +303,6 @@
         let bookedSlots = [];
         let scheduleConfig = {};
         let intervalTime = 30;
-        let bookingToCancel = null;
 
         const authScreen = document.getElementById('authScreen');
         const mainApp = document.getElementById('mainApp');
