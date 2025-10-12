@@ -547,6 +547,7 @@
                         email: email,
                         password: password,
                         options: {
+                            emailRedirectTo: undefined,
                             data: {
                                 full_name: fullName,
                                 phone: phone
@@ -570,12 +571,12 @@
                         if (insertError) {
                             console.error('Erro ao inserir usuário:', insertError);
                         }
-                    }
 
-                    alert('Cadastro realizado com sucesso! Você já pode fazer login.');
-                    isLogin = true;
-                    toggleAuth.click();
-                    authForm.reset();
+                        // Login automático após cadastro
+                        currentUser = data.user;
+                        alert('Cadastro realizado com sucesso!');
+                        showApp();
+                    }
                 } catch (error) {
                     alert('Erro ao cadastrar: ' + error.message);
                 }
@@ -735,13 +736,34 @@
                 const dateStr = selectedDate.toISOString().split('T')[0];
                 const { data, error } = await supabase
                     .from('bookings')
-                    .select('booking_time')
+                    .select('booking_time, services(duration)')
                     .eq('booking_date', dateStr)
                     .eq('status', 'confirmed');
 
                 if (error) throw error;
 
-                bookedSlots = data.map(b => b.booking_time.substring(0, 5));
+                // Calcular todos os horários bloqueados considerando a duração
+                bookedSlots = [];
+                data.forEach(booking => {
+                    const startTime = booking.booking_time.substring(0, 5);
+                    const duration = booking.services?.duration || 30;
+                    
+                    // Adicionar o horário inicial
+                    bookedSlots.push(startTime);
+                    
+                    // Adicionar horários intermediários bloqueados
+                    const [hour, minute] = startTime.split(':').map(Number);
+                    let currentMinutes = hour * 60 + minute + intervalTime;
+                    const endMinutes = hour * 60 + minute + duration;
+                    
+                    while (currentMinutes < endMinutes) {
+                        const h = Math.floor(currentMinutes / 60);
+                        const m = currentMinutes % 60;
+                        const time = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                        bookedSlots.push(time);
+                        currentMinutes += intervalTime;
+                    }
+                });
             } catch (error) {
                 console.error('Erro ao carregar horários:', error);
                 bookedSlots = [];
@@ -786,9 +808,37 @@
                 const minute = currentMinutes % 60;
                 const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                 
+                // Verificar se o horário está bloqueado
+                let isBlocked = bookedSlots.includes(time);
+                
+                // Verificar se o serviço selecionado cabe neste horário
+                // (não conflita com agendamentos futuros)
+                if (!isBlocked && selectedService) {
+                    const serviceDuration = selectedService.duration;
+                    let checkMinutes = currentMinutes + intervalTime;
+                    const serviceEndMinutes = currentMinutes + serviceDuration;
+                    
+                    while (checkMinutes < serviceEndMinutes) {
+                        const h = Math.floor(checkMinutes / 60);
+                        const m = checkMinutes % 60;
+                        const checkTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                        
+                        if (bookedSlots.includes(checkTime)) {
+                            isBlocked = true;
+                            break;
+                        }
+                        checkMinutes += intervalTime;
+                    }
+                    
+                    // Verificar se o serviço termina depois do horário de fechamento
+                    if (serviceEndMinutes > endMinutes) {
+                        isBlocked = true;
+                    }
+                }
+                
                 slots.push({
                     time: time,
-                    isBooked: bookedSlots.includes(time)
+                    isBooked: isBlocked
                 });
                 
                 currentMinutes += intervalTime;
