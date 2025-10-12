@@ -90,6 +90,13 @@
         .booking-badge.completed { background: var(--text-muted); color: white; }
         .booking-info p { color: var(--text-muted); font-size: 14px; margin: 8px 0; display: flex; align-items: center; gap: 8px; }
         .booking-info p i { color: var(--lime); width: 16px; }
+        .booking-datetime { margin: 20px 0; padding: 20px; background: rgba(196, 255, 13, 0.05); border-radius: 10px; border: 2px solid rgba(196, 255, 13, 0.2); }
+        .booking-date-highlight { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .booking-date-highlight i { font-size: 28px; color: var(--lime); }
+        .booking-date-highlight span { font-size: 18px; font-weight: 600; color: var(--lime); text-transform: capitalize; line-height: 1.4; }
+        .booking-time-highlight { display: flex; align-items: center; gap: 12px; }
+        .booking-time-highlight i { font-size: 32px; color: var(--lime); }
+        .booking-time-highlight span { font-size: 32px; font-weight: bold; color: var(--lime); letter-spacing: 2px; }
         .booking-actions { margin-top: 15px; display: flex; gap: 10px; }
         .booking-actions button { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s; }
         .btn-cancel-booking { background: var(--red); color: white; }
@@ -819,10 +826,7 @@
                         year: 'numeric'
                     });
                     
-                    const canCancel = canCancelBooking(booking.booking_date, booking.booking_time);
-                    
-                    // Armazena os dados do booking para usar depois
-                    window[`booking_${booking.id}`] = booking;
+                    const timeFormatted = booking.booking_time.substring(0, 5);
                     
                     return `
                         <div class="booking-card ${booking.status}">
@@ -833,21 +837,22 @@
                                       booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
                                 </span>
                             </div>
+                            
+                            <div class="booking-datetime">
+                                <div class="booking-date-highlight">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>${dateFormatted}</span>
+                                </div>
+                                <div class="booking-time-highlight">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${timeFormatted}</span>
+                                </div>
+                            </div>
+                            
                             <div class="booking-info">
-                                <p><i class="fas fa-calendar"></i> ${dateFormatted}</p>
-                                <p><i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
                                 <p><i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0} minutos</p>
                                 <p><i class="fas fa-money-bill-wave"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
                             </div>
-                            ${booking.status === 'confirmed' ? `
-                                <div class="booking-actions">
-                                    <button class="btn-cancel-booking" 
-                                            onclick="handleCancelClick('${booking.id}')"
-                                            ${!canCancel ? 'disabled title="Cancelamento deve ser feito com 1h de antecedência"' : ''}>
-                                        <i class="fas fa-times"></i> ${canCancel ? 'Cancelar Agendamento' : 'Não é possível cancelar'}
-                                    </button>
-                                </div>
-                            ` : ''}
                         </div>
                     `;
                 }).join('');
