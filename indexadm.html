@@ -1324,10 +1324,30 @@
                             <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
                             <p><i class="fas fa-phone"></i> ${booking.users?.phone || 'N/A'} • <i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                             <span class="booking-status status-${booking.status}">
                                 ${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
                             </span>
+                            ${booking.status === 'confirmed' ? `
+                                <button onclick="completeBooking('${booking.id}')" 
+                                    style="padding: 8px 16px; background: var(--green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(76, 175, 80, 0.4)'"
+                                    onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                                    <i class="fas fa-check"></i> Concluir
+                                </button>
+                                <button onclick="cancelBooking('${booking.id}')" 
+                                    style="padding: 8px 16px; background: var(--orange); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(255, 152, 0, 0.4)'"
+                                    onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                                    <i class="fas fa-ban"></i> Cancelar
+                                </button>
+                            ` : ''}
+                            <button onclick="deleteBooking('${booking.id}')" 
+                                style="padding: 8px 16px; background: var(--red); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px;"
+                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(255, 68, 68, 0.4)'"
+                                onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                                <i class="fas fa-trash"></i> Excluir
+                            </button>
                         </div>
                     </div>`;
                 }).join('');
@@ -1480,6 +1500,81 @@
                 logout();
             }
         });
+
+        // Função para concluir agendamento
+        async function completeBooking(bookingId) {
+            if (!bookingId) {
+                alert('ID inválido');
+                return;
+            }
+            
+            if (!confirm('Deseja marcar este agendamento como concluído?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('bookings')
+                    .update({ status: 'completed' })
+                    .eq('id', bookingId);
+                
+                if (error) throw error;
+                
+                alert('✅ Agendamento marcado como concluído!');
+                await loadDashboard();
+            } catch (error) {
+                alert('Erro ao concluir agendamento: ' + error.message);
+                console.error('Erro:', error);
+            }
+        }
+
+        // Função para cancelar agendamento
+        async function cancelBooking(bookingId) {
+            if (!bookingId) {
+                alert('ID inválido');
+                return;
+            }
+            
+            if (!confirm('⚠️ Deseja CANCELAR este agendamento?\n\nO status será alterado para "Cancelado" e o horário ficará disponível novamente.')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('bookings')
+                    .update({ status: 'cancelled' })
+                    .eq('id', bookingId);
+                
+                if (error) throw error;
+                
+                alert('✅ Agendamento cancelado com sucesso!');
+                await loadDashboard();
+            } catch (error) {
+                alert('Erro ao cancelar agendamento: ' + error.message);
+                console.error('Erro:', error);
+            }
+        }
+
+        // Função para excluir agendamento
+        async function deleteBooking(bookingId) {
+            if (!bookingId) {
+                alert('ID inválido');
+                return;
+            }
+            
+            if (!confirm('⚠️ Tem certeza que deseja EXCLUIR permanentemente este agendamento?\n\nEsta ação não pode ser desfeita!')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('bookings')
+                    .delete()
+                    .eq('id', bookingId);
+                
+                if (error) throw error;
+                
+                alert('✅ Agendamento excluído com sucesso!');
+                await loadDashboard();
+            } catch (error) {
+                alert('Erro ao excluir agendamento: ' + error.message);
+                console.error('Erro:', error);
+            }
+        }
     </script>
 </body>
 </html>
