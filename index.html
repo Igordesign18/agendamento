@@ -546,14 +546,19 @@
                 const { error } = await supabase
                     .from('bookings')
                     .delete()
-                    .eq('id', bookingId);
+                    .eq('id', bookingId)
+                    .eq('user_id', currentUser.id);
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Erro completo:', error);
+                    throw error;
+                }
 
                 alert('Agendamento cancelado com sucesso!');
-                loadMyBookings();
+                await loadMyBookings();
             } catch (error) {
                 alert('Erro ao cancelar agendamento: ' + error.message);
+                console.error('Erro ao cancelar:', error);
             }
         }
 
