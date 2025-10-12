@@ -411,19 +411,17 @@
                                 ${config.active ? '<i class="fas fa-check"></i> Aberto' : '<i class="fas fa-times"></i> Fechado'}
                             </button>
                         </div>
-                        ${config.active ? `
-                            <div class="time-periods" id="periods-${dayNum}">
-                                ${config.periods.map((period, index) => `
-                                    <div class="time-period">
-                                        <input type="time" value="${period.start}" onchange="updatePeriod(${dayNum}, ${index}, 'start', this.value)">
-                                        <span style="color: var(--text-muted);">às</span>
-                                        <input type="time" value="${period.end}" onchange="updatePeriod(${dayNum}, ${index}, 'end', this.value)">
-                                        <button onclick="removePeriod(${dayNum}, ${index})"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <button class="add-period-btn" onclick="addPeriod(${dayNum})"><i class="fas fa-plus"></i> Adicionar Período</button>
-                        ` : '<p style="color: var(--text-muted); text-align: center; padding: 10px;">Dia não disponível para agendamentos</p>'}
+                        <div class="time-periods" id="periods-${dayNum}">
+                            ${config.periods.map((period, index) => `
+                                <div class="time-period">
+                                    <input type="time" value="${period.start}" onchange="updatePeriod(${dayNum}, ${index}, 'start', this.value)" ${!config.active ? 'disabled' : ''}>
+                                    <span style="color: var(--text-muted);">às</span>
+                                    <input type="time" value="${period.end}" onchange="updatePeriod(${dayNum}, ${index}, 'end', this.value)" ${!config.active ? 'disabled' : ''}>
+                                    <button onclick="removePeriod(${dayNum}, ${index})" ${!config.active ? 'disabled' : ''}><i class="fas fa-trash"></i></button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="add-period-btn" onclick="addPeriod(${dayNum})" ${!config.active ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-plus"></i> Adicionar Período</button>
                     </div>
                 `;
             }).join('');
