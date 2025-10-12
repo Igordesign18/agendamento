@@ -628,9 +628,6 @@
             padding: 20px; 
             border-radius: 10px; 
             margin-bottom: 15px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
             border-left: 4px solid var(--lime);
             transition: all 0.3s;
         }
@@ -646,6 +643,74 @@
             color: var(--text-muted); 
             font-size: 14px; 
             margin-top: 6px;
+        }
+        .booking-date-time {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 12px 0;
+            padding: 10px;
+            background: rgba(196, 255, 13, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(196, 255, 13, 0.2);
+        }
+        .booking-date-time .date-box,
+        .booking-date-time .time-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--lime);
+        }
+        .booking-date-time i {
+            font-size: 20px;
+        }
+        .booking-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .booking-actions button {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-complete {
+            background: var(--green);
+            color: white;
+        }
+        .btn-cancel {
+            background: var(--orange);
+            color: white;
+        }
+        .btn-delete {
+            background: var(--red);
+            color: white;
+        }
+        .booking-actions button:hover {
+            transform: translateY(-2px);
+        }
+        .btn-complete:hover {
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        .btn-cancel:hover {
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+        .btn-delete:hover {
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
         }
         .booking-status { 
             padding: 6px 16px; 
@@ -696,6 +761,64 @@
             color: var(--text); 
             font-size: 15px; 
             transition: all 0.3s;
+        }
+        
+        .time-input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .time-input-box {
+            background: var(--dark-bg);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #333;
+            transition: all 0.3s;
+        }
+        
+        .time-input-box:hover {
+            border-color: var(--lime);
+        }
+        
+        .time-input-box h4 {
+            color: var(--lime);
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .time-inputs input {
+            flex: 1;
+            padding: 12px;
+            background: rgba(196, 255, 13, 0.05);
+            border: 2px solid rgba(196, 255, 13, 0.2);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .time-inputs input:focus {
+            outline: none;
+            border-color: var(--lime);
+            box-shadow: 0 0 0 3px rgba(196, 255, 13, 0.1);
+        }
+        
+        .time-inputs span {
+            color: var(--text-muted);
+            font-weight: 600;
         }
         
         .hidden { 
@@ -795,6 +918,16 @@
             .charts-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .booking-actions button {
+                min-width: 100px;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+            
+            .time-input-group {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -850,7 +983,12 @@
         <nav class="sidebar-menu">
             <div class="menu-section-title">Menu Principal</div>
             
-            <a href="#dashboard" class="menu-item active" data-section="dashboard">
+            <a href="#inicio" class="menu-item active" data-section="inicio">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            
+            <a href="#dashboard" class="menu-item" data-section="dashboard">
                 <i class="fas fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
@@ -891,8 +1029,8 @@
             </button>
             
             <div class="header-title">
-                <h2 id="pageTitle">Dashboard</h2>
-                <p id="pageSubtitle">Visão geral do sistema</p>
+                <h2 id="pageTitle">Início</h2>
+                <p id="pageSubtitle">Visão completa do sistema</p>
             </div>
             
             <div class="header-actions">
@@ -909,19 +1047,68 @@
         </header>
         
         <main class="content-area">
+            <!-- Início Section - Visão Completa -->
+            <section id="inicio" class="content-section active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check icon"></i>
+                        <h3>Agendamentos Esta Semana</h3>
+                        <div class="value" id="inicioBookings">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-dollar-sign icon"></i>
+                        <h3>Faturamento Esta Semana</h3>
+                        <div class="value" id="inicioRevenue">R$ 0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users icon"></i>
+                        <h3>Total Clientes</h3>
+                        <div class="value" id="inicioClients">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle icon"></i>
+                        <h3>Concluídos Esta Semana</h3>
+                        <div class="value" id="inicioCompleted">0</div>
+                    </div>
+                </div>
+
+                <!-- Próximos Agendamentos -->
+                <div class="card">
+                    <h3><i class="fas fa-calendar-day"></i> Próximos Agendamentos</h3>
+                    <div id="inicioUpcomingBookings">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando agendamentos...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Últimos Clientes -->
+                <div class="card">
+                    <h3><i class="fas fa-user-plus"></i> Últimos Clientes Cadastrados</h3>
+                    <div id="inicioRecentClients">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Carregando clientes...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
             <!-- Dashboard Section -->
-            <section id="dashboard" class="content-section active">
+            <section id="dashboard" class="content-section">
                 <!-- Filtro de Período -->
                 <div class="card" style="margin-bottom: 25px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <h3 style="margin: 0;"><i class="fas fa-filter"></i> Período de Análise</h3>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="period-filter-btn active" data-period="daily" onclick="changePeriod('daily')"
-                                style="padding: 10px 20px; background: var(--lime); color: var(--dark-bg); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <button class="period-filter-btn" data-period="daily" onclick="changePeriod('daily')"
+                                style="padding: 10px 20px; background: var(--dark-bg); color: var(--lime); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-calendar-day"></i> Diário
                             </button>
-                            <button class="period-filter-btn" data-period="weekly" onclick="changePeriod('weekly')"
-                                style="padding: 10px 20px; background: var(--dark-bg); color: var(--lime); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                            <button class="period-filter-btn active" data-period="weekly" onclick="changePeriod('weekly')"
+                                style="padding: 10px 20px; background: var(--lime); color: var(--dark-bg); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-calendar-week"></i> Semanal
                             </button>
                             <button class="period-filter-btn" data-period="monthly" onclick="changePeriod('monthly')"
@@ -935,12 +1122,12 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <i class="fas fa-calendar-check icon"></i>
-                        <h3 id="statsTitle1">Agendamentos Hoje</h3>
+                        <h3 id="statsTitle1">Agendamentos Esta Semana</h3>
                         <div class="value" id="periodBookings">0</div>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-dollar-sign icon"></i>
-                        <h3 id="statsTitle2">Faturamento Hoje</h3>
+                        <h3 id="statsTitle2">Faturamento Esta Semana</h3>
                         <div class="value" id="periodRevenue">R$ 0</div>
                     </div>
                     <div class="stat-card">
@@ -950,14 +1137,14 @@
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-check-circle icon"></i>
-                        <h3 id="statsTitle3">Concluídos Hoje</h3>
+                        <h3 id="statsTitle3">Concluídos Esta Semana</h3>
                         <div class="value" id="periodCompleted">0</div>
                     </div>
                 </div>
                 
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <h3 id="chartTitle"><i class="fas fa-chart-line"></i> Agendamentos por Período</h3>
+                        <h3 id="chartTitle"><i class="fas fa-chart-line"></i> Agendamentos - Últimos 7 dias</h3>
                         <div class="chart-container">
                             <canvas id="periodChart"></canvas>
                         </div>
@@ -1051,10 +1238,47 @@
             <section id="horarios" class="content-section">
                 <div class="card">
                     <h3><i class="fas fa-clock"></i> Configurar Horários de Funcionamento</h3>
-                    <div class="empty-state">
-                        <i class="fas fa-business-time"></i>
-                        <p>Em breve: Configuração de horários personalizados</p>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">
+                        <i class="fas fa-info-circle"></i> Configure os horários de abertura e fechamento para cada período do dia
+                    </p>
+                    
+                    <div class="time-input-group">
+                        <!-- Período da Manhã -->
+                        <div class="time-input-box">
+                            <h4><i class="fas fa-sun"></i> Período da Manhã</h4>
+                            <div class="time-inputs">
+                                <input type="time" id="morningStart" value="08:00">
+                                <span>às</span>
+                                <input type="time" id="morningEnd" value="12:00">
+                            </div>
+                        </div>
+                        
+                        <!-- Período da Tarde -->
+                        <div class="time-input-box">
+                            <h4><i class="fas fa-cloud-sun"></i> Período da Tarde</h4>
+                            <div class="time-inputs">
+                                <input type="time" id="afternoonStart" value="14:00">
+                                <span>às</span>
+                                <input type="time" id="afternoonEnd" value="18:00">
+                            </div>
+                        </div>
                     </div>
+
+                    <div style="padding: 20px; background: rgba(196, 255, 13, 0.05); border-radius: 10px; border: 1px solid rgba(196, 255, 13, 0.2); margin-bottom: 20px;">
+                        <h4 style="color: var(--lime); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-eye"></i> Visualização dos Horários Disponíveis
+                        </h4>
+                        <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 14px;">
+                            Horários que estarão disponíveis para agendamento (intervalos de 30 minutos):
+                        </p>
+                        <div id="horariosPreview" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <!-- Horários serão gerados aqui -->
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="saveHorarios()">
+                        <i class="fas fa-save"></i> Salvar Configurações de Horários
+                    </button>
                 </div>
             </section>
         </main>
@@ -1067,7 +1291,7 @@
         
         let currentAdmin = null;
         let charts = {};
-        let dashboardPeriod = 'daily'; // daily, weekly, monthly
+        let dashboardPeriod = 'weekly'; // daily, weekly, monthly
 
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -1147,6 +1371,7 @@
                 document.getElementById(sectionId).classList.add('active');
                 
                 const titles = {
+                    'inicio': { title: 'Início', subtitle: 'Visão completa do sistema' },
                     'dashboard': { title: 'Dashboard', subtitle: 'Visão geral do sistema' },
                     'agendamentos': { title: 'Agendamentos', subtitle: 'Gerencie todos os agendamentos' },
                     'servicos': { title: 'Serviços', subtitle: 'Gerencie os serviços oferecidos' },
@@ -1162,20 +1387,119 @@
                 }
                 
                 // Load data based on section
+                if (sectionId === 'inicio') loadInicio();
                 if (sectionId === 'agendamentos') loadBookings();
                 if (sectionId === 'servicos') loadServices();
                 if (sectionId === 'clientes') loadClients();
+                if (sectionId === 'horarios') updateHorariosPreview();
             });
         });
 
         async function loadDashboard() {
             await Promise.all([
+                loadInicio(),
                 loadStats(),
                 loadBookings(),
                 loadServices(),
                 loadClients(),
                 loadCharts()
             ]);
+        }
+
+        // Função para carregar tela inicial
+        async function loadInicio() {
+            try {
+                const today = new Date();
+                const weekAgo = new Date(today);
+                weekAgo.setDate(weekAgo.getDate() - 6);
+                const startDate = weekAgo.toISOString().split('T')[0];
+                const endDate = today.toISOString().split('T')[0];
+                
+                // Stats da semana
+                const { data: weekData } = await supabase
+                    .from('bookings')
+                    .select('*, services(price)')
+                    .gte('booking_date', startDate)
+                    .lte('booking_date', endDate);
+                
+                const weekBookings = weekData?.length || 0;
+                const weekCompleted = weekData?.filter(b => b.status === 'completed').length || 0;
+                const weekRevenue = weekData?.reduce((sum, b) => sum + (b.services?.price || 0), 0) || 0;
+                
+                document.getElementById('inicioBookings').textContent = weekBookings;
+                document.getElementById('inicioCompleted').textContent = weekCompleted;
+                document.getElementById('inicioRevenue').textContent = `R$ ${weekRevenue.toFixed(2)}`;
+                
+                // Total de clientes
+                const { count } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+                document.getElementById('inicioClients').textContent = count || 0;
+                
+                // Próximos agendamentos (próximos 5)
+                const { data: upcoming } = await supabase
+                    .from('bookings')
+                    .select('*, users(full_name, phone), services(name, price)')
+                    .eq('status', 'confirmed')
+                    .gte('booking_date', today.toISOString().split('T')[0])
+                    .order('booking_date', { ascending: true })
+                    .order('booking_time', { ascending: true })
+                    .limit(5);
+                
+                const upcomingContainer = document.getElementById('inicioUpcomingBookings');
+                if (!upcoming || upcoming.length === 0) {
+                    upcomingContainer.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-check"></i><p>Nenhum agendamento próximo</p></div>';
+                } else {
+                    upcomingContainer.innerHTML = upcoming.map(booking => {
+                        const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR');
+                        return `<div class="booking-item">
+                            <div class="booking-info">
+                                <h4><i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}</h4>
+                                <div class="booking-date-time">
+                                    <div class="date-box">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>${dateFormatted}</span>
+                                    </div>
+                                    <div class="time-box">
+                                        <i class="fas fa-clock"></i>
+                                        <span>${booking.booking_time.substring(0, 5)}</span>
+                                    </div>
+                                </div>
+                                <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'N/A'}</p>
+                            </div>
+                            <span class="booking-status status-${booking.status}">Confirmado</span>
+                        </div>`;
+                    }).join('');
+                }
+                
+                // Últimos clientes (últimos 5)
+                const { data: recentClients } = await supabase
+                    .from('users')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+                
+                const clientsContainer = document.getElementById('inicioRecentClients');
+                if (!recentClients || recentClients.length === 0) {
+                    clientsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum cliente cadastrado</p></div>';
+                } else {
+                    clientsContainer.innerHTML = recentClients.map(client => {
+                        const memberSince = new Date(client.created_at).toLocaleDateString('pt-BR');
+                        return `<div class="service-item">
+                            <div>
+                                <h4><i class="fas fa-user"></i> ${client.full_name || 'Nome não informado'}</h4>
+                                <p><i class="fas fa-envelope"></i> ${client.email} • <i class="fas fa-phone"></i> ${client.phone || 'N/A'}</p>
+                                <p style="margin-top: 8px; color: var(--text-muted); font-size: 13px;">
+                                    <i class="fas fa-user-clock"></i> Cliente desde ${memberSince}
+                                </p>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar início:', error);
+            }
         }
 
         // Função para mudar período do dashboard
@@ -1274,7 +1598,6 @@
                 const today = new Date();
                 let dates = [];
                 let labels = [];
-                let chartTitle = '';
                 
                 // Definir datas baseado no período
                 if (dashboardPeriod === 'daily') {
@@ -1462,33 +1785,40 @@
                     return `<div class="booking-item">
                         <div class="booking-info">
                             <h4><i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}</h4>
-                            <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
+                            <div class="booking-date-time">
+                                <div class="date-box">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>${dateFormatted}</span>
+                                </div>
+                                <div class="time-box">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${booking.booking_time.substring(0, 5)}</span>
+                                </div>
+                            </div>
+                            <p><i class="fas fa-cut"></i> ${booking.services?.name}</p>
                             <p><i class="fas fa-phone"></i> ${booking.users?.phone || 'N/A'} • <i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
-                        </div>
-                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                            <span class="booking-status status-${booking.status}">
+                            <span class="booking-status status-${booking.status}" style="display: inline-block; margin-top: 10px;">
                                 ${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
                             </span>
                             ${booking.status === 'confirmed' ? `
-                                <button onclick="completeBooking('${booking.id}')" 
-                                    style="padding: 8px 16px; background: var(--green); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px;"
-                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(76, 175, 80, 0.4)'"
-                                    onmouseout="this.style.transform=''; this.style.boxShadow=''">
-                                    <i class="fas fa-check"></i> Concluir
-                                </button>
-                                <button onclick="cancelBooking('${booking.id}')" 
-                                    style="padding: 8px 16px; background: var(--orange); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px;"
-                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(255, 152, 0, 0.4)'"
-                                    onmouseout="this.style.transform=''; this.style.boxShadow=''">
-                                    <i class="fas fa-ban"></i> Cancelar
-                                </button>
-                            ` : ''}
-                            <button onclick="deleteBooking('${booking.id}')" 
-                                style="padding: 8px 16px; background: var(--red); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 6px;"
-                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(255, 68, 68, 0.4)'"
-                                onmouseout="this.style.transform=''; this.style.boxShadow=''">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>
+                                <div class="booking-actions">
+                                    <button class="btn-complete" onclick="completeBooking('${booking.id}')">
+                                        <i class="fas fa-check"></i> Concluir
+                                    </button>
+                                    <button class="btn-cancel" onclick="cancelBooking('${booking.id}')">
+                                        <i class="fas fa-ban"></i> Cancelar
+                                    </button>
+                                    <button class="btn-delete" onclick="deleteBooking('${booking.id}')">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="booking-actions">
+                                    <button class="btn-delete" onclick="deleteBooking('${booking.id}')">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </div>
+                            `}
                         </div>
                     </div>`;
                 }).join('');
@@ -1625,22 +1955,95 @@
             }
         }
 
-        // Check session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                currentAdmin = session.user;
-                showAdminPanel();
+        // Funções de Horários
+        function updateHorariosPreview() {
+            const morningStart = document.getElementById('morningStart').value;
+            const morningEnd = document.getElementById('morningEnd').value;
+            const afternoonStart = document.getElementById('afternoonStart').value;
+            const afternoonEnd = document.getElementById('afternoonEnd').value;
+            
+            const preview = document.getElementById('horariosPreview');
+            const slots = [];
+            
+            // Gerar slots da manhã
+            if (morningStart && morningEnd) {
+                let current = morningStart;
+                while (current < morningEnd) {
+                    slots.push(current);
+                    // Incrementar 30 minutos
+                    const [h, m] = current.split(':').map(Number);
+                    const totalMinutes = h * 60 + m + 30;
+                    const newH = Math.floor(totalMinutes / 60);
+                    const newM = totalMinutes % 60;
+                    current = `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+                }
             }
-        });
-
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                currentAdmin = session.user;
-                showAdminPanel();
-            } else if (event === 'SIGNED_OUT') {
-                logout();
+            
+            // Gerar slots da tarde
+            if (afternoonStart && afternoonEnd) {
+                let current = afternoonStart;
+                while (current < afternoonEnd) {
+                    slots.push(current);
+                    // Incrementar 30 minutos
+                    const [h, m] = current.split(':').map(Number);
+                    const totalMinutes = h * 60 + m + 30;
+                    const newH = Math.floor(totalMinutes / 60);
+                    const newM = totalMinutes % 60;
+                    current = `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
+                }
             }
-        });
+            
+            if (slots.length === 0) {
+                preview.innerHTML = '<p style="color: var(--text-muted);">Configure os horários acima para visualizar os slots disponíveis</p>';
+            } else {
+                preview.innerHTML = slots.map(slot => 
+                    `<span style="padding: 8px 16px; background: var(--dark-bg); border: 2px solid var(--lime); border-radius: 8px; color: var(--lime); font-weight: 600; font-size: 14px;">${slot}</span>`
+                ).join('');
+            }
+        }
+        
+        // Adicionar listeners para atualizar preview em tempo real
+        setTimeout(() => {
+            ['morningStart', 'morningEnd', 'afternoonStart', 'afternoonEnd'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', updateHorariosPreview);
+                }
+            });
+            updateHorariosPreview();
+        }, 100);
+        
+        function saveHorarios() {
+            const morningStart = document.getElementById('morningStart').value;
+            const morningEnd = document.getElementById('morningEnd').value;
+            const afternoonStart = document.getElementById('afternoonStart').value;
+            const afternoonEnd = document.getElementById('afternoonEnd').value;
+            
+            if (!morningStart || !morningEnd || !afternoonStart || !afternoonEnd) {
+                alert('⚠️ Preencha todos os horários!');
+                return;
+            }
+            
+            if (morningStart >= morningEnd) {
+                alert('⚠️ Horário de fechamento da manhã deve ser maior que o de abertura!');
+                return;
+            }
+            
+            if (afternoonStart >= afternoonEnd) {
+                alert('⚠️ Horário de fechamento da tarde deve ser maior que o de abertura!');
+                return;
+            }
+            
+            if (morningEnd > afternoonStart) {
+                alert('⚠️ O horário de fechamento da manhã não pode ser depois da abertura da tarde!');
+                return;
+            }
+            
+            alert('✅ Horários salvos com sucesso!\n\n' +
+                  `🌅 Manhã: ${morningStart} às ${morningEnd}\n` +
+                  `🌤️ Tarde: ${afternoonStart} às ${afternoonEnd}\n\n` +
+                  '📌 Os horários foram configurados e estarão disponíveis para agendamento com intervalos de 30 minutos.');
+        }
 
         // Função para concluir agendamento
         async function completeBooking(bookingId) {
@@ -1716,6 +2119,23 @@
                 console.error('Erro:', error);
             }
         }
+
+        // Check session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                currentAdmin = session.user;
+                showAdminPanel();
+            }
+        });
+
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                currentAdmin = session.user;
+                showAdminPanel();
+            } else if (event === 'SIGNED_OUT') {
+                logout();
+            }
+        });
     </script>
 </body>
 </html>
