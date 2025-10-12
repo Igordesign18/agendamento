@@ -627,7 +627,11 @@
             document.getElementById('mainContent').style.display = 'block';
             document.querySelector('.logout-btn').classList.remove('hidden');
             setupRealtimeListener();
-            loadDashboard();
+            
+            // Pequeno delay para garantir que a DOM está pronta
+            setTimeout(() => {
+                loadDashboard();
+            }, 100);
         }
 
         function logout() {
@@ -714,7 +718,16 @@
             try {
                 const filterStatus = document.getElementById('filterStatus').value;
                 const filterDate = document.getElementById('filterDate').value;
-                let query = supabase.from('bookings').select('*, users(full_name, phone, email), services(name, price, duration)').order('booking_date', { ascending: true }).order('booking_time', { ascending: true });
+                
+                // Timeout de 10 segundos
+                const timeout = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 10000)
+                );
+                
+                let query = supabase.from('bookings')
+                    .select('*, users(full_name, phone, email), services(name, price, duration)')
+                    .order('booking_date', { ascending: true })
+                    .order('booking_time', { ascending: true });
                 
                 // Filtra por status - padrão é 'confirmed'
                 if (filterStatus !== 'all') {
@@ -722,12 +735,16 @@
                 }
                 
                 if (filterDate) query = query.eq('booking_date', filterDate);
-                const { data, error } = await query;
+                
+                const { data, error } = await Promise.race([query, timeout]);
+                
                 if (error) throw error;
+                
                 if (!data || data.length === 0) {
                     container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>Nenhum agendamento encontrado</p></div>';
                     return;
                 }
+                
                 container.innerHTML = data.map(booking => {
                     const date = new Date(booking.booking_date + 'T12:00:00');
                     const dateFormatted = date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
@@ -780,7 +797,16 @@
                 }).join('');
             } catch (error) {
                 console.error('Erro ao carregar agendamentos:', error);
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar agendamentos</p></div>';
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Erro ao carregar agendamentos</p>
+                        <p style="font-size: 12px; margin-top: 10px;">${error.message}</p>
+                        <button class="btn" style="margin-top: 20px; max-width: 200px;" onclick="loadBookings()">
+                            <i class="fas fa-redo"></i> Tentar Novamente
+                        </button>
+                    </div>
+                `;
             }
         }
 
