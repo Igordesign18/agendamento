@@ -911,16 +911,37 @@
         <main class="content-area">
             <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
+                <!-- Filtro de Período -->
+                <div class="card" style="margin-bottom: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <h3 style="margin: 0;"><i class="fas fa-filter"></i> Período de Análise</h3>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="period-filter-btn active" data-period="daily" onclick="changePeriod('daily')"
+                                style="padding: 10px 20px; background: var(--lime); color: var(--dark-bg); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-calendar-day"></i> Diário
+                            </button>
+                            <button class="period-filter-btn" data-period="weekly" onclick="changePeriod('weekly')"
+                                style="padding: 10px 20px; background: var(--dark-bg); color: var(--lime); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-calendar-week"></i> Semanal
+                            </button>
+                            <button class="period-filter-btn" data-period="monthly" onclick="changePeriod('monthly')"
+                                style="padding: 10px 20px; background: var(--dark-bg); color: var(--lime); border: 2px solid var(--lime); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-calendar-alt"></i> Mensal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="stats-grid">
                     <div class="stat-card">
                         <i class="fas fa-calendar-check icon"></i>
-                        <h3>Agendamentos Hoje</h3>
-                        <div class="value" id="todayBookings">0</div>
+                        <h3 id="statsTitle1">Agendamentos Hoje</h3>
+                        <div class="value" id="periodBookings">0</div>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-dollar-sign icon"></i>
-                        <h3>Faturamento Hoje</h3>
-                        <div class="value" id="todayRevenue">R$ 0</div>
+                        <h3 id="statsTitle2">Faturamento Hoje</h3>
+                        <div class="value" id="periodRevenue">R$ 0</div>
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-users icon"></i>
@@ -929,16 +950,16 @@
                     </div>
                     <div class="stat-card">
                         <i class="fas fa-check-circle icon"></i>
-                        <h3>Concluídos Hoje</h3>
-                        <div class="value" id="todayCompleted">0</div>
+                        <h3 id="statsTitle3">Concluídos Hoje</h3>
+                        <div class="value" id="periodCompleted">0</div>
                     </div>
                 </div>
                 
                 <div class="charts-grid">
                     <div class="chart-card">
-                        <h3><i class="fas fa-chart-line"></i> Agendamentos da Semana</h3>
+                        <h3 id="chartTitle"><i class="fas fa-chart-line"></i> Agendamentos por Período</h3>
                         <div class="chart-container">
-                            <canvas id="weekChart"></canvas>
+                            <canvas id="periodChart"></canvas>
                         </div>
                     </div>
                     <div class="chart-card">
@@ -1046,6 +1067,7 @@
         
         let currentAdmin = null;
         let charts = {};
+        let dashboardPeriod = 'daily'; // daily, weekly, monthly
 
         // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -1156,23 +1178,74 @@
             ]);
         }
 
+        // Função para mudar período do dashboard
+        function changePeriod(period) {
+            dashboardPeriod = period;
+            
+            // Atualizar botões
+            document.querySelectorAll('.period-filter-btn').forEach(btn => {
+                if (btn.dataset.period === period) {
+                    btn.classList.add('active');
+                    btn.style.background = 'var(--lime)';
+                    btn.style.color = 'var(--dark-bg)';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = 'var(--dark-bg)';
+                    btn.style.color = 'var(--lime)';
+                }
+            });
+            
+            // Atualizar títulos dos cards
+            const titles = {
+                daily: { stats: 'Hoje', chart: 'Últimas 24 horas' },
+                weekly: { stats: 'Esta Semana', chart: 'Últimos 7 dias' },
+                monthly: { stats: 'Este Mês', chart: 'Últimos 30 dias' }
+            };
+            
+            document.getElementById('statsTitle1').textContent = `Agendamentos ${titles[period].stats}`;
+            document.getElementById('statsTitle2').textContent = `Faturamento ${titles[period].stats}`;
+            document.getElementById('statsTitle3').textContent = `Concluídos ${titles[period].stats}`;
+            document.getElementById('chartTitle').innerHTML = `<i class="fas fa-chart-line"></i> Agendamentos - ${titles[period].chart}`;
+            
+            // Recarregar dados
+            loadStats();
+            loadCharts();
+        }
+
         async function loadStats() {
             try {
-                const today = new Date().toISOString().split('T')[0];
+                const today = new Date();
+                let startDate, endDate;
                 
-                // Agendamentos de hoje
-                const { data: todayData } = await supabase
+                // Definir período
+                if (dashboardPeriod === 'daily') {
+                    startDate = endDate = today.toISOString().split('T')[0];
+                } else if (dashboardPeriod === 'weekly') {
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 6);
+                    startDate = weekAgo.toISOString().split('T')[0];
+                    endDate = today.toISOString().split('T')[0];
+                } else { // monthly
+                    const monthAgo = new Date(today);
+                    monthAgo.setDate(monthAgo.getDate() - 29);
+                    startDate = monthAgo.toISOString().split('T')[0];
+                    endDate = today.toISOString().split('T')[0];
+                }
+                
+                // Agendamentos do período
+                const { data: periodData } = await supabase
                     .from('bookings')
                     .select('*, services(price)')
-                    .eq('booking_date', today);
+                    .gte('booking_date', startDate)
+                    .lte('booking_date', endDate);
                 
-                const todayBookings = todayData?.length || 0;
-                const todayCompleted = todayData?.filter(b => b.status === 'completed').length || 0;
-                const todayRevenue = todayData?.reduce((sum, b) => sum + (b.services?.price || 0), 0) || 0;
+                const periodBookings = periodData?.length || 0;
+                const periodCompleted = periodData?.filter(b => b.status === 'completed').length || 0;
+                const periodRevenue = periodData?.reduce((sum, b) => sum + (b.services?.price || 0), 0) || 0;
                 
-                document.getElementById('todayBookings').textContent = todayBookings;
-                document.getElementById('todayCompleted').textContent = todayCompleted;
-                document.getElementById('todayRevenue').textContent = `R$ ${todayRevenue.toFixed(2)}`;
+                document.getElementById('periodBookings').textContent = periodBookings;
+                document.getElementById('periodCompleted').textContent = periodCompleted;
+                document.getElementById('periodRevenue').textContent = `R$ ${periodRevenue.toFixed(2)}`;
                 
                 // Total de clientes
                 const { count } = await supabase
@@ -1181,7 +1254,13 @@
                 
                 document.getElementById('totalClients').textContent = count || 0;
                 
-                // Atualizar badge
+                // Atualizar badge (sempre com confirmados de hoje)
+                const todayStr = today.toISOString().split('T')[0];
+                const { data: todayData } = await supabase
+                    .from('bookings')
+                    .select('status')
+                    .eq('booking_date', todayStr);
+                
                 const confirmedToday = todayData?.filter(b => b.status === 'confirmed').length || 0;
                 document.getElementById('newBookingsBadge').textContent = confirmedToday;
                 
@@ -1192,51 +1271,99 @@
 
         async function loadCharts() {
             try {
-                // Últimos 7 dias
-                const dates = [];
-                for (let i = 6; i >= 0; i--) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    dates.push(date.toISOString().split('T')[0]);
+                const today = new Date();
+                let dates = [];
+                let labels = [];
+                let chartTitle = '';
+                
+                // Definir datas baseado no período
+                if (dashboardPeriod === 'daily') {
+                    // Últimas 24 horas (por hora)
+                    for (let i = 23; i >= 0; i--) {
+                        const hour = new Date(today);
+                        hour.setHours(today.getHours() - i);
+                        dates.push(hour);
+                        labels.push(`${String(hour.getHours()).padStart(2, '0')}:00`);
+                    }
+                } else if (dashboardPeriod === 'weekly') {
+                    // Últimos 7 dias
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(today);
+                        date.setDate(date.getDate() - i);
+                        dates.push(date);
+                        labels.push(date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+                    }
+                } else { // monthly
+                    // Últimos 30 dias
+                    for (let i = 29; i >= 0; i--) {
+                        const date = new Date(today);
+                        date.setDate(date.getDate() - i);
+                        dates.push(date);
+                        labels.push(date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+                    }
                 }
                 
-                const { data: weekData } = await supabase
+                // Buscar dados do período
+                const startDate = dates[0].toISOString().split('T')[0];
+                const endDate = dates[dates.length - 1].toISOString().split('T')[0];
+                
+                const { data: periodData } = await supabase
                     .from('bookings')
-                    .select('booking_date')
-                    .gte('booking_date', dates[0])
-                    .lte('booking_date', dates[6]);
+                    .select('booking_date, booking_time')
+                    .gte('booking_date', startDate)
+                    .lte('booking_date', endDate);
                 
-                const countsPerDay = dates.map(date => {
-                    return weekData?.filter(b => b.booking_date === date).length || 0;
-                });
+                let countsPerPeriod;
                 
-                const labels = dates.map(date => {
-                    const d = new Date(date + 'T12:00:00');
-                    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                });
+                if (dashboardPeriod === 'daily') {
+                    // Contar por hora
+                    countsPerPeriod = dates.map(date => {
+                        return periodData?.filter(b => {
+                            const bookingDate = new Date(b.booking_date + 'T' + b.booking_time);
+                            return bookingDate.getHours() === date.getHours() &&
+                                   bookingDate.getDate() === date.getDate();
+                        }).length || 0;
+                    });
+                } else {
+                    // Contar por dia
+                    countsPerPeriod = dates.map(date => {
+                        const dateStr = date.toISOString().split('T')[0];
+                        return periodData?.filter(b => b.booking_date === dateStr).length || 0;
+                    });
+                }
                 
                 // Gráfico de linha
-                const ctxWeek = document.getElementById('weekChart');
-                if (charts.week) charts.week.destroy();
+                const ctxPeriod = document.getElementById('periodChart');
+                if (charts.period) charts.period.destroy();
                 
-                charts.week = new Chart(ctxWeek, {
+                charts.period = new Chart(ctxPeriod, {
                     type: 'line',
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'Agendamentos',
-                            data: countsPerDay,
+                            data: countsPerPeriod,
                             borderColor: '#c4ff0d',
                             backgroundColor: 'rgba(196, 255, 13, 0.1)',
                             tension: 0.4,
-                            fill: true
+                            fill: true,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { display: false }
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                                padding: 12,
+                                titleColor: '#c4ff0d',
+                                bodyColor: '#fff',
+                                borderColor: '#c4ff0d',
+                                borderWidth: 1
+                            }
                         },
                         scales: {
                             y: {
@@ -1245,17 +1372,23 @@
                                 grid: { color: 'rgba(136, 136, 136, 0.1)' }
                             },
                             x: {
-                                ticks: { color: '#888' },
+                                ticks: { 
+                                    color: '#888',
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                },
                                 grid: { color: 'rgba(136, 136, 136, 0.1)' }
                             }
                         }
                     }
                 });
                 
-                // Gráfico de status
+                // Gráfico de status (baseado no período selecionado)
                 const { data: allBookings } = await supabase
                     .from('bookings')
-                    .select('status');
+                    .select('status')
+                    .gte('booking_date', startDate)
+                    .lte('booking_date', endDate);
                 
                 const confirmed = allBookings?.filter(b => b.status === 'confirmed').length || 0;
                 const completed = allBookings?.filter(b => b.status === 'completed').length || 0;
@@ -1281,6 +1414,14 @@
                             legend: {
                                 position: 'bottom',
                                 labels: { color: '#fff', padding: 15 }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(26, 26, 26, 0.95)',
+                                padding: 12,
+                                titleColor: '#c4ff0d',
+                                bodyColor: '#fff',
+                                borderColor: '#c4ff0d',
+                                borderWidth: 1
                             }
                         }
                     }
