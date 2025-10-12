@@ -285,7 +285,8 @@
                         <div style="display: flex; gap: 15px; align-items: center;">
                             <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
                             <div class="booking-actions">
-                                ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button><button class="btn-cancel" onclick="updateBookingStatus('${booking.id}', 'cancelled')"><i class="fas fa-times"></i> Cancelar</button>` : ''}
+                                ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
+                                <button class="btn-cancel" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
                             </div>
                         </div>
                     </div>
