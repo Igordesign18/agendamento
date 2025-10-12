@@ -310,6 +310,14 @@
         const authBtn = document.getElementById('authBtn');
         const toggleText = document.getElementById('toggleText');
 
+        // Função auxiliar para formatar data sem conversão de timezone
+        function formatDateToYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         // Funções de validação
         function validateEmail(email) {
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -608,30 +616,44 @@
                     return;
                 }
 
-                container.innerHTML = data.map(booking => `
-                    <div class="booking-card ${booking.status}">
-                        <div class="booking-header">
-                            <h4><i class="fas fa-scissors"></i> ${booking.services?.name || 'Serviço'}</h4>
-                            <span class="booking-badge ${booking.status}">
-                                ${booking.status === 'confirmed' ? 'Confirmado' : 
-                                  booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
-                            </span>
-                        </div>
-                        <div class="booking-info">
-                            <p><i class="fas fa-calendar"></i> ${new Date(booking.booking_date).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                            <p><i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
-                            <p><i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0} minutos</p>
-                            <p><i class="fas fa-money-bill-wave"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
-                        </div>
-                        ${booking.status === 'confirmed' ? `
-                            <div class="booking-actions">
-                                <button class="btn-cancel-booking" onclick="cancelBooking('${booking.id}')">
-                                    <i class="fas fa-times"></i> Cancelar
-                                </button>
+                container.innerHTML = data.map(booking => {
+                    // Cria a data a partir da string no formato YYYY-MM-DD
+                    const [year, month, day] = booking.booking_date.split('-').map(Number);
+                    const bookingDate = new Date(year, month - 1, day, 12, 0, 0);
+                    
+                    const dateFormatted = bookingDate.toLocaleDateString('pt-BR', { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric',
+                        timeZone: 'America/Fortaleza'
+                    });
+                    
+                    return `
+                        <div class="booking-card ${booking.status}">
+                            <div class="booking-header">
+                                <h4><i class="fas fa-scissors"></i> ${booking.services?.name || 'Serviço'}</h4>
+                                <span class="booking-badge ${booking.status}">
+                                    ${booking.status === 'confirmed' ? 'Confirmado' : 
+                                      booking.status === 'completed' ? 'Concluído' : 'Cancelado'}
+                                </span>
                             </div>
-                        ` : ''}
-                    </div>
-                `).join('');
+                            <div class="booking-info">
+                                <p><i class="fas fa-calendar"></i> ${dateFormatted}</p>
+                                <p><i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)}</p>
+                                <p><i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0} minutos</p>
+                                <p><i class="fas fa-money-bill-wave"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'}</p>
+                            </div>
+                            ${booking.status === 'confirmed' ? `
+                                <div class="booking-actions">
+                                    <button class="btn-cancel-booking" onclick="cancelBooking('${booking.id}')">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Erro ao carregar agendamentos:', error);
                 container.innerHTML = '<p style="color: var(--red); text-align: center; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Erro ao carregar agendamentos</p>';
@@ -734,13 +756,19 @@
             }
             
             for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, month, day);
-                date.setHours(0, 0, 0, 0);
+                const date = new Date(year, month, day, 12, 0, 0); // Meio-dia para evitar problemas de timezone
                 const dayOfWeek = date.getDay();
                 const isPast = date < today;
                 const isWorkingDay = scheduleConfig[dayOfWeek]?.active || false;
-                const isToday = date.toDateString() === new Date().toDateString();
-                const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+                const isToday = date.getDate() === new Date().getDate() && 
+                               date.getMonth() === new Date().getMonth() && 
+                               date.getFullYear() === new Date().getFullYear();
+                
+                const isSelected = selectedDate && 
+                                 selectedDate.getDate() === day && 
+                                 selectedDate.getMonth() === month && 
+                                 selectedDate.getFullYear() === year;
+                
                 const isDisabled = isPast || !isWorkingDay;
                 
                 html += `
@@ -773,11 +801,7 @@
 
         async function loadBookedSlots() {
             try {
-                // Formata a data corretamente sem conversão de timezone
-                const year = selectedDate.getFullYear();
-                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                const day = String(selectedDate.getDate()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${day}`;
+                const dateStr = formatDateToYYYYMMDD(selectedDate);
                 
                 const { data, error } = await supabase
                     .from('bookings')
@@ -902,9 +926,18 @@
             const container = document.getElementById('confirmBooking');
             const summary = document.getElementById('bookingSummary');
             
+            // Formata a data usando os valores locais para evitar problemas de timezone
+            const dateFormatted = selectedDate.toLocaleDateString('pt-BR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric',
+                timeZone: 'America/Fortaleza' // Força o timezone local do Brasil
+            });
+            
             summary.innerHTML = `
                 <p><strong><i class="fas fa-scissors"></i> Serviço:</strong> ${selectedService.name}</p>
-                <p><strong><i class="fas fa-calendar"></i> Data:</strong> ${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <p><strong><i class="fas fa-calendar"></i> Data:</strong> ${dateFormatted}</p>
                 <p><strong><i class="fas fa-clock"></i> Horário:</strong> ${selectedTime}</p>
                 <p><strong><i class="fas fa-money-bill-wave"></i> Valor:</strong> R$ ${selectedService.price.toFixed(2)}</p>
                 <p><strong><i class="fas fa-hourglass-half"></i> Duração:</strong> ${selectedService.duration} minutos</p>
@@ -951,11 +984,15 @@
                     await new Promise(resolve => setTimeout(resolve, 500));
                 }
                 
-                // Formata a data corretamente sem conversão de timezone
-                const year = selectedDate.getFullYear();
-                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                const day = String(selectedDate.getDate()).padStart(2, '0');
-                const dateStr = `${year}-${month}-${day}`;
+                const dateStr = formatDateToYYYYMMDD(selectedDate);
+                
+                console.log('Salvando agendamento:', {
+                    data_selecionada: selectedDate,
+                    data_formatada: dateStr,
+                    dia: selectedDate.getDate(),
+                    mes: selectedDate.getMonth() + 1,
+                    ano: selectedDate.getFullYear()
+                });
                 
                 const { data: bookingData, error } = await supabase
                     .from('bookings')
@@ -970,6 +1007,8 @@
                     .single();
 
                 if (error) throw error;
+
+                console.log('Agendamento salvo:', bookingData);
 
                 // Enviar webhook para n8n
                 try {
@@ -1009,6 +1048,15 @@
                 const modal = document.getElementById('confirmationModal');
                 const modalDetails = document.getElementById('modalDetails');
                 
+                // Formata a data usando os valores locais para evitar problemas de timezone
+                const dateFormatted = selectedDate.toLocaleDateString('pt-BR', { 
+                    weekday: 'long', 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric',
+                    timeZone: 'America/Fortaleza'
+                });
+                
                 modalDetails.innerHTML = `
                     <p>
                         <strong><i class="fas fa-scissors"></i> Serviço:</strong>
@@ -1016,7 +1064,7 @@
                     </p>
                     <p>
                         <strong><i class="fas fa-calendar"></i> Data:</strong>
-                        <span>${selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        <span>${dateFormatted}</span>
                     </p>
                     <p>
                         <strong><i class="fas fa-clock"></i> Horário:</strong>
