@@ -45,7 +45,6 @@
         .full-width { grid-column: 1 / -1; }
         .bookings-table { width: 100%; margin-top: 20px; }
         .booking-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
-        .booking-item.cancelled-by-client { border-left-color: var(--orange); }
         .booking-info h4 { margin-bottom: 5px; }
         .booking-info p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
         .booking-status { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
@@ -56,7 +55,6 @@
         .booking-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
         .btn-cancel { background: var(--red); color: white; }
         .btn-complete { background: var(--green); color: white; }
-        .btn-delete { background: var(--red); color: white; }
         .services-list { margin-top: 20px; }
         .service-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .service-info h4 { margin-bottom: 5px; }
@@ -64,6 +62,7 @@
         .service-actions { display: flex; gap: 10px; }
         .service-actions button { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
         .btn-edit { background: var(--lime); color: var(--dark-bg); }
+        .btn-delete { background: var(--red); color: white; }
         .day-schedule-container { margin-top: 20px; }
         .day-card { background: var(--dark-bg); padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 2px solid #333; }
         .day-card.active { border-color: var(--lime); }
@@ -84,34 +83,8 @@
         .empty-state i { font-size: 48px; margin-bottom: 15px; opacity: 0.3; }
         .hidden { display: none !important; }
         .interval-config { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-top: 20px; }
-        .cancelled-badge { background: var(--orange); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 10px; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--dark-card); padding: 30px; border-radius: 15px; box-shadow: 0 5px 30px rgba(196, 255, 13, 0.3); width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-header h2 { color: var(--lime); font-size: 20px; margin: 0; }
-        .close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.3s; }
-        .close-modal:hover { color: var(--lime); }
-        .client-item { background: var(--dark-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--lime); }
-        .client-item:hover { border-left-color: var(--lime-dark); }
-        .client-info h4 { margin-bottom: 5px; color: var(--text); }
-        .client-info p { color: var(--text-muted); font-size: 14px; margin-top: 3px; }
-        .client-stats { display: flex; gap: 15px; margin-top: 8px; }
-        .client-stat { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-muted); }
-        .client-actions { display: flex; gap: 10px; }
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-        }
         @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
-        @media (max-width: 768px) { 
-            .stats-grid { grid-template-columns: 1fr; } 
-            .time-period { flex-wrap: wrap; } 
-            .client-item { flex-direction: column; align-items: flex-start; gap: 15px; }
-        }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } .time-period { flex-wrap: wrap; } }
     </style>
 </head>
 <body>
@@ -207,17 +180,6 @@
             </div>
 
             <div class="card full-width">
-                <h2><i class="fas fa-users"></i> Gerenciar Clientes</h2>
-                <div class="filter-section">
-                    <input type="text" id="filterClientName" placeholder="Buscar por nome...">
-                    <button class="btn btn-secondary" onclick="loadClients()"><i class="fas fa-search"></i> Buscar</button>
-                </div>
-                <div class="services-list" id="clientsList">
-                    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando clientes...</p></div>
-                </div>
-            </div>
-
-            <div class="card full-width">
                 <h2><i class="fas fa-clock"></i> Horários de Funcionamento</h2>
                 <div class="interval-config">
                     <div class="form-group" style="margin-bottom: 0;">
@@ -228,35 +190,6 @@
                 <div class="day-schedule-container" id="dayScheduleContainer"></div>
                 <button class="btn" onclick="saveSchedule()" style="margin-top: 20px;"><i class="fas fa-save"></i> Salvar Configurações</button>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal para editar cliente -->
-    <div id="editClientModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-user-edit"></i> Editar Cliente</h2>
-                <button class="close-modal" onclick="closeEditClientModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="editClientForm">
-                <input type="hidden" id="editClientId">
-                <div class="form-group">
-                    <label>Nome Completo</label>
-                    <input type="text" id="editClientName" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="editClientEmail" required>
-                </div>
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="tel" id="editClientPhone" required placeholder="(00) 00000-0000">
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Alterações</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeEditClientModal()">Cancelar</button>
-                </div>
-            </form>
         </div>
     </div>
 
@@ -275,56 +208,6 @@
             6: { active: true, periods: [{ start: '08:00', end: '12:00' }, { start: '14:00', end: '18:00' }] }
         };
         const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-
-        let realtimeChannel = null;
-
-        function setupRealtimeListener() {
-            if (realtimeChannel) {
-                supabase.removeChannel(realtimeChannel);
-            }
-
-            realtimeChannel = supabase
-                .channel('bookings-changes')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'bookings' },
-                    (payload) => {
-                        console.log('Mudança detectada:', payload);
-                        if (payload.eventType === 'DELETE') {
-                            showNotification('Um agendamento foi cancelado pelo cliente!', 'warning');
-                        }
-                        loadBookings();
-                        loadStats();
-                    }
-                )
-                .subscribe();
-        }
-
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: ${type === 'warning' ? 'var(--orange)' : 'var(--lime)'};
-                color: ${type === 'warning' ? 'white' : 'var(--dark-bg)'};
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-                z-index: 1000;
-                animation: slideIn 0.3s;
-                font-weight: bold;
-                max-width: 300px;
-            `;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : 'bell'}"></i> ${message}
-            `;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s';
-                setTimeout(() => notification.remove(), 300);
-            }, 5000);
-        }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -352,14 +235,10 @@
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainContent').style.display = 'block';
             document.querySelector('.logout-btn').classList.remove('hidden');
-            setupRealtimeListener();
             loadDashboard();
         }
 
         function logout() {
-            if (realtimeChannel) {
-                supabase.removeChannel(realtimeChannel);
-            }
             supabase.auth.signOut();
             currentAdmin = null;
             document.getElementById('loginScreen').classList.remove('hidden');
@@ -368,7 +247,7 @@
         }
 
         async function loadDashboard() {
-            await Promise.all([loadStats(), loadBookings(), loadServices(), loadClients(), loadScheduleSettings()]);
+            await Promise.all([loadStats(), loadBookings(), loadServices(), loadScheduleSettings()]);
         }
 
         async function loadStats() {
@@ -418,28 +297,22 @@
                     return;
                 }
                 
-                container.innerHTML = data.map(booking => {
-                    const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR');
-                    
-                    return `
-                        <div class="booking-item">
-                            <div class="booking-info">
-                                <h4>
-                                    <i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}
-                                </h4>
-                                <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${dateFormatted} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'Sem telefone'}</p>
-                                <p style="margin-top: 5px;"><i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0}min</p>
-                            </div>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
-                                <div class="booking-actions">
-                                    ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
-                                    <button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
-                                </div>
+                container.innerHTML = data.map(booking => `
+                    <div class="booking-item">
+                        <div class="booking-info">
+                            <h4><i class="fas fa-user"></i> ${booking.users?.full_name || 'Cliente'}</h4>
+                            <p><i class="fas fa-cut"></i> ${booking.services?.name} • <i class="fas fa-calendar"></i> ${new Date(booking.booking_date).toLocaleDateString('pt-BR')} • <i class="fas fa-clock"></i> ${booking.booking_time.substring(0, 5)} • <i class="fas fa-phone"></i> ${booking.users?.phone || 'Sem telefone'}</p>
+                            <p style="margin-top: 5px;"><i class="fas fa-dollar-sign"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half"></i> ${booking.services?.duration || 0}min</p>
+                        </div>
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <span class="booking-status status-${booking.status}">${booking.status === 'confirmed' ? 'Confirmado' : booking.status === 'completed' ? 'Concluído' : 'Cancelado'}</span>
+                            <div class="booking-actions">
+                                ${booking.status === 'confirmed' ? `<button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')"><i class="fas fa-check"></i> Concluir</button>` : ''}
+                                <button class="btn-delete" onclick="deleteBooking('${booking.id}')"><i class="fas fa-trash"></i> Excluir</button>
                             </div>
                         </div>
-                    `;
-                }).join('');
+                    </div>
+                `).join('');
             } catch (error) {
                 console.error('Erro ao carregar agendamentos:', error);
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar agendamentos</p></div>';
@@ -586,185 +459,6 @@
             }
         }
 
-        async function loadClients() {
-            const container = document.getElementById('clientsList');
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando clientes...</p></div>';
-            
-            try {
-                const filterName = document.getElementById('filterClientName').value.toLowerCase();
-                
-                let query = supabase
-                    .from('users')
-                    .select('id, full_name, email, phone, created_at')
-                    .order('created_at', { ascending: false });
-                
-                const { data: users, error } = await query;
-                if (error) throw error;
-                
-                let filteredUsers = users;
-                if (filterName) {
-                    filteredUsers = users.filter(user => 
-                        user.full_name?.toLowerCase().includes(filterName)
-                    );
-                }
-                
-                if (!filteredUsers || filteredUsers.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum cliente encontrado</p></div>';
-                    return;
-                }
-                
-                const clientsWithStats = await Promise.all(filteredUsers.map(async (user) => {
-                    const { data: bookings } = await supabase
-                        .from('bookings')
-                        .select('id, status')
-                        .eq('user_id', user.id);
-                    
-                    const totalBookings = bookings?.length || 0;
-                    const completedBookings = bookings?.filter(b => b.status === 'completed').length || 0;
-                    
-                    return { ...user, totalBookings, completedBookings };
-                }));
-                
-                container.innerHTML = clientsWithStats.map(client => {
-                    const memberSince = new Date(client.created_at).toLocaleDateString('pt-BR');
-                    
-                    return `
-                        <div class="client-item">
-                            <div class="client-info">
-                                <h4><i class="fas fa-user"></i> ${client.full_name || 'Nome não informado'}</h4>
-                                <p><i class="fas fa-envelope"></i> ${client.email}</p>
-                                <p><i class="fas fa-phone"></i> ${client.phone || 'Telefone não informado'}</p>
-                                <div class="client-stats">
-                                    <span class="client-stat">
-                                        <i class="fas fa-calendar-check"></i> 
-                                        ${client.totalBookings} agendamento${client.totalBookings !== 1 ? 's' : ''}
-                                    </span>
-                                    <span class="client-stat">
-                                        <i class="fas fa-check-circle"></i> 
-                                        ${client.completedBookings} concluído${client.completedBookings !== 1 ? 's' : ''}
-                                    </span>
-                                    <span class="client-stat">
-                                        <i class="fas fa-user-clock"></i> 
-                                        Cliente desde ${memberSince}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="client-actions">
-                                <button class="btn-edit" onclick="openEditClientModal('${client.id}')">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button class="btn-delete" onclick="deleteClient('${client.id}')">
-                                    <i class="fas fa-trash"></i> Excluir
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Erro ao carregar clientes:', error);
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar clientes</p></div>';
-            }
-        }
-
-        async function openEditClientModal(clientId) {
-            try {
-                const { data: client, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('id', clientId)
-                    .single();
-                
-                if (error) throw error;
-                
-                document.getElementById('editClientId').value = client.id;
-                document.getElementById('editClientName').value = client.full_name || '';
-                document.getElementById('editClientEmail').value = client.email || '';
-                document.getElementById('editClientPhone').value = client.phone || '';
-                
-                document.getElementById('editClientModal').classList.remove('hidden');
-            } catch (error) {
-                alert('Erro ao carregar dados do cliente: ' + error.message);
-            }
-        }
-
-        function closeEditClientModal() {
-            document.getElementById('editClientModal').classList.add('hidden');
-            document.getElementById('editClientForm').reset();
-        }
-
-        document.getElementById('editClientForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const clientId = document.getElementById('editClientId').value;
-            const fullName = document.getElementById('editClientName').value.trim();
-            const email = document.getElementById('editClientEmail').value.trim();
-            const phone = document.getElementById('editClientPhone').value.trim();
-            
-            if (!fullName || fullName.length < 3) {
-                alert('Nome deve ter pelo menos 3 caracteres!');
-                return;
-            }
-            
-            if (!email || !email.includes('@')) {
-                alert('Email inválido!');
-                return;
-            }
-            
-            if (!phone || phone.length < 10) {
-                alert('Telefone inválido!');
-                return;
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .update({
-                        full_name: fullName,
-                        email: email,
-                        phone: phone
-                    })
-                    .eq('id', clientId);
-                
-                if (error) throw error;
-                
-                alert('Cliente atualizado com sucesso!');
-                closeEditClientModal();
-                loadClients();
-                loadStats();
-            } catch (error) {
-                alert('Erro ao atualizar cliente: ' + error.message);
-            }
-        });
-
-        async function deleteClient(clientId) {
-            if (!confirm('Tem certeza que deseja excluir este cliente? Esta ação irá excluir todos os agendamentos associados e não pode ser desfeita!')) {
-                return;
-            }
-            
-            try {
-                const { error: bookingsError } = await supabase
-                    .from('bookings')
-                    .delete()
-                    .eq('user_id', clientId);
-                
-                if (bookingsError) throw bookingsError;
-                
-                const { error: userError } = await supabase
-                    .from('users')
-                    .delete()
-                    .eq('id', clientId);
-                
-                if (userError) throw userError;
-                
-                alert('Cliente excluído com sucesso!');
-                loadClients();
-                loadStats();
-            } catch (error) {
-                alert('Erro ao excluir cliente: ' + error.message);
-                console.error('Erro completo:', error);
-            }
-        }
-
         async function loadScheduleSettings() {
             try {
                 const { data } = await supabase.from('settings').select('*').in('key', ['schedule_config', 'interval_time']);
@@ -838,6 +532,7 @@
 
         async function saveSchedule() {
             try {
+                // Validação dos horários
                 for (let day in scheduleConfig) {
                     if (scheduleConfig[day].active) {
                         for (let period of scheduleConfig[day].periods) {
@@ -857,6 +552,7 @@
                             }
                         }
                         
+                        // Validar sobreposição de períodos
                         for (let i = 0; i < scheduleConfig[day].periods.length; i++) {
                             for (let j = i + 1; j < scheduleConfig[day].periods.length; j++) {
                                 const period1 = scheduleConfig[day].periods[i];
