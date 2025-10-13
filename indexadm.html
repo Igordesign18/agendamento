@@ -432,41 +432,6 @@
             grid-column: 1 / -1; 
         }
         
-        /* Priority Section for New Bookings */
-        .priority-section {
-            background: linear-gradient(135deg, rgba(196, 255, 13, 0.1), rgba(196, 255, 13, 0.05));
-            border: 2px solid var(--lime);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 30px rgba(196, 255, 13, 0.2);
-        }
-
-        .priority-section h2 {
-            color: var(--lime);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 22px;
-        }
-
-        .priority-badge {
-            background: var(--lime);
-            color: var(--dark-bg);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
         /* Booking Styles */
         .bookings-table { 
             width: 100%; 
@@ -485,11 +450,6 @@
         .booking-item:hover { 
             transform: translateX(5px); 
             box-shadow: 0 5px 20px rgba(196, 255, 13, 0.15); 
-        }
-
-        .booking-item.priority {
-            border-left: 4px solid var(--orange);
-            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05));
         }
         
         .booking-main { 
@@ -1181,7 +1141,7 @@
                 <div class="stat-card" onclick="toggleStatCard(this)" role="button" tabindex="0" aria-expanded="false">
                     <div class="stat-header">
                         <div>
-                            <h3>Faturamento Total</h3>
+                            <h3>Faturamento</h3>
                             <div class="stat-value" id="periodRevenue">R$ 0</div>
                         </div>
                         <div>
@@ -1222,34 +1182,13 @@
             </div>
         </div>
 
-        <!-- Priority Section for New Bookings -->
-        <div class="priority-section">
-            <h2>
-                <i class="fas fa-star" aria-hidden="true"></i> 
-                Novos Agendamentos
-                <span class="priority-badge">PRIORIDADE</span>
-            </h2>
-            <div class="filter-section">
-                <input type="date" id="filterDatePriority" aria-label="Filtrar por data">
-                <button class="btn btn-secondary" onclick="loadPriorityBookings()">
-                    <i class="fas fa-search" aria-hidden="true"></i> Filtrar
-                </button>
-            </div>
-            <div class="bookings-table" id="priorityBookingsTable" role="region" aria-label="Lista de novos agendamentos">
-                <div class="empty-state">
-                    <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
-                    <p>Carregando novos agendamentos...</p>
-                </div>
-            </div>
-        </div>
-
         <div class="content-grid">
             <div class="card full-width">
-                <h2><i class="fas fa-calendar-alt" aria-hidden="true"></i> Todos os Agendamentos</h2>
+                <h2><i class="fas fa-calendar-alt" aria-hidden="true"></i> Agendamentos de Hoje</h2>
                 <div class="filter-section">
                     <select id="filterStatus" aria-label="Filtrar por status">
+                        <option value="confirmed">Novos Agendamentos</option>
                         <option value="all">Todos os Status</option>
-                        <option value="confirmed">Confirmados</option>
                         <option value="completed">Concluídos</option>
                         <option value="cancelled">Cancelados</option>
                     </select>
@@ -1533,7 +1472,6 @@
                         showNotification('Um agendamento foi cancelado pelo cliente!', 'warning');
                     }
                     loadBookings();
-                    loadPriorityBookings();
                     if (document.getElementById('dashboardContainer').classList.contains('active')) {
                         loadStats();
                     }
@@ -1587,20 +1525,24 @@
 
         async function loadDashboard() {
             try {
-                await Promise.all([loadBookings(), loadPriorityBookings(), loadServices(), loadClients(), loadScheduleSettings()]);
+                // Definir a data de hoje como padrão no filtro
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('filterDate').value = today;
+                
+                await Promise.all([loadBookings(), loadServices(), loadClients(), loadScheduleSettings()]);
             } catch (error) {
                 console.error('Erro ao carregar dashboard:', error);
                 showNotification('Erro ao carregar dados do dashboard', 'error');
             }
         }
 
-        // Statistics Functions - FIXED REVENUE CALCULATION
+        // Statistics Functions
         async function loadStats(customStart = null, customEnd = null) {
             try {
                 const { startDate, endDate } = customStart && customEnd ? 
                     { startDate: customStart, endDate: customEnd } : getPeriodDates();
                 
-                // Period bookings
+                // Period bookings - CORRIGIDO: Incluir apenas confirmed e completed no faturamento
                 const { data: periodData } = await supabase
                     .from('bookings')
                     .select('*, services(name, price)')
@@ -1618,29 +1560,22 @@
                     <div class="detail-item"><span>Cancelados</span><span>${cancelled}</span></div>
                 `;
                 
-                // FIXED: Revenue calculation - include ALL bookings with services, not just confirmed/completed
-                const totalRevenue = periodData?.reduce((sum, booking) => {
-                    const servicePrice = booking.services?.price || 0;
-                    return sum + servicePrice;
-                }, 0) || 0;
-
-                const confirmedRevenue = periodData?.filter(b => b.status === 'confirmed')
-                    .reduce((sum, booking) => sum + (booking.services?.price || 0), 0) || 0;
+                // Revenue - CORRIGIDO: Calcular apenas com confirmed e completed
+                const confirmedBookings = periodData?.filter(b => b.status === 'confirmed') || [];
+                const completedBookings = periodData?.filter(b => b.status === 'completed') || [];
+                const revenueBookings = [...confirmedBookings, ...completedBookings];
                 
-                const completedRevenue = periodData?.filter(b => b.status === 'completed')
-                    .reduce((sum, booking) => sum + (booking.services?.price || 0), 0) || 0;
-
-                const cancelledRevenue = periodData?.filter(b => b.status === 'cancelled')
-                    .reduce((sum, booking) => sum + (booking.services?.price || 0), 0) || 0;
-
-                const avgTicket = periodData?.length ? (totalRevenue / periodData.length) : 0;
+                const revenue = revenueBookings.reduce((sum, booking) => sum + (booking.services?.price || 0), 0);
+                const avgTicket = revenueBookings.length ? (revenue / revenueBookings.length) : 0;
                 
-                document.getElementById('periodRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+                const confirmedRevenue = confirmedBookings.reduce((s, b) => s + (b.services?.price || 0), 0);
+                const completedRevenue = completedBookings.reduce((s, b) => s + (b.services?.price || 0), 0);
+                
+                document.getElementById('periodRevenue').textContent = `R$ ${revenue.toFixed(2)}`;
                 document.getElementById('revenueDetails').innerHTML = `
                     <div class="detail-item"><span>Ticket Médio</span><span>R$ ${avgTicket.toFixed(2)}</span></div>
                     <div class="detail-item"><span>Confirmados</span><span>R$ ${confirmedRevenue.toFixed(2)}</span></div>
                     <div class="detail-item"><span>Concluídos</span><span>R$ ${completedRevenue.toFixed(2)}</span></div>
-                    <div class="detail-item"><span>Cancelados</span><span>R$ ${cancelledRevenue.toFixed(2)}</span></div>
                 `;
                 
                 // Unique clients
@@ -1671,104 +1606,35 @@
             }
         }
 
-        // Priority Bookings - Show only new/confirmed bookings
-        async function loadPriorityBookings() {
-            const container = document.getElementById('priorityBookingsTable');
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i><p>Carregando...</p></div>';
-            
-            try {
-                const filterDate = document.getElementById('filterDatePriority').value;
-                let query = supabase.from('bookings')
-                    .select('*, users(full_name, phone, email), services(name, price, duration)')
-                    .eq('status', 'confirmed') // Only show confirmed bookings
-                    .order('booking_date', { ascending: true })
-                    .order('booking_time', { ascending: true });
-                
-                if (filterDate) query = query.eq('booking_date', filterDate);
-                
-                const { data, error } = await query;
-                if (error) throw error;
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-star" aria-hidden="true"></i><p>Nenhum novo agendamento encontrado</p></div>';
-                    return;
-                }
-                
-                container.innerHTML = data.map(booking => {
-                    const date = new Date(booking.booking_date + 'T12:00:00');
-                    const dateDayMonth = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-                    const timeFormatted = booking.booking_time.substring(0, 5);
-                    
-                    return `
-                        <div class="booking-item priority">
-                            <div class="booking-main">
-                                <div class="booking-client">
-                                    <h4><i class="fas fa-user" aria-hidden="true"></i> ${booking.users?.full_name || 'Cliente'}</h4>
-                                    <p><i class="fas fa-cut" aria-hidden="true"></i> ${booking.services?.name}</p>
-                                    <p><i class="fas fa-phone" aria-hidden="true"></i> ${booking.users?.phone || 'Sem telefone'}</p>
-                                    <p><i class="fas fa-dollar-sign" aria-hidden="true"></i> R$ ${booking.services?.price?.toFixed(2) || '0.00'} • <i class="fas fa-hourglass-half" aria-hidden="true"></i> ${booking.services?.duration || 0}min</p>
-                                </div>
-                                <span class="booking-status status-confirmed">
-                                    Novo Agendamento
-                                </span>
-                            </div>
-                            
-                            <div class="booking-datetime-highlight">
-                                <div class="datetime-box">
-                                    <div class="datetime-label">Data</div>
-                                    <div class="datetime-value">${dateDayMonth.toUpperCase()}</div>
-                                </div>
-                                <div class="datetime-separator">•</div>
-                                <div class="datetime-box">
-                                    <div class="datetime-label">Horário</div>
-                                    <div class="datetime-value">${timeFormatted}</div>
-                                </div>
-                            </div>
-                            
-                            <div class="booking-footer">
-                                <div class="booking-actions">
-                                    <button class="btn-cancel" onclick="updateBookingStatus('${booking.id}', 'cancelled')" aria-label="Cancelar agendamento">
-                                        <i class="fas fa-times-circle" aria-hidden="true"></i> Cancelar
-                                    </button>
-                                    <button class="btn-complete" onclick="updateBookingStatus('${booking.id}', 'completed')" aria-label="Concluir agendamento">
-                                        <i class="fas fa-check" aria-hidden="true"></i> Concluir
-                                    </button>
-                                    <button class="btn-delete" onclick="deleteBooking('${booking.id}')" aria-label="Excluir agendamento">
-                                        <i class="fas fa-trash" aria-hidden="true"></i> Excluir
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Erro ao carregar agendamentos prioritários:', error);
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i><p>Erro ao carregar agendamentos</p></div>';
-                showNotification('Erro ao carregar agendamentos prioritários', 'error');
-            }
-        }
-
-        // Booking Management Functions
+        // Booking Management Functions - MODIFICADO: Filtrar por data atual por padrão
         async function loadBookings() {
             const container = document.getElementById('bookingsTable');
             container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i><p>Carregando...</p></div>';
             
             try {
                 const filterStatus = document.getElementById('filterStatus').value;
-                const filterDate = document.getElementById('filterDate').value;
+                let filterDate = document.getElementById('filterDate').value;
+                
+                // Se não há data selecionada, usar a data atual
+                if (!filterDate) {
+                    const today = new Date().toISOString().split('T')[0];
+                    filterDate = today;
+                    document.getElementById('filterDate').value = today;
+                }
+                
                 let query = supabase.from('bookings')
                     .select('*, users(full_name, phone, email), services(name, price, duration)')
-                    .order('booking_date', { ascending: true })
+                    .eq('booking_date', filterDate) // SEMPRE filtrar pela data
                     .order('booking_time', { ascending: true });
                 
                 if (filterStatus !== 'all') query = query.eq('status', filterStatus);
-                if (filterDate) query = query.eq('booking_date', filterDate);
                 
                 const { data, error } = await query;
                 if (error) throw error;
                 
                 if (!data || data.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar" aria-hidden="true"></i><p>Nenhum agendamento encontrado</p></div>';
+                    const dateFormatted = new Date(filterDate + 'T12:00:00').toLocaleDateString('pt-BR');
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar" aria-hidden="true"></i><p>Nenhum agendamento encontrado para ${dateFormatted}</p></div>`;
                     return;
                 }
                 
@@ -1843,7 +1709,6 @@
                 
                 showNotification(`Agendamento ${status === 'completed' ? 'concluído' : 'cancelado'} com sucesso!`, 'success');
                 loadBookings();
-                loadPriorityBookings();
                 if (document.getElementById('dashboardContainer').classList.contains('active')) {
                     loadStats();
                 }
@@ -1866,7 +1731,6 @@
                 
                 showNotification('Agendamento excluído com sucesso!', 'success');
                 loadBookings();
-                loadPriorityBookings();
                 if (document.getElementById('dashboardContainer').classList.contains('active')) {
                     loadStats();
                 }
