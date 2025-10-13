@@ -373,7 +373,7 @@
         <!-- Expandable Bookings Section -->
         <div class="expandable-bookings">
             <button class="bookings-expand-button" onclick="toggleBookings()">
-                <span><i class="fas fa-calendar-check"></i> Meus Agendamentos</span>
+                <span><i class="fas fa-calendar-check"></i> Meus Agendamentos Futuros</span>
                 <span class="bookings-expand-icon" id="bookingsExpandIcon">▼</span>
             </button>
             <div class="bookings-expandable-content" id="bookingsExpandableContent">
@@ -520,6 +520,20 @@
         const toggleText = document.getElementById('toggleText');
         const phoneInput = document.getElementById('phone');
         const profileBtn = document.getElementById('profileBtn');
+
+        // Função para verificar se um agendamento é futuro
+        function isFutureBooking(bookingDate, bookingTime) {
+            const now = new Date();
+            const bookingDateTime = new Date(bookingDate + 'T' + bookingTime);
+            return bookingDateTime > now;
+        }
+
+        // Função para verificar se um horário já passou
+        function isTimeSlotPassed(date, time) {
+            const now = new Date();
+            const slotDateTime = new Date(date + 'T' + time);
+            return slotDateTime <= now;
+        }
 
         // Toggle Bookings Function
         function toggleBookings() {
@@ -1019,8 +1033,8 @@
                     .from('bookings')
                     .select('*, services(name, price, duration)')
                     .eq('user_id', currentUser.id)
-                    .order('booking_date', { ascending: false })
-                    .order('booking_time', { ascending: false });
+                    .order('booking_date', { ascending: true })
+                    .order('booking_time', { ascending: true });
 
                 if (error) throw error;
 
@@ -1029,7 +1043,18 @@
                     return;
                 }
 
-                container.innerHTML = data.map((booking) => {
+                // Filtrar apenas agendamentos futuros
+                const futureBookings = data.filter(booking => 
+                    isFutureBooking(booking.booking_date, booking.booking_time) && 
+                    booking.status === 'confirmed'
+                );
+
+                if (futureBookings.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Você não possui agendamentos futuros</p>';
+                    return;
+                }
+
+                container.innerHTML = futureBookings.map((booking) => {
                     const dateFormatted = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('pt-BR', { 
                         weekday: 'long', 
                         day: 'numeric', 
@@ -1250,6 +1275,8 @@
 
             if (!dayConfig || !dayConfig.active) return slots;
 
+            const selectedDateStr = formatDateToYYYYMMDD(selectedDate);
+
             for (let period of dayConfig.periods) {
                 const [openHour, openMin] = period.start.split(':').map(Number);
                 const [closeHour, closeMin] = period.end.split(':').map(Number);
@@ -1262,7 +1289,10 @@
                     const minute = currentMinutes % 60;
                     const time = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                     
-                    let isBlocked = bookedSlots.includes(time);
+                    // Verificar se o horário já passou
+                    const isTimePassed = isTimeSlotPassed(selectedDateStr, time + ':00');
+                    
+                    let isBlocked = bookedSlots.includes(time) || isTimePassed;
                     
                     if (!isBlocked && selectedService) {
                         const serviceDuration = selectedService.duration;
@@ -1274,7 +1304,7 @@
                             const m = checkMinutes % 60;
                             const checkTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
                             
-                            if (bookedSlots.includes(checkTime)) {
+                            if (bookedSlots.includes(checkTime) || isTimeSlotPassed(selectedDateStr, checkTime + ':00')) {
                                 isBlocked = true;
                                 break;
                             }
