@@ -8,6 +8,7 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { 
             margin: 0; 
@@ -25,6 +26,7 @@
             --red: #ff4444; 
             --orange: #ff9800; 
             --green: #4caf50;
+            --whatsapp: #25D366;
             --border-radius: 8px;
             --transition: all 0.3s ease;
             --shadow: 0 3px 20px rgba(0, 0, 0, 0.3);
@@ -404,6 +406,38 @@
             color: var(--lime); 
             font-weight: bold; 
         }
+
+        /* Charts Section */
+        .charts-section {
+            margin: 30px 0;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: var(--dark-card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--lime);
+        }
+
+        .chart-container h3 {
+            color: var(--lime);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .chart-canvas {
+            position: relative;
+            height: 300px;
+        }
         
         /* Content Grid */
         .content-grid { 
@@ -560,7 +594,7 @@
             flex-wrap: wrap; 
         }
         
-        .booking-actions button { 
+        .booking-actions button, .booking-actions a { 
             flex: 1; 
             min-width: 120px; 
             padding: 10px 15px; 
@@ -574,6 +608,7 @@
             align-items: center; 
             justify-content: center; 
             gap: 6px; 
+            text-decoration: none;
         }
         
         .btn-cancel { 
@@ -604,6 +639,16 @@
         .btn-delete:hover { 
             background: #cc0000; 
             transform: translateY(-2px); 
+        }
+
+        .btn-whatsapp {
+            background: var(--whatsapp);
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
         }
         
         .btn-edit { 
@@ -948,6 +993,9 @@
             .booking-main { 
                 flex-direction: column; 
             }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
         }
         
         @media (max-width: 768px) { 
@@ -975,7 +1023,7 @@
             .booking-actions { 
                 flex-direction: column; 
             }
-            .booking-actions button { 
+            .booking-actions button, .booking-actions a { 
                 min-width: 100%; 
             }
             .period-selector { 
@@ -1180,6 +1228,48 @@
                     <div class="stat-details" id="servicesDetails"></div>
                 </div>
             </div>
+
+            <!-- Seção de Gráficos -->
+            <div class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-calendar-week" aria-hidden="true"></i> Dias Mais Agendados</h3>
+                        <div class="chart-canvas">
+                            <canvas id="daysChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-clock" aria-hidden="true"></i> Horários Mais Procurados</h3>
+                        <div class="chart-canvas">
+                            <canvas id="hoursChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-cut" aria-hidden="true"></i> Serviços Mais Solicitados</h3>
+                        <div class="chart-canvas">
+                            <canvas id="servicesChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Faturamento Mensal</h3>
+                        <div class="chart-canvas">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-user-tie" aria-hidden="true"></i> Performance por Barbeiro</h3>
+                        <div class="chart-canvas">
+                            <canvas id="barbersChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <h3><i class="fas fa-percentage" aria-hidden="true"></i> Taxa de Cancelamento</h3>
+                        <div class="chart-canvas">
+                            <canvas id="cancellationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="content-grid">
@@ -1310,6 +1400,10 @@
         };
         const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
+        // Variáveis para os gráficos
+        let chartsInitialized = false;
+        let charts = {};
+
         // Utility Functions
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
@@ -1354,9 +1448,10 @@
             btn.classList.toggle('active');
             btn.setAttribute('aria-expanded', !isActive);
             
-            // Load statistics only when opening for the first time
+            // Load statistics and charts only when opening for the first time
             if (!isActive && !container.dataset.loaded) {
                 loadStats();
+                initializeCharts();
                 container.dataset.loaded = 'true';
             }
         }
@@ -1376,6 +1471,7 @@
                 showCustomPeriodModal();
             } else {
                 loadStats();
+                updateCharts();
             }
         }
 
@@ -1434,6 +1530,7 @@
                 }
                 
                 loadStats(startDate, endDate);
+                updateCharts(startDate, endDate);
                 modal.remove();
             });
         }
@@ -1474,6 +1571,7 @@
                     loadBookings();
                     if (document.getElementById('dashboardContainer').classList.contains('active')) {
                         loadStats();
+                        updateCharts();
                     }
                 }).subscribe();
         }
@@ -1606,6 +1704,256 @@
             }
         }
 
+        // Charts Functions
+        function initializeCharts() {
+            if (chartsInitialized) return;
+            
+            // Configurações padrão dos gráficos
+            const defaultOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { color: '#888888' },
+                        grid: { color: '#333333' }
+                    },
+                    y: {
+                        ticks: { color: '#888888' },
+                        grid: { color: '#333333' },
+                        beginAtZero: true
+                    }
+                }
+            };
+
+            // Gráfico de Dias Mais Agendados
+            const daysCtx = document.getElementById('daysChart').getContext('2d');
+            charts.daysChart = new Chart(daysCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                    datasets: [{
+                        label: 'Agendamentos',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(196, 255, 13, 0.8)',
+                        borderColor: 'rgba(196, 255, 13, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: defaultOptions
+            });
+
+            // Gráfico de Horários Mais Procurados
+            const hoursCtx = document.getElementById('hoursChart').getContext('2d');
+            charts.hoursChart = new Chart(hoursCtx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+                    datasets: [{
+                        label: 'Agendamentos por Horário',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(39, 174, 96, 0.2)',
+                        borderColor: 'rgba(39, 174, 96, 1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: defaultOptions
+            });
+
+            // Gráfico de Serviços Mais Solicitados
+            const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+            charts.servicesChart = new Chart(servicesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            'rgba(196, 255, 13, 0.8)',
+                            'rgba(39, 174, 96, 0.8)',
+                            'rgba(243, 156, 18, 0.8)',
+                            'rgba(231, 76, 60, 0.8)',
+                            'rgba(155, 89, 182, 0.8)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de Faturamento Mensal
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            charts.revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [{
+                        label: 'Faturamento (R$)',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(243, 156, 18, 0.2)',
+                        borderColor: 'rgba(243, 156, 18, 1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: defaultOptions
+            });
+
+            // Gráfico de Performance dos Barbeiros
+            const barbersCtx = document.getElementById('barbersChart').getContext('2d');
+            charts.barbersChart = new Chart(barbersCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Yuri Kelven'],
+                    datasets: [{
+                        label: 'Agendamentos',
+                        data: [0],
+                        backgroundColor: 'rgba(155, 89, 182, 0.8)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: defaultOptions
+            });
+
+            // Gráfico de Taxa de Cancelamento
+            const cancellationCtx = document.getElementById('cancellationChart').getContext('2d');
+            charts.cancellationChart = new Chart(cancellationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Taxa de Cancelamento (%)',
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: defaultOptions
+            });
+
+            chartsInitialized = true;
+            updateCharts();
+        }
+
+        async function updateCharts(customStart = null, customEnd = null) {
+            if (!chartsInitialized) return;
+
+            try {
+                const { startDate, endDate } = customStart && customEnd ? 
+                    { startDate: customStart, endDate: customEnd } : getPeriodDates();
+
+                // Buscar dados dos agendamentos
+                const { data: bookingsData } = await supabase
+                    .from('bookings')
+                    .select('*, services(name, price)')
+                    .gte('booking_date', startDate)
+                    .lte('booking_date', endDate);
+
+                if (!bookingsData) return;
+
+                // Atualizar gráfico de dias
+                const daysCounts = [0, 0, 0, 0, 0, 0, 0];
+                bookingsData.forEach(booking => {
+                    const dayOfWeek = new Date(booking.booking_date + 'T12:00:00').getDay();
+                    daysCounts[dayOfWeek]++;
+                });
+                charts.daysChart.data.datasets[0].data = daysCounts;
+                charts.daysChart.update();
+
+                // Atualizar gráfico de horários
+                const hoursCounts = {};
+                bookingsData.forEach(booking => {
+                    const hour = booking.booking_time.substring(0, 2) + ':00';
+                    hoursCounts[hour] = (hoursCounts[hour] || 0) + 1;
+                });
+                const hoursData = ['08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00']
+                    .map(hour => hoursCounts[hour] || 0);
+                charts.hoursChart.data.datasets[0].data = hoursData;
+                charts.hoursChart.update();
+
+                // Atualizar gráfico de serviços
+                const servicesCounts = {};
+                bookingsData.forEach(booking => {
+                    const serviceName = booking.services?.name || 'Desconhecido';
+                    servicesCounts[serviceName] = (servicesCounts[serviceName] || 0) + 1;
+                });
+                const topServices = Object.entries(servicesCounts).slice(0, 5);
+                charts.servicesChart.data.labels = topServices.map(([name]) => name);
+                charts.servicesChart.data.datasets[0].data = topServices.map(([, count]) => count);
+                charts.servicesChart.update();
+
+                // Atualizar gráfico de faturamento mensal
+                const monthlyRevenue = {};
+                bookingsData.forEach(booking => {
+                    if (booking.status === 'confirmed' || booking.status === 'completed') {
+                        const month = booking.booking_date.substring(0, 7);
+                        monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (booking.services?.price || 0);
+                    }
+                });
+                
+                const currentYear = new Date().getFullYear();
+                const revenueData = [];
+                for (let i = 0; i < 12; i++) {
+                    const month = `${currentYear}-${(i + 1).toString().padStart(2, '0')}`;
+                    revenueData.push(monthlyRevenue[month] || 0);
+                }
+                charts.revenueChart.data.datasets[0].data = revenueData;
+                charts.revenueChart.update();
+
+                // Atualizar gráfico de performance dos barbeiros (assumindo apenas Yuri Kelven)
+                charts.barbersChart.data.datasets[0].data = [bookingsData.length];
+                charts.barbersChart.update();
+
+                // Atualizar gráfico de taxa de cancelamento
+                const cancellationData = {};
+                bookingsData.forEach(booking => {
+                    const month = booking.booking_date.substring(0, 7);
+                    if (!cancellationData[month]) {
+                        cancellationData[month] = { total: 0, cancelled: 0 };
+                    }
+                    cancellationData[month].total++;
+                    if (booking.status === 'cancelled') {
+                        cancellationData[month].cancelled++;
+                    }
+                });
+
+                const cancellationRates = [];
+                for (let i = 0; i < 6; i++) {
+                    const month = `${currentYear}-${(i + 1).toString().padStart(2, '0')}`;
+                    const data = cancellationData[month];
+                    const rate = data ? (data.cancelled / data.total * 100) : 0;
+                    cancellationRates.push(rate);
+                }
+                charts.cancellationChart.data.datasets[0].data = cancellationRates;
+                charts.cancellationChart.update();
+
+            } catch (error) {
+                console.error('Erro ao atualizar gráficos:', error);
+            }
+        }
+
         // Booking Management Functions - MODIFICADO: Filtrar por data atual por padrão
         async function loadBookings() {
             const container = document.getElementById('bookingsTable');
@@ -1642,6 +1990,12 @@
                     const date = new Date(booking.booking_date + 'T12:00:00');
                     const dateDayMonth = date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
                     const timeFormatted = booking.booking_time.substring(0, 5);
+                    
+                    // Formatar número de telefone para WhatsApp (remover caracteres especiais)
+                    const phoneNumber = booking.users?.phone ? booking.users.phone.replace(/\D/g, '') : '';
+                    const whatsappLink = phoneNumber ? 
+                        `https://wa.me/55${phoneNumber}?text=Olá ${booking.users?.full_name || 'cliente'}, aqui é da Barbearia Yuri Kelven! Entrando em contato sobre seu agendamento de ${dateDayMonth} às ${timeFormatted}.` : 
+                        '#';
                     
                     return `
                         <div class="booking-item">
@@ -1682,6 +2036,11 @@
                                     <button class="btn-delete" onclick="deleteBooking('${booking.id}')" aria-label="Excluir agendamento">
                                         <i class="fas fa-trash" aria-hidden="true"></i> Excluir
                                     </button>
+                                    ${phoneNumber ? `
+                                        <a href="${whatsappLink}" class="btn-whatsapp" target="_blank" aria-label="Conversar no WhatsApp">
+                                            <i class="fab fa-whatsapp" aria-hidden="true"></i> Chat
+                                        </a>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -1711,6 +2070,7 @@
                 loadBookings();
                 if (document.getElementById('dashboardContainer').classList.contains('active')) {
                     loadStats();
+                    updateCharts();
                 }
             } catch (error) {
                 showNotification('Erro ao atualizar status: ' + error.message, 'error');
@@ -1733,6 +2093,7 @@
                 loadBookings();
                 if (document.getElementById('dashboardContainer').classList.contains('active')) {
                     loadStats();
+                    updateCharts();
                 }
             } catch (error) {
                 showNotification('Erro ao excluir agendamento: ' + error.message, 'error');
@@ -1977,6 +2338,7 @@
                 loadClients();
                 if (document.getElementById('dashboardContainer').classList.contains('active')) {
                     loadStats();
+                    updateCharts();
                 }
             } catch (error) {
                 showNotification('Erro ao atualizar cliente: ' + error.message, 'error');
@@ -1997,6 +2359,7 @@
                 loadClients();
                 if (document.getElementById('dashboardContainer').classList.contains('active')) {
                     loadStats();
+                    updateCharts();
                 }
             } catch (error) {
                 showNotification('Erro ao excluir cliente: ' + error.message, 'error');
