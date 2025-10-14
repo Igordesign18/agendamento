@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Barbearia BarberSync</title>
-    <meta name="description" content="Painel administrativo da Barbearia Yuri Kelven">
+    <meta name="description" content="Painel administrativo da Barbearia BarberSync">
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1111,7 +1111,7 @@
                     <i class="fas fa-user" aria-hidden="true"></i>
                 </div>
                 <div>
-                    <h1>Yuri Kelven <span class="admin-badge">ADMIN</span></h1>
+                    <h1>BarberSync <span class="admin-badge">ADMIN</span></h1>
                     <p style="color: var(--text-muted); font-size: 14px;">Painel Administrativo</p>
                 </div>
             </div>
@@ -1824,7 +1824,7 @@
             charts.barbersChart = new Chart(barbersCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Yuri Kelven'],
+                    labels: ['BarberSync'],
                     datasets: [{
                         label: 'Agendamentos',
                         data: [0],
@@ -1922,7 +1922,7 @@
                 charts.revenueChart.data.datasets[0].data = revenueData;
                 charts.revenueChart.update();
 
-                // Atualizar gráfico de performance dos barbeiros (assumindo apenas Yuri Kelven)
+                // Atualizar gráfico de performance dos barbeiros (assumindo apenas BarberSync)
                 charts.barbersChart.data.datasets[0].data = [bookingsData.length];
                 charts.barbersChart.update();
 
@@ -1994,7 +1994,7 @@
                     // Formatar número de telefone para WhatsApp (remover caracteres especiais)
                     const phoneNumber = booking.users?.phone ? booking.users.phone.replace(/\D/g, '') : '';
                     const whatsappLink = phoneNumber ? 
-                        `https://wa.me/55${phoneNumber}?text=Olá ${booking.users?.full_name || 'cliente'}, aqui é da Barbearia Yuri Kelven! Entrando em contato sobre seu agendamento de ${dateDayMonth} às ${timeFormatted}.` : 
+                        `https://wa.me/55${phoneNumber}?text=Olá ${booking.users?.full_name || 'cliente'}, aqui é da Barbearia BarberSync! Entrando em contato sobre seu agendamento de ${dateDayMonth} às ${timeFormatted}.` : 
                         '#';
                     
                     return `
@@ -2545,4 +2545,5 @@
     </script>
 </body>
 </html>
+
 
