@@ -1189,7 +1189,7 @@
                 <div class="stat-card" onclick="toggleStatCard(this)" role="button" tabindex="0" aria-expanded="false">
                     <div class="stat-header">
                         <div>
-                            <h3>Faturamento</h3>
+                            <h3>Faturamento (Apenas Concluídos)</h3>
                             <div class="stat-value" id="periodRevenue">R$ 0</div>
                         </div>
                         <div>
@@ -1634,13 +1634,13 @@
             }
         }
 
-        // Statistics Functions
+        // Statistics Functions - MODIFICADO: Faturamento apenas com agendamentos concluídos
         async function loadStats(customStart = null, customEnd = null) {
             try {
                 const { startDate, endDate } = customStart && customEnd ? 
                     { startDate: customStart, endDate: customEnd } : getPeriodDates();
                 
-                // Period bookings - CORRIGIDO: Incluir apenas confirmed e completed no faturamento
+                // Period bookings
                 const { data: periodData } = await supabase
                     .from('bookings')
                     .select('*, services(name, price)')
@@ -1658,22 +1658,17 @@
                     <div class="detail-item"><span>Cancelados</span><span>${cancelled}</span></div>
                 `;
                 
-                // Revenue - CORRIGIDO: Calcular apenas com confirmed e completed
-                const confirmedBookings = periodData?.filter(b => b.status === 'confirmed') || [];
+                // Revenue - MODIFICADO: Calcular apenas com agendamentos concluídos
                 const completedBookings = periodData?.filter(b => b.status === 'completed') || [];
-                const revenueBookings = [...confirmedBookings, ...completedBookings];
                 
-                const revenue = revenueBookings.reduce((sum, booking) => sum + (booking.services?.price || 0), 0);
-                const avgTicket = revenueBookings.length ? (revenue / revenueBookings.length) : 0;
-                
-                const confirmedRevenue = confirmedBookings.reduce((s, b) => s + (b.services?.price || 0), 0);
-                const completedRevenue = completedBookings.reduce((s, b) => s + (b.services?.price || 0), 0);
+                const revenue = completedBookings.reduce((sum, booking) => sum + (booking.services?.price || 0), 0);
+                const avgTicket = completedBookings.length ? (revenue / completedBookings.length) : 0;
                 
                 document.getElementById('periodRevenue').textContent = `R$ ${revenue.toFixed(2)}`;
                 document.getElementById('revenueDetails').innerHTML = `
                     <div class="detail-item"><span>Ticket Médio</span><span>R$ ${avgTicket.toFixed(2)}</span></div>
-                    <div class="detail-item"><span>Confirmados</span><span>R$ ${confirmedRevenue.toFixed(2)}</span></div>
-                    <div class="detail-item"><span>Concluídos</span><span>R$ ${completedRevenue.toFixed(2)}</span></div>
+                    <div class="detail-item"><span>Agendamentos Concluídos</span><span>${completed}</span></div>
+                    <div class="detail-item"><span>Cancelados (Sem Faturamento)</span><span>${cancelled}</span></div>
                 `;
                 
                 // Unique clients
@@ -1800,14 +1795,14 @@
                 }
             });
 
-            // Gráfico de Faturamento Mensal
+            // Gráfico de Faturamento Mensal - MODIFICADO: Apenas agendamentos concluídos
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');
             charts.revenueChart = new Chart(revenueCtx, {
                 type: 'line',
                 data: {
                     labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
                     datasets: [{
-                        label: 'Faturamento (R$)',
+                        label: 'Faturamento (R$) - Apenas Concluídos',
                         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                         backgroundColor: 'rgba(243, 156, 18, 0.2)',
                         borderColor: 'rgba(243, 156, 18, 1)',
@@ -1904,10 +1899,10 @@
                 charts.servicesChart.data.datasets[0].data = topServices.map(([, count]) => count);
                 charts.servicesChart.update();
 
-                // Atualizar gráfico de faturamento mensal
+                // Atualizar gráfico de faturamento mensal - MODIFICADO: Apenas agendamentos concluídos
                 const monthlyRevenue = {};
                 bookingsData.forEach(booking => {
-                    if (booking.status === 'confirmed' || booking.status === 'completed') {
+                    if (booking.status === 'completed') {
                         const month = booking.booking_date.substring(0, 7);
                         monthlyRevenue[month] = (monthlyRevenue[month] || 0) + (booking.services?.price || 0);
                     }
@@ -2545,5 +2540,3 @@
     </script>
 </body>
 </html>
-
-
